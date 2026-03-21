@@ -5,10 +5,10 @@ import { createApp, h } from 'vue';
 import '../css/app.css';
 import { initializeTheme } from '@/composables/useAppearance';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Portfolio';
 
 createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
+    title: (title) => (title ? `${title}` : appName),
     resolve: (name) =>
         resolvePageComponent(
             `./pages/${name}.vue`,

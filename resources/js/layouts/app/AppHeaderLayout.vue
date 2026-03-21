@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppContent from '@/components/AppContent.vue';
-import AppHeader from '@/components/AppHeader.vue';
 import AppShell from '@/components/AppShell.vue';
+import Navbar from '@/components/ui/landing-page/Navbar.vue';
 import type { BreadcrumbItem } from '@/types';
 
 type Props = {
@@ -15,7 +15,7 @@ withDefaults(defineProps<Props>(), {
 
 <template>
     <AppShell variant="header">
-        <AppHeader :breadcrumbs="breadcrumbs" />
+        <Navbar />
         <AppContent variant="header">
             <slot />
         </AppContent>
