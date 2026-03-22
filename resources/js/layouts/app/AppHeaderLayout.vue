@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppContent from '@/components/AppContent.vue';
 import AppShell from '@/components/AppShell.vue';
+import Footer from '@/components/Footer.vue';
 import Navbar from '@/components/ui/landing-page/Navbar.vue';
 import type { BreadcrumbItem } from '@/types';
 
@@ -19,5 +20,6 @@ withDefaults(defineProps<Props>(), {
         <AppContent variant="header">
             <slot />
         </AppContent>
+        <Footer />
     </AppShell>
 </template>

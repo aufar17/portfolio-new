@@ -27,17 +27,17 @@ const { resolvedAppearance, updateAppearance } = useAppearance();
 const baseUrl = '/landing-page';
 
 const mainNavItems: NavItem[] = [
-    { title: 'Home', href: `${baseUrl}#home`, section: 'home', icon: House },
-    { title: 'About', href: `${baseUrl}#about`, section: 'about', icon: User },
+    { title: 'Home', href: `#home`, section: 'home', icon: House },
+    { title: 'About', href: `#about`, section: 'about', icon: User },
     {
         title: 'Project',
-        href: `${baseUrl}#project`,
+        href: `#project`,
         section: 'project',
         icon: FolderGit,
     },
     {
         title: 'Contact',
-        href: `${baseUrl}#contact`,
+        href: `#contact`,
         section: 'contact',
         icon: ContactRound,
     },

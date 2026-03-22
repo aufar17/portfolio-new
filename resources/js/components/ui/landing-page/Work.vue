@@ -24,7 +24,7 @@ const workHistory = [
 </script>
 <template>
     <section
-        class="relative rounded-3xl border border-black/10 bg-white/20 p-8 shadow-xl backdrop-blur-xl md:p-12 dark:border-white/10 dark:bg-white/5 dark:shadow-none"
+        class="relative rounded-xl border border-black/10 bg-white/20 p-8 shadow-xl backdrop-blur-xl md:p-12 dark:border-white/10 dark:bg-white/5 dark:shadow-none"
     >
         <h2
             class="mb-16 text-center text-3xl font-extrabold tracking-tight text-gray-900 md:text-5xl dark:text-gray-100"

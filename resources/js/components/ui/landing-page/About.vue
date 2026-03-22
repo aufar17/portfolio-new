@@ -11,6 +11,14 @@ const stats = [
     { value: 5, suffix: '+', title: 'Awards & Certs' },
 ];
 
+type Tab = 'education' | 'work';
+
+const activeTab = ref<Tab>('work');
+const tabs: { id: Tab; label: string; icon?: any }[] = [
+    { id: 'work', label: 'Work', icon: BriefcaseBusiness },
+    { id: 'education', label: 'Education', icon: GraduationCap },
+];
+
 const animatedStats = ref(stats.map(() => 0));
 const aboutSection = ref<HTMLElement | null>(null);
 let observer: IntersectionObserver | null = null;
@@ -55,7 +63,7 @@ onMounted(() => {
                 observer?.disconnect();
             }
         },
-        { threshold: 0.4 },
+        { threshold: 0.2, rootMargin: '0px 0px -100px 0px' },
     );
 
     if (aboutSection.value) {
@@ -66,15 +74,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
     observer?.disconnect();
 });
-
-type Tab = 'education' | 'work';
-
-const activeTab = ref<Tab>('work');
-
-const tabs: { id: Tab; label: string; icon?: any }[] = [
-    { id: 'work', label: 'Work', icon: BriefcaseBusiness },
-    { id: 'education', label: 'Education', icon: GraduationCap },
-];
 </script>
 
 <template>
@@ -84,7 +83,7 @@ const tabs: { id: Tab; label: string; icon?: any }[] = [
         class="relative flex flex-col items-center justify-center px-6 py-28"
     >
         <div
-            class="w-full max-w-7xl rounded-3xl border border-black/10 bg-white/20 p-8 shadow-xl backdrop-blur-xl md:p-12 dark:border-white/10 dark:bg-white/5 dark:shadow-none"
+            class="w-full max-w-7xl rounded-xl border border-black/10 bg-white/20 p-8 shadow-xl backdrop-blur-xl md:p-12 dark:border-white/10 dark:bg-white/5 dark:shadow-none"
         >
             <div
                 class="pointer-events-none absolute -top-20 -left-20 h-60 w-60 rounded-full bg-primary/20 blur-3xl"
@@ -97,7 +96,6 @@ const tabs: { id: Tab; label: string; icon?: any }[] = [
             </div>
 
             <div class="grid gap-10 md:grid-cols-[1fr_2fr]">
-                <!-- Foto (kiri) -->
                 <div class="relative flex justify-center md:justify-start">
                     <div
                         class="absolute -top-10 -left-10 h-40 w-40 rounded-full bg-primary/30 blur-3xl"
@@ -149,7 +147,7 @@ const tabs: { id: Tab; label: string; icon?: any }[] = [
                             :key="item.title"
                         >
                             <div
-                                class="flex w-full flex-1 flex-col items-start md:items-center md:text-center"
+                                class="flex w-full flex-1 flex-col items-start sm:text-center md:items-center md:text-center"
                             >
                                 <p
                                     class="text-3xl font-bold text-primary sm:text-4xl md:text-4xl"

@@ -7,6 +7,10 @@ import type { BreadcrumbItem } from '@/types';
 import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
 import Hero from '@/components/ui/landing-page/Hero.vue';
 import About from '@/components/ui/landing-page/About.vue';
+import Projects from '@/components/ui/landing-page/Projects.vue';
+import Contact from '@/components/ui/landing-page/Contact.vue';
+import Card from '@/components/ui/card/Card.vue';
+import Footer from '@/components/Footer.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,7 +24,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Portfolio  " />
 
     <LandingPageLayout :breadcrumbs="breadcrumbs">
-        <Hero></Hero>
-        <About></About>
+        <Hero />
+        <About />
+        <Projects />
+        <Contact />
     </LandingPageLayout>
 </template>
