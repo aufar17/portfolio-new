@@ -14,7 +14,6 @@ import FileUpload from 'primevue/fileupload';
 import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
 import DialogForm from '@/components/admin/DialogForm.vue';
 import { useProjectScript } from '@/script/admin/projects';
-import Toast from 'primevue/toast';
 import ToggleSwitch from 'primevue/toggleswitch';
 import Dialog from 'primevue/dialog';
 
@@ -32,6 +31,12 @@ const {
     isDelete,
     form,
     globalFields,
+    techModalVisible,
+    imageModalVisible,
+    selectedTech,
+    selectedImage,
+    openTechModal,
+    openImageModal,
     openCreate,
     openEdit,
     openDelete,
@@ -40,6 +45,7 @@ const {
     submit,
     deleteProject,
     handleFile,
+    toggleStatus,
 } = useProjectScript(props.projects);
 </script>
 
@@ -110,18 +116,24 @@ const {
 
                     <Column field="associate" header="Associate" sortable />
                     <Column field="link" header="Link" sortable />
-
                     <Column header="Tech Stack">
                         <template #body="{ data }">
-                            <div class="flex flex-wrap gap-2">
-                                <span
-                                    v-for="tech in data.tech_list"
-                                    :key="tech"
-                                    class="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary dark:bg-white/70"
-                                >
-                                    {{ tech ?? '-' }}
-                                </span>
-                            </div>
+                            <Button
+                                label="View"
+                                icon="pi pi-eye"
+                                size="small"
+                                @click="openTechModal(data.tech_list)"
+                            />
+                        </template>
+                    </Column>
+                    <Column header="Tech Stack">
+                        <template #body="{ data }">
+                            <Button
+                                label="Image"
+                                icon="pi pi-image"
+                                size="small"
+                                @click="openImageModal(data.image)"
+                            />
                         </template>
                     </Column>
                     <Column field="status" header="Status">
@@ -129,7 +141,7 @@ const {
                             <ToggleSwitch
                                 :modelValue="data.status === 1"
                                 @update:modelValue="
-                                    (val) => (data.status = val ? 1 : 0)
+                                    (val) => toggleStatus(data, val)
                                 "
                             />
                         </template>
@@ -160,6 +172,7 @@ const {
             </div>
         </div>
 
+        <!-- FORM MODAL -->
         <DialogForm
             maximizable
             v-model:visible="visible"
@@ -280,6 +293,8 @@ const {
                 </div>
             </form>
         </DialogForm>
+
+        <!-- DELETE MODAL -->
         <Dialog v-model:visible="isDelete" header="Delete Project" modal>
             <p>Are you sure you want to delete this project?</p>
 
@@ -298,6 +313,52 @@ const {
                     @click="deleteProject"
                 />
             </template>
+        </Dialog>
+
+        <!-- TECH MODAL -->
+        <Dialog
+            v-model:visible="techModalVisible"
+            header="Tech Stack"
+            modal
+            :style="{ width: '30rem' }"
+        >
+            <div class="flex flex-wrap gap-2">
+                <span
+                    v-for="tech in selectedTech"
+                    :key="tech"
+                    class="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary shadow-lg transition-all duration-200 hover:scale-105 hover:bg-primary/20 dark:border-white/20 dark:bg-white/10 dark:text-white"
+                >
+                    {{ tech }}
+                </span>
+
+                <span
+                    v-if="!selectedTech.length"
+                    class="text-sm text-muted-foreground dark:text-gray-400"
+                >
+                    No tech stack
+                </span>
+            </div>
+        </Dialog>
+
+        <!-- IMAGE MODAL -->
+        <Dialog
+            v-model:visible="imageModalVisible"
+            modal
+            :closable="true"
+            header="Image"
+            contentClass="p-0 bg-transparent shadow-none"
+            :pt="{
+                mask: { class: 'bg-black/80 backdrop-blur-sm' },
+            }"
+        >
+            <img
+                v-if="selectedImage"
+                :src="`/storage/${selectedImage}`"
+                alt="image"
+                class="block max-h-[70vh] max-w-[70vw] rounded-lg object-contain shadow-2xl"
+            />
+
+            <span v-else class="text-white">No image</span>
         </Dialog>
     </AppLayout>
 </template>

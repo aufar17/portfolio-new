@@ -6,6 +6,7 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProjectsAdminService
 {
@@ -33,7 +34,12 @@ class ProjectsAdminService
             if ($request->hasFile('image')) {
                 $file = $request->file('image');
 
-                $path = $file->store('projects', 'public');
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $file->getClientOriginalExtension();
+
+                $fileName = Str::slug($originalName) . '.' . $extension;
+
+                $path = $file->storeAs('projects', $fileName, 'public');
 
                 $data['image'] = $path;
                 $data['image_name'] = $file->getClientOriginalName();
@@ -69,7 +75,12 @@ class ProjectsAdminService
                 }
 
                 $file = $request->file('image');
-                $path = $file->store('projects', 'public');
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $file->getClientOriginalExtension();
+
+                $fileName = Str::slug($originalName) . '.' . $extension;
+
+                $path = $file->storeAs('projects', $fileName, 'public');
 
                 $data['image'] = $path;
                 $data['image_name'] = $file->getClientOriginalName();
@@ -101,6 +112,22 @@ class ProjectsAdminService
             $delete = $project->delete();
             DB::commit();
             return $delete;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+    public function updateStatus(Request $request, $id)
+    {
+        $project = Project::findOrFail($id);
+
+        DB::beginTransaction();
+        try {
+            $status = $project->update([
+                'status' => $request->status
+            ]);
+            DB::commit();
+            return $status;
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;

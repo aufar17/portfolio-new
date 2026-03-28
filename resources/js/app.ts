@@ -12,7 +12,7 @@ import 'primeicons/primeicons.css';
 const appName = import.meta.env.VITE_APP_NAME || 'Portfolio';
 
 createInertiaApp({
-    title: (title) => (title ? `${title}` : appName),
+    title: (title) => (title ? `${title}` : 'Portfolio'),
     resolve: (name) =>
         resolvePageComponent(
             `./pages/${name}.vue`,

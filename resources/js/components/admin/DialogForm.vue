@@ -4,6 +4,7 @@ import Dialog from 'primevue/dialog';
 const props = defineProps({
     visible: Boolean,
     title: String,
+    width: String,
 });
 
 const emit = defineEmits(['update:visible']);
@@ -15,7 +16,7 @@ const emit = defineEmits(['update:visible']);
         @update:visible="(val) => emit('update:visible', val)"
         :header="title"
         modal
-        :style="{ width: '70rem' }"
+        :style="{ width: width ?? '70rem' }"
         :breakpoints="{
             '1199px': '75vw',
             '575px': '90vw',

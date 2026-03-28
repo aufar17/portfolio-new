@@ -5,11 +5,23 @@ export function useProjectScript(projects: any) {
     const route = window.route;
 
     const visible = ref(false);
+    const techModalVisible = ref(false);
+    const imageModalVisible = ref(false);
     const mode = ref<'create' | 'edit'>('create');
-    const selectedData = ref<any>(null);
-    const isDelete = ref(false);
-
     const excluded = ['id', 'created_at', 'updated_at'];
+    const isDelete = ref(false);
+    const selectedData = ref<any>(null);
+    const selectedTech = ref<string[]>([]);
+    const selectedImage = ref<string[]>([]);
+
+    const openTechModal = (tech: string[]) => {
+        selectedTech.value = tech || [];
+        techModalVisible.value = true;
+    };
+    const openImageModal = (image: string[]) => {
+        selectedImage.value = image || [];
+        imageModalVisible.value = true;
+    };
 
     const globalFields = computed(() => {
         if (!projects.data.length) return [];
@@ -115,13 +127,30 @@ export function useProjectScript(projects: any) {
         });
     };
 
+    const toggleStatus = (data: any, val: boolean) => {
+        const newStatus = val ? 1 : 0;
+
+        useForm({ status: newStatus }).put(route('update-status', data.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                data.status = newStatus;
+            },
+        });
+    };
+
     return {
         visible,
         mode,
         selectedData,
+        imageModalVisible,
+        techModalVisible,
+        selectedTech,
+        selectedImage,
         isDelete,
         globalFields,
         form,
+        openTechModal,
+        openImageModal,
         handleFile,
         openCreate,
         openEdit,
@@ -130,5 +159,6 @@ export function useProjectScript(projects: any) {
         closeDialogDelete,
         submit,
         deleteProject,
+        toggleStatus,
     };
 }

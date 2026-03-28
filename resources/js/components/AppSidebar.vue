@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import {
     BookOpen,
+    Flower,
     FolderGit2,
     LayoutGrid,
     MonitorSmartphone,
@@ -21,7 +22,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard, landingPage, projectsAdmin } from '@/routes';
+import { dashboard, landingPage, projectsAdmin, skillsAdmin } from '@/routes';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -40,18 +41,10 @@ const mainNavItems: NavItem[] = [
         href: projectsAdmin().url,
         icon: ProjectorIcon,
     },
-];
-
-const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
+        title: 'Skills',
+        href: skillsAdmin().url,
+        icon: Flower,
     },
 ];
 </script>
@@ -75,7 +68,6 @@ const footerNavItems: NavItem[] = [
         </SidebarContent>
 
         <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
             <NavUser />
         </SidebarFooter>
     </Sidebar>

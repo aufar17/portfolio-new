@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ProjectsAdminService;
+use App\Services\SkillAdminService;
 use Illuminate\Http\Request;
 
-class ProjectController extends Controller
+class SkillController extends Controller
 {
     protected $service;
 
-    public function __construct(ProjectsAdminService $service)
+    public function __construct(SkillAdminService $service)
     {
         $this->service = $service;
     }
@@ -27,10 +27,5 @@ class ProjectController extends Controller
     {
         $this->service->delete($id);
         return back()->with('success', 'Project deleted successfully');
-    }
-    public function updateStatus(Request $request, $id)
-    {
-        $this->service->updateStatus($request, $id);
-        return back()->with('success', 'Project updated status successfully');
     }
 }
