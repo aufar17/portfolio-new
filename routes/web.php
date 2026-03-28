@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AwardController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SkillController;
@@ -16,6 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [MainController::class, 'dashboard'])->name('dashboard');
     Route::get('projects-admin', [MainController::class, 'projectsAdmin'])->name('projects-admin');
     Route::get('skills-admin', [MainController::class, 'skillsAdmin'])->name('skills-admin');
+    Route::get('awards-admin', [MainController::class, 'awardsAdmin'])->name('awards-admin');
 
 
     //Projects Admin
@@ -24,10 +26,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('delete-project/{id}', [ProjectController::class, 'delete'])->name('delete-project');
     Route::put('update-status/{id}', [ProjectController::class, 'updateStatus'])->name('update-status');
 
-    //Projects Admin
+    //Skills Admin
     Route::post('create-skill', [SkillController::class, 'create'])->name('create-skill');
     Route::put('update-skill/{id}', [SkillController::class, 'update'])->name('update-skill');
     Route::delete('delete-skill/{id}', [SkillController::class, 'delete'])->name('delete-skill');
+
+    //Skills Admin
+    Route::post('create-award', [AwardController::class, 'create'])->name('create-award');
+    Route::put('update-award/{id}', [AwardController::class, 'update'])->name('update-award');
+    Route::delete('delete-award/{id}', [AwardController::class, 'delete'])->name('delete-award');
 });
 
 require __DIR__ . '/settings.php';

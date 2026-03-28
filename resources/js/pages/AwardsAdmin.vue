@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { skillsAdmin } from '@/routes';
+import { awardsAdmin } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
 import Column from 'primevue/column';
 import IconField from 'primevue/iconfield';
@@ -14,18 +14,23 @@ import Dialog from 'primevue/dialog';
 import { useSkillScript } from '@/script/admin/skill';
 import RadioButton from 'primevue/radiobutton';
 import FileUpload from 'primevue/fileupload';
+import { useAwardScript } from '@/script/admin/awards';
+import Textarea from 'primevue/textarea';
+import DatePicker from 'primevue/datepicker';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Skills', href: skillsAdmin().url },
+    { title: 'Awards', href: awardsAdmin().url },
 ];
 
 const props = defineProps({
-    skills: Object,
+    awards: Object,
 });
 
 const {
     visible,
+    photoModalVisible,
     mode,
+    selectedPhoto,
     isDelete,
     form,
     globalFields,
@@ -33,11 +38,12 @@ const {
     openCreate,
     openEdit,
     openDelete,
+    openPhotoModal,
     closeDialogForm,
     closeDialogDelete,
     submit,
     deleteProject,
-} = useSkillScript(props.skills);
+} = useAwardScript(props.awards);
 </script>
 
 <template>
@@ -49,11 +55,11 @@ const {
                 <h2
                     class="m-2 text-xl font-semibold text-primary dark:text-white"
                 >
-                    Skills Data
+                    Awards Data
                 </h2>
                 <BasedDataTable
-                    :value="skills?.data || []"
-                    :totalRecords="skills?.total || 0"
+                    :value="awards?.data || []"
+                    :totalRecords="awards?.total || 0"
                     :globalFilterFields="globalFields"
                 >
                     <template #header="{ filters }">
@@ -84,28 +90,21 @@ const {
                             {{ index + 1 }}
                         </template>
                     </Column>
-                    <Column field="name" header="Name" sortable />
+                    <Column field="title" header="Title" sortable />
 
-                    <Column field="type" header="Type" sortable>
-                        <template #body="{ data }">
-                            <div class="line-clamp-2">
-                                {{
-                                    data.type == 1 ? 'Hard Skill' : 'Soft Skill'
-                                }}
-                            </div>
-                        </template>
+                    <Column field="description" header="Description" sortable>
                     </Column>
-                    <Column field="icon" header="Icon" sortable>
-                        <template #body="{ data }">
-                            <img
-                                v-if="data.icon"
-                                :src="`/storage/${data.icon}`"
-                                alt="icon"
-                                class="h-10 w-10 object-contain"
-                            />
-                            <span v-else>-</span>
-                        </template>
+                    <Column field="issuer" header="Issuer" sortable> </Column>
+                    <Column field="date_format" header="Date" sortable>
                     </Column>
+                    <Column field="photo" header="Photo" sortable>
+                        <template #body="{ data }">
+                            <Button
+                                @click="openPhotoModal(data.photo)"
+                                label="Photo"
+                                icon="pi pi-eye"
+                                size="small" /></template
+                    ></Column>
                     <Column header="Action">
                         <template #body="{ data }">
                             <div class="flex">
@@ -143,46 +142,60 @@ const {
                 class="grid grid-cols-2 gap-6 md:grid-cols-2"
             >
                 <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Name</label>
+                    <label class="font-semibold">Title</label>
                     <InputText
-                        v-model="form.name"
+                        v-model="form.title"
                         size="small"
-                        placeholder="Skill Name"
+                        placeholder="Title"
                         required
                     />
-                    <small v-if="form.errors.name" class="text-red-500">
-                        {{ form.errors.name }}
-                    </small>
-                </div>
-                <div class="col-span-2 flex flex-col gap-3">
-                    <label class="font-semibold">Type</label>
-                    <div class="flex items-center gap-6">
-                        <div
-                            v-for="option in [
-                                { label: 'Hard Skill', value: 1 },
-                                { label: 'Soft Skill', value: 2 },
-                            ]"
-                            :key="option.value"
-                            class="flex items-center gap-2"
-                        >
-                            <RadioButton
-                                v-model="form.type"
-                                :inputId="'type' + option.value"
-                                name="type"
-                                :value="option.value"
-                            />
-                            <label :for="'type' + option.value">
-                                {{ option.label }}
-                            </label>
-                        </div>
-                    </div>
-                    <small v-if="form.errors.type" class="text-red-500">
-                        {{ form.errors.type }}
+                    <small v-if="form.errors.title" class="text-red-500">
+                        {{ form.errors.title }}
                     </small>
                 </div>
                 <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Icon</label>
+                    <label class="font-semibold">Description</label>
+                    <Textarea
+                        v-model="form.description"
+                        size="small"
+                        rows="2"
+                        placeholder="Description"
+                        required
+                    />
+                    <small v-if="form.errors.description" class="text-red-500">
+                        {{ form.errors.description }}
+                    </small>
+                </div>
+                <div class="col-span-2 flex flex-col gap-2">
+                    <label class="font-semibold">Issuer</label>
+                    <InputText
+                        v-model="form.issuer"
+                        size="small"
+                        placeholder="Issuer"
+                        required
+                    />
+                    <small v-if="form.errors.issuer" class="text-red-500">
+                        {{ form.errors.issuer }}
+                    </small>
+                </div>
+                <div class="col-span-2 flex flex-col gap-2">
+                    <label class="font-semibold">Date</label>
+                    <DatePicker
+                        v-model="form.date"
+                        showIcon
+                        size="small"
+                        placeholder="Date"
+                        required
+                    />
+                    <small v-if="form.errors.date" class="text-red-500">
+                        {{ form.errors.date }}
+                    </small>
+                </div>
+
+                <div class="col-span-2 flex flex-col gap-2">
+                    <label class="font-semibold">Photo</label>
                     <FileUpload
+                        required
                         mode="advanced"
                         accept="image/*"
                         :maxFileSize="1000000"
@@ -193,8 +206,8 @@ const {
                         :customUpload="true"
                         :auto="false"
                     />
-                    <small v-if="form.errors.icon" class="text-red-500">
-                        {{ form.errors.icon }}
+                    <small v-if="form.errors.photo" class="text-red-500">
+                        {{ form.errors.photo }}
                     </small>
                 </div>
 
@@ -233,6 +246,25 @@ const {
                     @click="deleteProject"
                 />
             </template>
+        </Dialog>
+        <Dialog
+            v-model:visible="photoModalVisible"
+            modal
+            :closable="true"
+            header="Image"
+            contentClass="p-0 bg-transparent shadow-none"
+            :pt="{
+                mask: { class: 'bg-black/80 backdrop-blur-sm' },
+            }"
+        >
+            <img
+                v-if="selectedPhoto"
+                :src="`/storage/${selectedPhoto}`"
+                alt="image"
+                class="block max-h-[70vh] max-w-[70vw] rounded-lg object-contain shadow-2xl"
+            />
+
+            <span v-else class="text-white">No image</span>
         </Dialog>
     </AppLayout>
 </template>

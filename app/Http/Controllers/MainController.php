@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Award;
 use App\Models\Project;
 use App\Models\Skill;
 use Illuminate\Http\Request;
@@ -32,5 +33,13 @@ class MainController extends Controller
             'skills' => $skills
         ];
         return Inertia::render('SkillsAdmin', $data);
+    }
+    public function awardsAdmin()
+    {
+        $awards = Award::orderBy('created_at', 'asc')->paginate(10);
+        $data = [
+            'awards' => $awards
+        ];
+        return Inertia::render('AwardsAdmin', $data);
     }
 }

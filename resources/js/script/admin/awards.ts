@@ -1,27 +1,17 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
-export function useProjectScript(projects: any) {
+export function useAwardScript(projects: any) {
     const route = window.route;
 
     const visible = ref(false);
-    const techModalVisible = ref(false);
-    const imageModalVisible = ref(false);
+    const photoModalVisible = ref(false);
     const mode = ref<'create' | 'edit'>('create');
-    const excluded = ['id', 'created_at', 'updated_at'];
-    const isDelete = ref(false);
     const selectedData = ref<any>(null);
-    const selectedTech = ref<string[]>([]);
-    const selectedImage = ref<string[]>([]);
+    const selectedPhoto = ref<string[]>([]);
+    const isDelete = ref(false);
 
-    const openTechModal = (tech: string[]) => {
-        selectedTech.value = tech || [];
-        techModalVisible.value = true;
-    };
-    const openImageModal = (image: string[]) => {
-        selectedImage.value = image || [];
-        imageModalVisible.value = true;
-    };
+    const excluded = ['id', 'created_at', 'updated_at'];
 
     const globalFields = computed(() => {
         if (!projects.data.length) return [];
@@ -33,23 +23,22 @@ export function useProjectScript(projects: any) {
         );
     });
 
+    const openPhotoModal = (photo: string[]) => {
+        selectedPhoto.value = photo || [];
+        photoModalVisible.value = true;
+    };
+
     const form = useForm({
         title: '',
         description: '',
-        responsibility: '',
-        start: null as Date | null,
-        end: null as Date | null,
-        status: null as string | null,
-        tech: '',
-        link: '',
-        associate: '',
-        image: null as File | null,
+        issuer: '',
+        photo: null as File | null,
+        date: null as Date | null,
     });
 
     const handleFile = (event: any) => {
-        form.image = event.files[0];
+        form.photo = event.files[0];
     };
-
     const openCreate = () => {
         mode.value = 'create';
         selectedData.value = null;
@@ -62,16 +51,10 @@ export function useProjectScript(projects: any) {
         selectedData.value = data;
 
         form.title = data.title;
+        form.photo = data.photo;
+        form.issuer = data.issuer;
+        form.date = data.date ? new Date(data.date) : null;
         form.description = data.description;
-        form.responsibility = data.responsibility;
-
-        form.start = data.start ? new Date(data.start) : null;
-        form.end = data.end ? new Date(data.end) : null;
-
-        form.tech = data.tech;
-        form.link = data.link;
-        form.associate = data.associate;
-        form.image = null;
 
         visible.value = true;
     };
@@ -96,23 +79,19 @@ export function useProjectScript(projects: any) {
     const submit = () => {
         form.transform((data) => ({
             ...data,
-            start: data.start
-                ? new Date(data.start).toISOString().split('T')[0]
-                : null,
-            end: data.end
-                ? new Date(data.end).toISOString().split('T')[0]
+            date: data.date
+                ? new Date(data.date).toISOString().split('T')[0]
                 : null,
         }));
-
         if (mode.value === 'create') {
-            form.post(route('create-project'), {
+            form.post(route('create-award'), {
                 forceFormData: true,
                 onSuccess: closeDialogForm,
             });
         } else {
             if (!selectedData.value?.id) return;
 
-            form.put(route('update-project', selectedData.value.id), {
+            form.put(route('update-award', selectedData.value.id), {
                 forceFormData: true,
                 onSuccess: closeDialogForm,
             });
@@ -122,43 +101,28 @@ export function useProjectScript(projects: any) {
     const deleteProject = () => {
         if (!selectedData.value?.id) return;
 
-        form.delete(route('delete-project', selectedData.value.id), {
+        form.delete(route('delete-award', selectedData.value.id), {
             onSuccess: closeDialogDelete,
-        });
-    };
-
-    const toggleStatus = (data: any, val: boolean) => {
-        const newStatus = val ? 1 : 0;
-
-        useForm({ status: newStatus }).put(route('update--status', data.id), {
-            preserveScroll: true,
-            onSuccess: () => {
-                data.status = newStatus;
-            },
         });
     };
 
     return {
         visible,
+        photoModalVisible,
         mode,
         selectedData,
-        imageModalVisible,
-        techModalVisible,
-        selectedTech,
-        selectedImage,
+        selectedPhoto,
         isDelete,
         globalFields,
         form,
-        openTechModal,
-        openImageModal,
         handleFile,
         openCreate,
         openEdit,
         openDelete,
+        openPhotoModal,
         closeDialogForm,
         closeDialogDelete,
         submit,
         deleteProject,
-        toggleStatus,
     };
 }

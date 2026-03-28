@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\SkillsAdminService;
+use App\Services\AwardsAdminService;
 use Illuminate\Http\Request;
 
-class SkillController extends Controller
+class AwardController extends Controller
 {
     protected $service;
 
-    public function __construct(SkillsAdminService $service)
+    public function __construct(AwardsAdminService $service)
     {
         $this->service = $service;
     }

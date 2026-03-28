@@ -24,7 +24,7 @@ export function useSkillScript(projects: any) {
     const form = useForm({
         name: '',
         type: '',
-        icon: '',
+        icon: null as File | null,
     });
 
     const handleFile = (event: any) => {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import {
+    Award,
     BookOpen,
     Flower,
     FolderGit2,
@@ -22,7 +23,13 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard, landingPage, projectsAdmin, skillsAdmin } from '@/routes';
+import {
+    awardsAdmin,
+    dashboard,
+    landingPage,
+    projectsAdmin,
+    skillsAdmin,
+} from '@/routes';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -45,6 +52,11 @@ const mainNavItems: NavItem[] = [
         title: 'Skills',
         href: skillsAdmin().url,
         icon: Flower,
+    },
+    {
+        title: 'Awards',
+        href: awardsAdmin().url,
+        icon: Award,
     },
 ];
 </script>
