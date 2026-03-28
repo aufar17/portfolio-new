@@ -24,8 +24,6 @@ const isOpen = ref(false);
 
 const { resolvedAppearance, updateAppearance } = useAppearance();
 
-const baseUrl = '/landing-page';
-
 const mainNavItems: NavItem[] = [
     { title: 'Home', href: `#home`, section: 'home', icon: House },
     { title: 'About', href: `#about`, section: 'about', icon: User },

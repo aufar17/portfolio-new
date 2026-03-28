@@ -25,7 +25,7 @@ defineProps<{
         title="Log in to your account"
         description="Enter your email and password below to log in"
     >
-        <Head title="Log in" />
+        <Head title="Portfolio" />
 
         <div
             v-if="status"
@@ -59,14 +59,6 @@ defineProps<{
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
                         <Label for="password">Password</Label>
-                        <TextLink
-                            v-if="canResetPassword"
-                            :href="request()"
-                            class="text-sm"
-                            :tabindex="5"
-                        >
-                            Forgot password?
-                        </TextLink>
                     </div>
                     <PasswordInput
                         id="password"
@@ -79,16 +71,10 @@ defineProps<{
                     <InputError :message="errors.password" />
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <Label for="remember" class="flex items-center space-x-3">
-                        <Checkbox id="remember" name="remember" :tabindex="3" />
-                        <span>Remember me</span>
-                    </Label>
-                </div>
-
                 <Button
+                    variant="default"
                     type="submit"
-                    class="mt-4 w-full"
+                    class="mt-2 w-full text-white"
                     :tabindex="4"
                     :disabled="processing"
                     data-test="login-button"
@@ -96,14 +82,6 @@ defineProps<{
                     <Spinner v-if="processing" />
                     Log in
                 </Button>
-            </div>
-
-            <div
-                class="text-center text-sm text-muted-foreground"
-                v-if="canRegister"
-            >
-                Don't have an account?
-                <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
             </div>
         </Form>
     </AuthBase>

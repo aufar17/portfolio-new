@@ -10,18 +10,41 @@ import {
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import type { NavItem } from '@/types';
 
-defineProps<{
+const props = defineProps<{
     items: NavItem[];
 }>();
 
 const { isCurrentUrl } = useCurrentUrl();
+
+const landingItem = props.items[0];
+const featureItems = props.items.slice(1);
 </script>
 
 <template>
     <SidebarGroup class="px-2 py-0">
-        <SidebarGroupLabel>Platform</SidebarGroupLabel>
+        <SidebarGroupLabel>Landing Page</SidebarGroupLabel>
+
+        <SidebarMenu v-if="landingItem">
+            <SidebarMenuItem>
+                <SidebarMenuButton
+                    as-child
+                    :is-active="isCurrentUrl(landingItem.href)"
+                    :tooltip="landingItem.title"
+                >
+                    <Link :href="landingItem.href">
+                        <component :is="landingItem.icon" />
+                        <span>{{ landingItem.title }}</span>
+                    </Link>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+        </SidebarMenu>
+    </SidebarGroup>
+
+    <SidebarGroup v-if="featureItems.length" class="mt-4 px-2 py-0">
+        <SidebarGroupLabel>Main Features</SidebarGroupLabel>
+
         <SidebarMenu>
-            <SidebarMenuItem v-for="item in items" :key="item.title">
+            <SidebarMenuItem v-for="item in featureItems" :key="item.title">
                 <SidebarMenuButton
                     as-child
                     :is-active="isCurrentUrl(item.href)"

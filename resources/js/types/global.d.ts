@@ -31,3 +31,9 @@ declare module 'vue' {
         $headManager: ReturnType<typeof createHeadManager>;
     }
 }
+
+declare global {
+    interface Window {
+        route: (name: string, params?: any, absolute?: boolean) => string;
+    }
+}
