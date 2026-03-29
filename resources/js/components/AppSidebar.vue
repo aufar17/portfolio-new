@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/vue3';
 import {
     Award,
     BookOpen,
+    BriefcaseBusiness,
     Flower,
     FolderGit2,
     GraduationCap,
@@ -31,6 +32,7 @@ import {
     landingPage,
     projectsAdmin,
     skillsAdmin,
+    worksAdmin,
 } from '@/routes';
 import type { NavItem } from '@/types';
 
@@ -64,6 +66,11 @@ const mainNavItems: NavItem[] = [
         title: 'Educations',
         href: educationsAdmin().url,
         icon: GraduationCap,
+    },
+    {
+        title: 'Works',
+        href: worksAdmin().url,
+        icon: BriefcaseBusiness,
     },
 ];
 </script>

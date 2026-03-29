@@ -36,7 +36,7 @@ const {
     closeDialogForm,
     closeDialogDelete,
     submit,
-    deleteProject,
+    deleteSkill,
 } = useSkillScript(props.skills);
 </script>
 
@@ -59,7 +59,7 @@ const {
                     <template #header="{ filters }">
                         <div class="flex justify-between gap-4">
                             <Button
-                                label="New Project"
+                                label="New Skill"
                                 raised
                                 icon="pi pi-plus"
                                 size="small"
@@ -215,8 +215,8 @@ const {
                 </div>
             </form>
         </DialogForm>
-        <Dialog v-model:visible="isDelete" header="Delete Project" modal>
-            <p>Are you sure you want to delete this project?</p>
+        <Dialog v-model:visible="isDelete" header="Delete Skill" modal>
+            <p>Are you sure you want to delete this skill?</p>
 
             <template #footer>
                 <Button
@@ -230,7 +230,7 @@ const {
                     :disabled="form.processing"
                     label="Delete"
                     severity="danger"
-                    @click="deleteProject"
+                    @click="deleteSkill"
                 />
             </template>
         </Dialog>

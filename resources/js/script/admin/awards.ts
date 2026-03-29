@@ -1,7 +1,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
-export function useAwardScript(projects: any) {
+export function useAwardScript(awards: any) {
     const route = window.route;
 
     const visible = ref(false);
@@ -14,11 +14,11 @@ export function useAwardScript(projects: any) {
     const excluded = ['id', 'created_at', 'updated_at'];
 
     const globalFields = computed(() => {
-        if (!projects.data.length) return [];
+        if (!awards.data.length) return [];
 
-        return Object.keys(projects.data[0]).filter(
+        return Object.keys(awards.data[0]).filter(
             (key) =>
-                typeof projects.data[0][key] !== 'object' &&
+                typeof awards.data[0][key] !== 'object' &&
                 !excluded.includes(key),
         );
     });
@@ -98,7 +98,7 @@ export function useAwardScript(projects: any) {
         }
     };
 
-    const deleteProject = () => {
+    const deleteAward = () => {
         if (!selectedData.value?.id) return;
 
         form.delete(route('delete-award', selectedData.value.id), {
@@ -123,6 +123,6 @@ export function useAwardScript(projects: any) {
         closeDialogForm,
         closeDialogDelete,
         submit,
-        deleteProject,
+        deleteAward,
     };
 }

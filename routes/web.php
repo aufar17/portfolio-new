@@ -5,6 +5,7 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SkillController;
+use App\Http\Controllers\WorkController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -20,6 +21,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('skills-admin', [MainController::class, 'skillsAdmin'])->name('skills-admin');
     Route::get('awards-admin', [MainController::class, 'awardsAdmin'])->name('awards-admin');
     Route::get('educations-admin', [MainController::class, 'educationsAdmin'])->name('educations-admin');
+    Route::get('works-admin', [MainController::class, 'worksAdmin'])->name('works-admin');
 
 
     //Projects Admin
@@ -42,6 +44,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('create-education', [EducationController::class, 'create'])->name('create-education');
     Route::put('update-education/{id}', [EducationController::class, 'update'])->name('update-education');
     Route::delete('delete-education/{id}', [EducationController::class, 'delete'])->name('delete-education');
+
+    //Education Admin
+    Route::post('create-work', [WorkController::class, 'create'])->name('create-work');
+    Route::put('update-work/{id}', [WorkController::class, 'update'])->name('update-work');
+    Route::delete('delete-work/{id}', [WorkController::class, 'delete'])->name('delete-work');
 });
 
 require __DIR__ . '/settings.php';

@@ -1,7 +1,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
-export function useSkillScript(projects: any) {
+export function useSkillScript(skills: any) {
     const route = window.route;
 
     const visible = ref(false);
@@ -12,11 +12,11 @@ export function useSkillScript(projects: any) {
     const excluded = ['id', 'created_at', 'updated_at'];
 
     const globalFields = computed(() => {
-        if (!projects.data.length) return [];
+        if (!skills.data.length) return [];
 
-        return Object.keys(projects.data[0]).filter(
+        return Object.keys(skills.data[0]).filter(
             (key) =>
-                typeof projects.data[0][key] !== 'object' &&
+                typeof skills.data[0][key] !== 'object' &&
                 !excluded.includes(key),
         );
     });
@@ -81,7 +81,7 @@ export function useSkillScript(projects: any) {
         }
     };
 
-    const deleteProject = () => {
+    const deleteSkill = () => {
         if (!selectedData.value?.id) return;
 
         form.delete(route('delete-skill', selectedData.value.id), {
@@ -103,6 +103,6 @@ export function useSkillScript(projects: any) {
         closeDialogForm,
         closeDialogDelete,
         submit,
-        deleteProject,
+        deleteSkill,
     };
 }

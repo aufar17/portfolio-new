@@ -37,7 +37,7 @@ const {
     closeDialogForm,
     closeDialogDelete,
     submit,
-    deleteProject,
+    deleteEducation,
 } = useEducationScript(props.educations);
 </script>
 
@@ -60,7 +60,7 @@ const {
                     <template #header="{ filters }">
                         <div class="flex justify-between gap-4">
                             <Button
-                                label="New Project"
+                                label="New Education"
                                 raised
                                 icon="pi pi-plus"
                                 size="small"
@@ -208,8 +208,8 @@ const {
                 </div>
             </form>
         </DialogForm>
-        <Dialog v-model:visible="isDelete" header="Delete Project" modal>
-            <p>Are you sure you want to delete this project?</p>
+        <Dialog v-model:visible="isDelete" header="Delete Education" modal>
+            <p>Are you sure you want to delete this education?</p>
 
             <template #footer>
                 <Button
@@ -223,7 +223,7 @@ const {
                     :disabled="form.processing"
                     label="Delete"
                     severity="danger"
-                    @click="deleteProject"
+                    @click="deleteEducation"
                 />
             </template>
         </Dialog>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { awardsAdmin } from '@/routes';
+import { worksAdmin } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
 import Column from 'primevue/column';
 import IconField from 'primevue/iconfield';
@@ -11,39 +11,32 @@ import InputText from 'primevue/inputtext';
 import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
 import DialogForm from '@/components/admin/DialogForm.vue';
 import Dialog from 'primevue/dialog';
-import { useSkillScript } from '@/script/admin/skill';
-import RadioButton from 'primevue/radiobutton';
-import FileUpload from 'primevue/fileupload';
-import { useAwardScript } from '@/script/admin/awards';
-import Textarea from 'primevue/textarea';
 import DatePicker from 'primevue/datepicker';
+import { useWorkScript } from '@/script/admin/works';
+import Textarea from 'primevue/textarea';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Awards', href: awardsAdmin().url },
+    { title: 'Work', href: worksAdmin().url },
 ];
 
 const props = defineProps({
-    awards: Object,
+    works: Object,
 });
 
 const {
     visible,
-    photoModalVisible,
     mode,
-    selectedPhoto,
     isDelete,
     form,
     globalFields,
-    handleFile,
     openCreate,
     openEdit,
     openDelete,
-    openPhotoModal,
     closeDialogForm,
     closeDialogDelete,
     submit,
-    deleteAward,
-} = useAwardScript(props.awards);
+    deleteWork,
+} = useWorkScript(props.works);
 </script>
 
 <template>
@@ -55,17 +48,17 @@ const {
                 <h2
                     class="m-2 text-xl font-semibold text-primary dark:text-white"
                 >
-                    Awards Data
+                    Works Data
                 </h2>
                 <BasedDataTable
-                    :value="awards?.data || []"
-                    :totalRecords="awards?.total || 0"
+                    :value="works?.data || []"
+                    :totalRecords="works?.total || 0"
                     :globalFilterFields="globalFields"
                 >
                     <template #header="{ filters }">
                         <div class="flex justify-between gap-4">
                             <Button
-                                label="New Award"
+                                label="New Work"
                                 raised
                                 icon="pi pi-plus"
                                 size="small"
@@ -90,21 +83,13 @@ const {
                             {{ index + 1 }}
                         </template>
                     </Column>
-                    <Column field="title" header="Title" sortable />
+                    <Column field="company" header="Company" sortable />
+                    <Column field="role" header="Role" sortable />
+                    <Column field="status" header="Status" sortable />
+                    <Column field="desc" header="Description" sortable />
+                    <Column field="start" header="Start" sortable />
+                    <Column field="end" header="End" sortable />
 
-                    <Column field="description" header="Description" sortable>
-                    </Column>
-                    <Column field="issuer" header="Issuer" sortable> </Column>
-                    <Column field="date_format" header="Date" sortable>
-                    </Column>
-                    <Column field="photo" header="Photo" sortable>
-                        <template #body="{ data }">
-                            <Button
-                                @click="openPhotoModal(data.photo)"
-                                label="Photo"
-                                icon="pi pi-eye"
-                                size="small" /></template
-                    ></Column>
                     <Column header="Action">
                         <template #body="{ data }">
                             <div class="flex">
@@ -135,80 +120,87 @@ const {
             maximizable
             width="40rem"
             v-model:visible="visible"
-            :title="mode === 'create' ? 'New Award' : 'Edit Award'"
+            :title="mode === 'create' ? 'New Work' : 'Edit Work'"
         >
             <form
                 @submit.prevent="submit"
                 class="grid grid-cols-2 gap-6 md:grid-cols-2"
             >
                 <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Title</label>
+                    <label class="font-semibold">Company</label>
                     <InputText
-                        v-model="form.title"
+                        v-model="form.company"
                         size="small"
-                        placeholder="Title"
+                        placeholder="Company"
                         required
                     />
-                    <small v-if="form.errors.title" class="text-red-500">
-                        {{ form.errors.title }}
+                    <small v-if="form.errors.company" class="text-red-500">
+                        {{ form.errors.company }}
+                    </small>
+                </div>
+                <div class="col-span-2 flex flex-col gap-2">
+                    <label class="font-semibold">Role</label>
+                    <InputText
+                        v-model="form.role"
+                        size="small"
+                        placeholder="Role"
+                        required
+                    />
+                    <small v-if="form.errors.role" class="text-red-500">
+                        {{ form.errors.role }}
+                    </small>
+                </div>
+                <div class="col-span-2 flex flex-col gap-2">
+                    <label class="font-semibold">Status</label>
+                    <InputText
+                        v-model="form.status"
+                        size="small"
+                        placeholder="Status"
+                        required
+                    />
+                    <small v-if="form.errors.status" class="text-red-500">
+                        {{ form.errors.status }}
                     </small>
                 </div>
                 <div class="col-span-2 flex flex-col gap-2">
                     <label class="font-semibold">Description</label>
                     <Textarea
-                        v-model="form.description"
+                        v-model="form.desc"
                         size="small"
-                        rows="2"
                         placeholder="Description"
                         required
+                        rows="2"
                     />
-                    <small v-if="form.errors.description" class="text-red-500">
-                        {{ form.errors.description }}
+                    <small v-if="form.errors.desc" class="text-red-500">
+                        {{ form.errors.desc }}
                     </small>
                 </div>
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Issuer</label>
-                    <InputText
-                        v-model="form.issuer"
-                        size="small"
-                        placeholder="Issuer"
-                        required
-                    />
-                    <small v-if="form.errors.issuer" class="text-red-500">
-                        {{ form.errors.issuer }}
-                    </small>
-                </div>
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Date</label>
+                <div class="flex flex-col gap-2">
+                    <label>Start</label>
                     <DatePicker
-                        v-model="form.date"
+                        v-model="form.start"
                         showIcon
                         size="small"
-                        placeholder="Date"
-                        required
+                        placeholder="Pick a start year"
+                        :view="'year'"
+                        :yearNavigator="true"
+                        :monthNavigator="false"
+                        dateFormat="yy"
                     />
-                    <small v-if="form.errors.date" class="text-red-500">
-                        {{ form.errors.date }}
-                    </small>
                 </div>
 
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Photo</label>
-                    <FileUpload
-                        required
-                        mode="advanced"
-                        accept="image/*"
-                        :maxFileSize="1000000"
-                        chooseLabel="Upload Image"
-                        cancelLabel="Cancel"
-                        cancelIcon="pi pi-times"
-                        @select="handleFile"
-                        :customUpload="true"
-                        :auto="false"
+                <div class="flex flex-col gap-2">
+                    <label>End</label>
+                    <DatePicker
+                        v-model="form.end"
+                        showIcon
+                        size="small"
+                        placeholder="Pick a end year"
+                        :view="'year'"
+                        :yearNavigator="true"
+                        :monthNavigator="false"
+                        dateFormat="yy"
                     />
-                    <small v-if="form.errors.photo" class="text-red-500">
-                        {{ form.errors.photo }}
-                    </small>
                 </div>
 
                 <div class="flex justify-end gap-3 md:col-span-2">
@@ -228,8 +220,8 @@ const {
                 </div>
             </form>
         </DialogForm>
-        <Dialog v-model:visible="isDelete" header="Delete Award" modal>
-            <p>Are you sure you want to delete this award?</p>
+        <Dialog v-model:visible="isDelete" header="Delete Work" modal>
+            <p>Are you sure you want to delete this work?</p>
 
             <template #footer>
                 <Button
@@ -243,28 +235,9 @@ const {
                     :disabled="form.processing"
                     label="Delete"
                     severity="danger"
-                    @click="deleteAward"
+                    @click="deleteWork"
                 />
             </template>
-        </Dialog>
-        <Dialog
-            v-model:visible="photoModalVisible"
-            modal
-            :closable="true"
-            header="Image"
-            contentClass="p-0 bg-transparent shadow-none"
-            :pt="{
-                mask: { class: 'bg-black/80 backdrop-blur-sm' },
-            }"
-        >
-            <img
-                v-if="selectedPhoto"
-                :src="`/storage/${selectedPhoto}`"
-                alt="image"
-                class="block max-h-[70vh] max-w-[70vw] rounded-lg object-contain shadow-2xl"
-            />
-
-            <span v-else class="text-white">No image</span>
         </Dialog>
     </AppLayout>
 </template>

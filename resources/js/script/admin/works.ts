@@ -1,8 +1,7 @@
-import { deleteEducation } from '@/routes';
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
-export function useEducationScript(educations: any) {
+export function useWorkScript(works: any) {
     const route = window.route;
 
     const visible = ref(false);
@@ -13,19 +12,20 @@ export function useEducationScript(educations: any) {
     const excluded = ['id', 'created_at', 'updated_at'];
 
     const globalFields = computed(() => {
-        if (!educations.data.length) return [];
+        if (!works.data.length) return [];
 
-        return Object.keys(educations.data[0]).filter(
+        return Object.keys(works.data[0]).filter(
             (key) =>
-                typeof educations.data[0][key] !== 'object' &&
+                typeof works.data[0][key] !== 'object' &&
                 !excluded.includes(key),
         );
     });
 
     const form = useForm({
-        institution: '',
-        major: '',
-        title: '',
+        company: '',
+        role: '',
+        status: '',
+        desc: '',
         start: null as Date | null,
         end: null as Date | null,
     });
@@ -41,9 +41,10 @@ export function useEducationScript(educations: any) {
         mode.value = 'edit';
         selectedData.value = data;
 
-        form.institution = data.institution;
-        form.major = data.major;
-        form.title = data.title;
+        form.company = data.company;
+        form.role = data.role;
+        form.status = data.status;
+        form.desc = data.desc;
         form.start = data.start ? new Date(data.start) : null;
         form.end = data.end ? new Date(data.end) : null;
 
@@ -78,24 +79,24 @@ export function useEducationScript(educations: any) {
                 : null,
         }));
         if (mode.value === 'create') {
-            form.post(route('create-education'), {
+            form.post(route('create-work'), {
                 forceFormData: true,
                 onSuccess: closeDialogForm,
             });
         } else {
             if (!selectedData.value?.id) return;
 
-            form.put(route('update-education', selectedData.value.id), {
+            form.put(route('update-work', selectedData.value.id), {
                 forceFormData: true,
                 onSuccess: closeDialogForm,
             });
         }
     };
 
-    const deleteEducation = () => {
+    const deleteWork = () => {
         if (!selectedData.value?.id) return;
 
-        form.delete(route('delete-education', selectedData.value.id), {
+        form.delete(route('delete-work', selectedData.value.id), {
             onSuccess: closeDialogDelete,
         });
     };
@@ -113,6 +114,6 @@ export function useEducationScript(educations: any) {
         closeDialogForm,
         closeDialogDelete,
         submit,
-        deleteEducation,
+        deleteWork,
     };
 }

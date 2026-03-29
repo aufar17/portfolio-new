@@ -6,6 +6,7 @@ use App\Models\Award;
 use App\Models\Education;
 use App\Models\Project;
 use App\Models\Skill;
+use App\Models\Work;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -50,5 +51,14 @@ class MainController extends Controller
             'educations' => $educations
         ];
         return Inertia::render('EducationsAdmin', $data);
+    }
+
+    public function worksAdmin()
+    {
+        $works = Work::orderBy('created_at', 'asc')->paginate(10);
+        $data = [
+            'works' => $works
+        ];
+        return Inertia::render('WorksAdmin', $data);
     }
 }
