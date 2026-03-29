@@ -5,6 +5,7 @@ import {
     BookOpen,
     Flower,
     FolderGit2,
+    GraduationCap,
     LayoutGrid,
     MonitorSmartphone,
     Projector,
@@ -26,6 +27,7 @@ import {
 import {
     awardsAdmin,
     dashboard,
+    educationsAdmin,
     landingPage,
     projectsAdmin,
     skillsAdmin,
@@ -57,6 +59,11 @@ const mainNavItems: NavItem[] = [
         title: 'Awards',
         href: awardsAdmin().url,
         icon: Award,
+    },
+    {
+        title: 'Educations',
+        href: educationsAdmin().url,
+        icon: GraduationCap,
     },
 ];
 </script>
