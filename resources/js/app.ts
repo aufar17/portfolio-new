@@ -4,15 +4,17 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import '../css/app.css';
+import '../css/splashscreen.css';
 import { initializeTheme } from '@/composables/useAppearance';
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
 import 'primeicons/primeicons.css';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Portfolio';
+const appName =
+    import.meta.env.VITE_APP_NAME || 'Muammar Aufar Prasetya | Portfolio';
 
 createInertiaApp({
-    title: (title) => (title ? `${title}` : 'Portfolio'),
+    title: (title) => 'Muammar Aufar Prasetya | Portfolio',
     resolve: (name) =>
         resolvePageComponent(
             `./pages/${name}.vue`,

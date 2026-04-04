@@ -11,8 +11,6 @@ import InputText from 'primevue/inputtext';
 import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
 import DialogForm from '@/components/admin/DialogForm.vue';
 import Dialog from 'primevue/dialog';
-import { useSkillScript } from '@/script/admin/skill';
-import RadioButton from 'primevue/radiobutton';
 import FileUpload from 'primevue/fileupload';
 import { useAwardScript } from '@/script/admin/awards';
 import Textarea from 'primevue/textarea';

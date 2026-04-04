@@ -12,10 +12,7 @@ use Inertia\Inertia;
 
 class MainController extends Controller
 {
-    public function landingPage()
-    {
-        return Inertia::render('LandingPage');
-    }
+
     public function dashboard()
     {
         return Inertia::render('Dashboard');

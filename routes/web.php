@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AwardController;
 use App\Http\Controllers\EducationController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SkillController;
@@ -13,7 +14,7 @@ Route::inertia('/', 'Welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
 
-Route::get('landing-page', [MainController::class, 'landingPage'])->name('landing-page');
+Route::get('landing-page', [LandingPageController::class, 'landingPage'])->name('landing-page');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [MainController::class, 'dashboard'])->name('dashboard');

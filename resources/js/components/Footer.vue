@@ -14,7 +14,9 @@ const socials = [
 </script>
 
 <template>
-    <footer class="relative mt-24 border-t border-white/10">
+    <footer
+        class="relative mt-24 border-t border-black/10 dark:border-white/10"
+    >
         <div class="pointer-events-none absolute inset-0 opacity-30">
             <div
                 class="absolute -top-10 left-1/4 h-40 w-40 rounded-full bg-primary/30 blur-3xl"
@@ -44,6 +46,11 @@ const socials = [
                         class="flex flex-wrap justify-center gap-6 text-sm font-medium"
                     >
                         <a
+                            href="#home"
+                            class="text-gray-600 hover:text-primary dark:text-gray-400"
+                            >Home</a
+                        >
+                        <a
                             href="#about"
                             class="text-gray-600 hover:text-primary dark:text-gray-400"
                             >About</a
@@ -52,11 +59,6 @@ const socials = [
                             href="#projects"
                             class="text-gray-600 hover:text-primary dark:text-gray-400"
                             >Projects</a
-                        >
-                        <a
-                            href="#contact"
-                            class="text-gray-600 hover:text-primary dark:text-gray-400"
-                            >Contact</a
                         >
                         <a
                             href="#contact"

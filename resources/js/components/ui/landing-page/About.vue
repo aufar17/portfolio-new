@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import profile from '@/assets/img/logo.png';
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import Education from './Education.vue';
 import Work from './Work.vue';
 import { BriefcaseBusiness, GraduationCap } from 'lucide-vue-next';
@@ -18,6 +18,20 @@ const tabs: { id: Tab; label: string; icon?: any }[] = [
     { id: 'work', label: 'Work', icon: BriefcaseBusiness },
     { id: 'education', label: 'Education', icon: GraduationCap },
 ];
+const activeIndex = computed(() =>
+    tabs.findIndex((t) => t.id === activeTab.value),
+);
+
+const props = withDefaults(
+    defineProps<{
+        works?: any[];
+        educations?: any[];
+    }>(),
+    {
+        works: () => [],
+        educations: () => [],
+    },
+);
 
 const animatedStats = ref(stats.map(() => 0));
 const aboutSection = ref<HTMLElement | null>(null);
@@ -178,31 +192,61 @@ onBeforeUnmount(() => {
 
         <div class="mt-5 w-full">
             <div
-                class="flex w-full overflow-hidden rounded-lg border border-black/10 shadow-md dark:border-white/10"
+                class="relative flex w-full overflow-hidden rounded-lg border border-black/10 shadow-md dark:border-white/10"
             >
                 <div
-                    class="flex w-full gap-x-2 rounded-lg bg-white/10 p-2 dark:bg-white/5"
+                    class="relative flex w-full rounded-lg bg-white/10 p-2 dark:bg-white/5"
                 >
+                    <div
+                        class="absolute top-2 bottom-2 left-2 z-0 rounded-lg bg-indigo-100 shadow-inner transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] dark:bg-white/10"
+                        :style="{
+                            width: `calc((100% - 0.5rem) / ${tabs.length})`,
+                            transform: `translateX(${activeIndex * 100}%)`,
+                        }"
+                    />
+
                     <div
                         v-for="tab in tabs"
                         :key="tab.id"
                         @click="activeTab = tab.id"
-                        :class="[
-                            'flex flex-1 cursor-pointer flex-col items-center justify-center px-3 py-2 text-center font-semibold transition-all duration-300',
+                        class="relative z-10 flex flex-1 cursor-pointer flex-col items-center justify-center px-3 py-2 text-center font-semibold transition-colors duration-300"
+                        :class="
                             activeTab === tab.id
-                                ? 'rounded-lg bg-indigo-100 text-gray-900 shadow-inner backdrop-blur-xl dark:bg-white/10 dark:text-white'
-                                : 'text-black hover:rounded-lg hover:bg-indigo-50 dark:text-gray-300 hover:dark:bg-white/10',
-                        ]"
+                                ? 'text-gray-900 dark:text-white'
+                                : 'text-black dark:text-gray-300'
+                        "
                     >
-                        <component :is="tab.icon" class="mb-1 h-6 w-6" />
+                        <component
+                            :is="tab.icon"
+                            class="mb-1 h-6 w-6 transition-transform duration-300"
+                            :class="activeTab === tab.id ? 'scale-110' : ''"
+                        />
                         {{ tab.label }}
                     </div>
                 </div>
             </div>
+            <div class="mt-4 overflow-hidden">
+                <Transition
+                    enter-active-class="transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                    enter-from-class="opacity-0 translate-y-6 scale-95"
+                    enter-to-class="opacity-100 translate-y-0 scale-100"
+                    leave-active-class="transition-all duration-300 ease-in"
+                    leave-from-class="opacity-100 translate-y-0 scale-100"
+                    leave-to-class="opacity-0 -translate-y-6 scale-95"
+                    mode="out-in"
+                >
+                    <Work
+                        v-if="activeTab === 'work'"
+                        :works="props.works"
+                        key="work"
+                    />
 
-            <div class="mt-4 overflow-visible">
-                <Work v-show="activeTab === 'work'" />
-                <Education v-show="activeTab === 'education'" />
+                    <Education
+                        v-else
+                        :educations="props.educations"
+                        key="education"
+                    />
+                </Transition>
             </div>
         </div>
     </section>

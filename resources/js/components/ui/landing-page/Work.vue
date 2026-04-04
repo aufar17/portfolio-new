@@ -1,175 +1,145 @@
-<script setup>
-const workHistory = [
-    {
-        position: 'Frontend Developer',
-        company: 'PT Example A',
-        duration: 'Jan 2021 - Dec 2021',
-        description:
-            'Membuat UI modern dengan Vue dan Tailwind, fokus pada clean design.',
-    },
-    {
-        position: 'Fullstack Developer',
-        company: 'PT Example B',
-        duration: 'Feb 2022 - Sekarang',
-        description:
-            'Membangun aplikasi web end-to-end menggunakan Laravel & Vue.',
-    },
-    {
-        position: 'Intern',
-        company: 'PT Example C',
-        duration: 'Jun 2020 - Dec 2020',
-        description: 'Belajar pengembangan web & sistem internal perusahaan.',
-    },
-];
+<script setup lang="ts">
+const { works } = defineProps<{
+    works: any[];
+}>();
 </script>
+
 <template>
     <section
-        class="relative rounded-xl border border-black/10 bg-white/20 p-8 shadow-xl backdrop-blur-xl md:p-12 dark:border-white/10 dark:bg-white/5 dark:shadow-none"
+        class="relative rounded-2xl border border-black/10 bg-white/30 p-6 shadow-xl backdrop-blur-xl md:p-10 dark:border-white/10 dark:bg-white/5"
     >
         <h2
-            class="mb-16 text-center text-3xl font-extrabold tracking-tight text-gray-900 md:text-5xl dark:text-gray-100"
+            class="mb-14 text-center text-3xl font-bold tracking-tight md:text-5xl dark:text-white"
         >
-            Work <span class="text-primary">History</span>
+            Work <span class="text-primary">Experience</span>
         </h2>
 
-        <div
-            class="relative mx-auto hidden w-full max-w-7xl p-8 md:block md:p-12"
-        >
+        <div class="relative mx-auto hidden max-w-5xl md:block">
             <div
-                class="absolute top-10 left-1/2 h-[calc(100%-6rem)] w-1 -translate-x-1/2 bg-gray-300 dark:bg-gray-700"
+                class="absolute top-0 left-1/2 h-full w-[3px] -translate-x-1/2 rounded-full bg-gradient-to-b from-primary/40 via-gray-300 to-primary/40 dark:via-gray-700"
             ></div>
 
             <div
-                v-for="(job, index) in workHistory"
-                :key="index"
-                class="relative mb-10 grid grid-cols-12 items-center"
+                v-for="(work, index) in works"
+                :key="work.id"
+                class="group relative mb-16 flex w-full items-center justify-between"
+                :class="index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'"
             >
-                <div class="col-span-5" v-if="index % 2 === 0">
-                    <div class="relative flex justify-start pl-8">
+                <div class="w-[45%]">
+                    <div
+                        class="relative flex h-full flex-col rounded-2xl border border-white/20 bg-white/70 p-6 shadow-lg backdrop-blur-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800/40"
+                    >
                         <div
-                            class="group relative w-full rounded-xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800/30"
-                        >
-                            <div class="flex items-center justify-between">
+                            class="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 opacity-0 transition group-hover:opacity-100"
+                        ></div>
+
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
                                 <h3
-                                    class="text-lg font-bold text-gray-900 dark:text-gray-100"
+                                    class="text-lg font-semibold dark:text-white"
                                 >
-                                    {{ job.position }}
+                                    {{ work.company }}
                                 </h3>
-                                <span
-                                    class="text-sm text-gray-500 dark:text-gray-400"
-                                >
-                                    {{ job.duration }}
-                                </span>
                             </div>
 
                             <span
-                                class="mt-2 inline-block rounded-full bg-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400"
+                                class="shrink-0 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white"
                             >
-                                {{ job.company }}
+                                {{ work.status }}
                             </span>
+                        </div>
 
-                            <p
-                                class="mt-4 leading-relaxed text-gray-600 dark:text-gray-300"
+                        <div class="mt-3">
+                            <span
+                                class="shrink-0 rounded-md bg-chart-2 px-3 py-1 text-xs font-medium text-white dark:bg-chart-3"
                             >
-                                {{ job.description }}
-                            </p>
+                                {{ work.role }}
+                            </span>
+                        </div>
+                        <p
+                            class="mt-3 text-sm leading-relaxed text-black dark:text-gray-300"
+                        >
+                            {{ work.description }}
+                        </p>
+
+                        <div class="mt-auto flex justify-end">
+                            <span
+                                class="shrink-0 rounded-md bg-destructive px-3 py-1 text-xs font-medium text-white dark:bg-chart-5"
+                            >
+                                {{ work.date_range }}
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-span-5" v-else></div>
-
-                <div class="relative z-10 col-span-2 flex justify-center">
+                <div class="relative z-10 flex flex-col items-center">
                     <div
-                        class="h-6 w-6 rounded-full border-2 border-white bg-gradient-to-br from-primary to-secondary shadow-md dark:border-gray-900"
+                        class="h-6 w-6 rounded-full border-4 border-white bg-gradient-to-br from-primary to-secondary shadow-md dark:border-gray-900"
+                    ></div>
+
+                    <div
+                        class="mt-1 h-10 w-[2px] bg-gray-300 opacity-0 transition-all duration-300 group-hover:opacity-100 dark:bg-gray-700"
                     ></div>
                 </div>
 
-                <div class="col-span-5" v-if="index % 2 !== 0">
-                    <div class="relative flex justify-start pl-8">
-                        <div
-                            class="group relative w-full rounded-xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800/30"
-                        >
-                            <div class="flex items-center justify-between">
-                                <h3
-                                    class="text-lg font-bold text-gray-900 dark:text-gray-100"
-                                >
-                                    {{ job.position }}
-                                </h3>
-                                <span
-                                    class="text-sm text-gray-500 dark:text-gray-400"
-                                >
-                                    {{ job.duration }}
-                                </span>
-                            </div>
-
-                            <span
-                                class="mt-2 inline-block rounded-full bg-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400"
-                            >
-                                {{ job.company }}
-                            </span>
-
-                            <p
-                                class="mt-4 leading-relaxed text-gray-600 dark:text-gray-300"
-                            >
-                                {{ job.description }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-span-5" v-else></div>
+                <div class="w-[45%]"></div>
             </div>
         </div>
 
-        <div class="relative block md:hidden">
+        <div class="relative mt-10 space-y-10 md:hidden">
             <div
-                class="absolute top-0 left-6 h-full w-1 bg-gray-300 dark:bg-gray-700"
+                class="absolute top-0 left-5 h-full w-[3px] bg-gray-300 dark:bg-gray-700"
             ></div>
 
             <div
-                v-for="(job, index) in workHistory"
-                :key="index"
-                class="relative mb-12 pl-16"
+                v-for="(work, index) in works"
+                :key="work.id"
+                class="relative pl-14"
             >
                 <div
-                    class="absolute top-0 left-4 flex h-full flex-col items-center"
+                    class="absolute top-1 left-2 h-6 w-6 rounded-full border-4 border-white bg-gradient-to-br from-primary to-secondary shadow-md dark:border-gray-900"
+                ></div>
+
+                <div
+                    class="relative flex h-full flex-col rounded-2xl border border-white/20 bg-white/70 p-6 shadow-lg backdrop-blur-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800/40"
                 >
                     <div
-                        class="h-6 w-6 rounded-full border-2 border-white bg-gradient-to-br from-primary to-secondary shadow-md dark:border-gray-900"
+                        class="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 opacity-0 transition group-hover:opacity-100"
                     ></div>
-                    <div
-                        v-if="index !== workHistory.length - 1"
-                        class="w-px flex-1 bg-gray-300 dark:bg-gray-700"
-                    ></div>
-                </div>
 
-                <div class="relative">
-                    <div
-                        class="group w-full rounded-3xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800/30"
-                    >
-                        <div class="flex items-center justify-between">
-                            <h3
-                                class="text-lg font-bold text-gray-900 dark:text-gray-100"
-                            >
-                                {{ job.position }}
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-semibold dark:text-white">
+                                {{ work.company }}
                             </h3>
-                            <span
-                                class="text-sm text-gray-500 dark:text-gray-400"
-                            >
-                                {{ job.duration }}
-                            </span>
                         </div>
+
                         <span
-                            class="mt-2 inline-block rounded-full bg-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400"
+                            class="shrink-0 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white"
                         >
-                            {{ job.company }}
+                            {{ work.status }}
                         </span>
-                        <p
-                            class="mt-4 leading-relaxed text-gray-600 dark:text-gray-300"
+                    </div>
+
+                    <div class="mt-3">
+                        <span
+                            class="shrink-0 rounded-md bg-chart-2 px-3 py-1 text-xs font-medium text-white dark:bg-chart-3"
                         >
-                            {{ job.description }}
-                        </p>
+                            {{ work.role }}
+                        </span>
+                    </div>
+                    <p
+                        class="mt-3 text-sm leading-relaxed text-black dark:text-gray-300"
+                    >
+                        {{ work.description }}
+                    </p>
+
+                    <div class="mt-auto flex justify-end">
+                        <span
+                            class="shrink-0 rounded-md bg-destructive px-3 py-1 text-xs font-medium text-white dark:bg-chart-5"
+                        >
+                            {{ work.date_range }}
+                        </span>
                     </div>
                 </div>
             </div>

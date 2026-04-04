@@ -87,8 +87,8 @@ const {
                     <Column field="role" header="Role" sortable />
                     <Column field="status" header="Status" sortable />
                     <Column field="desc" header="Description" sortable />
-                    <Column field="start" header="Start" sortable />
-                    <Column field="end" header="End" sortable />
+                    <Column field="start_month" header="Start" sortable />
+                    <Column field="end_month" header="End" sortable />
 
                     <Column header="Action">
                         <template #body="{ data }">

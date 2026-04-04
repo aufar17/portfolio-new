@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('link')->nullable();
             $table->string('associate')->nullable();
             $table->string('image')->nullable();
+            $table->string('tech')->nullable();
             $table->timestamps();
         });
     }

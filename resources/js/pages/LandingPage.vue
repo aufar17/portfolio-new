@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
 import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
@@ -9,8 +7,6 @@ import Hero from '@/components/ui/landing-page/Hero.vue';
 import About from '@/components/ui/landing-page/About.vue';
 import Projects from '@/components/ui/landing-page/Projects.vue';
 import Contact from '@/components/ui/landing-page/Contact.vue';
-import Card from '@/components/ui/card/Card.vue';
-import Footer from '@/components/Footer.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -18,6 +14,28 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard(),
     },
 ];
+
+const props = withDefaults(
+    defineProps<{
+        skills: {
+            hardSkills: any[];
+            softSkills: any[];
+        };
+        projects?: any[];
+        works?: any[];
+        educations?: any[];
+    }>(),
+    {
+        skills: () => ({
+            hardSkills: [],
+            softSkills: [],
+        }),
+        projects: () => [],
+        works: () => [],
+        educations: () => [],
+    },
+);
+console.log(props.skills.softSkills);
 </script>
 
 <template>
@@ -25,8 +43,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 
     <LandingPageLayout :breadcrumbs="breadcrumbs">
         <Hero />
-        <About />
-        <Projects />
+        <About :works="props.works" :educations="props.educations" />
+        <Projects
+            :projects="props.projects"
+            :hard-skills="props.skills.hardSkills"
+            :soft-skills="props.skills.softSkills"
+        />
         <Contact />
     </LandingPageLayout>
 </template>
