@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Award;
 use App\Models\Education;
+use App\Models\Personal;
 use App\Models\Project;
 use App\Models\Skill;
+use App\Models\SocialMedia;
 use App\Models\Work;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -57,5 +59,21 @@ class MainController extends Controller
             'works' => $works
         ];
         return Inertia::render('WorksAdmin', $data);
+    }
+    public function personalAdmin()
+    {
+        $personal = Personal::where('id', 1)->first();
+        $data = [
+            'personal' => $personal
+        ];
+        return Inertia::render('PersonalAdmin', $data);
+    }
+    public function socialAdmin()
+    {
+        $social = SocialMedia::orderBy('created_at', 'asc')->paginate(10);
+        $data = [
+            'social' => $social
+        ];
+        return Inertia::render('SocialMediaAdmin', $data);
     }
 }

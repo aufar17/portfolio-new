@@ -4,8 +4,10 @@ use App\Http\Controllers\AwardController;
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SkillController;
+use App\Http\Controllers\SocialMediaController;
 use App\Http\Controllers\WorkController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -23,7 +25,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('awards-admin', [MainController::class, 'awardsAdmin'])->name('awards-admin');
     Route::get('educations-admin', [MainController::class, 'educationsAdmin'])->name('educations-admin');
     Route::get('works-admin', [MainController::class, 'worksAdmin'])->name('works-admin');
-
+    Route::get('personal-admin', [MainController::class, 'personalAdmin'])->name('personal-admin');
+    Route::get('social-admin', [MainController::class, 'socialAdmin'])->name('social-admin');
 
     //Projects Admin
     Route::post('create-project', [ProjectController::class, 'create'])->name('create-project');
@@ -50,6 +53,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('create-work', [WorkController::class, 'create'])->name('create-work');
     Route::put('update-work/{id}', [WorkController::class, 'update'])->name('update-work');
     Route::delete('delete-work/{id}', [WorkController::class, 'delete'])->name('delete-work');
+
+    //Personal Admin
+    Route::post('create-personal', [PersonalController::class, 'create'])->name('create-personal');
+    Route::put('update-personal/{id}', [PersonalController::class, 'update'])->name('update-personal');
+    Route::delete('delete-personal/{id}', [PersonalController::class, 'delete'])->name('delete-personal');
+
+    //Personal Admin
+    Route::post('create-social', [SocialMediaController::class, 'create'])->name('create-social');
+    Route::put('update-social/{id}', [SocialMediaController::class, 'update'])->name('update-social');
+    Route::delete('delete-social/{id}', [SocialMediaController::class, 'delete'])->name('delete-social');
 });
 
 require __DIR__ . '/settings.php';

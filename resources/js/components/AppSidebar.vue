@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import {
+    Activity,
     Award,
     BookOpen,
     BriefcaseBusiness,
@@ -11,6 +12,7 @@ import {
     MonitorSmartphone,
     Projector,
     ProjectorIcon,
+    UsersRound,
 } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
@@ -30,8 +32,10 @@ import {
     dashboard,
     educationsAdmin,
     landingPage,
+    personalAdmin,
     projectsAdmin,
     skillsAdmin,
+    socialAdmin,
     worksAdmin,
 } from '@/routes';
 import type { NavItem } from '@/types';
@@ -41,36 +45,55 @@ const mainNavItems: NavItem[] = [
         title: 'Landing Page',
         href: landingPage().url,
         icon: MonitorSmartphone,
+        group: 'landing',
     },
     {
         title: 'Dashboard',
         href: dashboard().url,
         icon: LayoutGrid,
+        group: 'main',
     },
     {
         title: 'Projects',
         href: projectsAdmin().url,
         icon: ProjectorIcon,
+        group: 'main',
     },
     {
         title: 'Skills',
         href: skillsAdmin().url,
         icon: Flower,
+        group: 'main',
     },
     {
         title: 'Awards',
         href: awardsAdmin().url,
         icon: Award,
+        group: 'main',
     },
     {
         title: 'Educations',
         href: educationsAdmin().url,
         icon: GraduationCap,
+        group: 'main',
     },
     {
         title: 'Works',
         href: worksAdmin().url,
         icon: BriefcaseBusiness,
+        group: 'main',
+    },
+    {
+        title: 'Personal',
+        href: personalAdmin().url,
+        icon: UsersRound,
+        group: 'personal',
+    },
+    {
+        title: 'Social Media',
+        href: socialAdmin().url,
+        icon: Activity,
+        group: 'personal',
     },
 ];
 </script>
