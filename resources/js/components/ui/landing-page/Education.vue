@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { educations } = defineProps<{
-    educations: any[];
+    educations?: any[];
 }>();
 </script>
 

@@ -181,11 +181,9 @@ const {
                         v-model="form.start"
                         showIcon
                         size="small"
-                        placeholder="Pick a start year"
-                        :view="'year'"
-                        :yearNavigator="true"
-                        :monthNavigator="false"
-                        dateFormat="yy"
+                        placeholder="Pick month & year"
+                        view="month"
+                        dateFormat="mm/yy"
                     />
                 </div>
 
@@ -195,11 +193,9 @@ const {
                         v-model="form.end"
                         showIcon
                         size="small"
-                        placeholder="Pick a end year"
-                        :view="'year'"
-                        :yearNavigator="true"
-                        :monthNavigator="false"
-                        dateFormat="yy"
+                        placeholder="Pick month & year"
+                        view="month"
+                        dateFormat="mm/yy"
                     />
                 </div>
 

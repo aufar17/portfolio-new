@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
 import { useAppearance } from '@/composables/useAppearance';
 import { tryOnScopeDispose } from '@vueuse/core';
 import logo from '@/assets/img/logo.png';
@@ -17,6 +17,7 @@ import {
     X,
 } from 'lucide-vue-next';
 import type { NavItem } from '@/types/navigation';
+import { landingPage } from '@/routes';
 
 const activeSection = ref('home');
 const isScrolled = ref(false);
@@ -24,18 +25,20 @@ const isOpen = ref(false);
 
 const { resolvedAppearance, updateAppearance } = useAppearance();
 
+const page = usePage();
+const isLandingPage = computed(() => page.url === '/landing-page');
 const mainNavItems: NavItem[] = [
-    { title: 'Home', href: `#home`, section: 'home', icon: House },
-    { title: 'About', href: `#about`, section: 'about', icon: User },
+    { title: 'Home', href: `home`, section: 'home', icon: House },
+    { title: 'About', href: `about`, section: 'about', icon: User },
     {
         title: 'Project',
-        href: `#project`,
+        href: `project`,
         section: 'project',
         icon: FolderGit,
     },
     {
         title: 'Contact',
-        href: `#contact`,
+        href: `contact`,
         section: 'contact',
         icon: ContactRound,
     },
@@ -120,15 +123,22 @@ const toggleTheme = () => {
         <div
             class="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4 md:px-12"
         >
-            <div class="text-xl font-bold tracking-wide">
+            <Link
+                :href="landingPage().url"
+                class="text-xl font-bold tracking-wide"
+            >
                 <img :src="logo" alt="logo" class="h-10 w-auto" />
-            </div>
+            </Link>
 
             <div class="hidden items-center gap-8 font-medium md:flex">
                 <Link
                     v-for="item in mainNavItems"
                     :key="item.title"
-                    :href="item.href"
+                    :href="
+                        isLandingPage
+                            ? `#${item.section}`
+                            : `/landing-page/#${item.section}`
+                    "
                     class="flex items-center gap-2 rounded-md px-2 py-2 font-semibold transition-colors"
                     :class="
                         activeSection === item.section

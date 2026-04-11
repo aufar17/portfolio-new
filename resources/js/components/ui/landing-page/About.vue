@@ -1,93 +1,22 @@
 <script setup lang="ts">
-import profile from '@/assets/img/logo.png';
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
-import Education from './Education.vue';
+import { UserAboutScript } from '@/script/landingPage/about';
 import Work from './Work.vue';
-import { BriefcaseBusiness, GraduationCap } from 'lucide-vue-next';
+import Education from './Education.vue';
 
-const stats = [
-    { value: 1, suffix: '+', title: 'Experience' },
-    { value: 10, suffix: '+', title: 'Projects' },
-    { value: 5, suffix: '+', title: 'Awards & Certs' },
-];
+const props = defineProps<{
+    personal: any;
+    lastRole: String;
+    works?: any[];
+    educations?: any[];
+}>();
 
-type Tab = 'education' | 'work';
-
-const activeTab = ref<Tab>('work');
-const tabs: { id: Tab; label: string; icon?: any }[] = [
-    { id: 'work', label: 'Work', icon: BriefcaseBusiness },
-    { id: 'education', label: 'Education', icon: GraduationCap },
-];
-const activeIndex = computed(() =>
-    tabs.findIndex((t) => t.id === activeTab.value),
-);
-
-const props = withDefaults(
-    defineProps<{
-        works?: any[];
-        educations?: any[];
-    }>(),
-    {
-        works: () => [],
-        educations: () => [],
-    },
-);
-
-const animatedStats = ref(stats.map(() => 0));
-const aboutSection = ref<HTMLElement | null>(null);
-let observer: IntersectionObserver | null = null;
-const hasAnimated = ref(false);
-const animateStats = () => {
-    const duration = 1200;
-
-    stats.forEach((item, index) => {
-        const start = performance.now();
-
-        const animate = (time: number) => {
-            const progress = Math.min((time - start) / duration, 1);
-
-            const easeOut = 1 - Math.pow(1 - progress, 3);
-            const value = Math.floor(easeOut * item.value);
-
-            animatedStats.value[index] = value;
-
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                animatedStats.value[index] = item.value;
-            }
-        };
-
-        requestAnimationFrame(animate);
+const { aboutSection, activeTab, tabs, activeIndex, animatedStats, stats } =
+    UserAboutScript({
+        personal: props.personal,
+        lastRole: props.lastRole,
+        works: props.works ?? [],
+        educations: props.educations ?? [],
     });
-};
-
-onMounted(() => {
-    observer = new IntersectionObserver(
-        (entries) => {
-            const entry = entries[0];
-
-            if (entry.isIntersecting && !hasAnimated.value) {
-                hasAnimated.value = true;
-
-                setTimeout(() => {
-                    animateStats();
-                }, 400);
-
-                observer?.disconnect();
-            }
-        },
-        { threshold: 0.2, rootMargin: '0px 0px -100px 0px' },
-    );
-
-    if (aboutSection.value) {
-        observer.observe(aboutSection.value);
-    }
-});
-
-onBeforeUnmount(() => {
-    observer?.disconnect();
-});
 </script>
 
 <template>
@@ -110,19 +39,69 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="grid gap-10 md:grid-cols-[1fr_2fr]">
-                <div class="relative flex justify-center md:justify-start">
+                <div class="flex justify-center md:justify-start">
                     <div
-                        class="absolute -top-10 -left-10 h-40 w-40 rounded-full bg-primary/30 blur-3xl"
-                    ></div>
-
-                    <div
-                        class="group relative rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur-md transition duration-300 hover:-translate-y-3 hover:shadow-2xl"
+                        class="group relative w-[280px] overflow-hidden rounded-xl border border-black/10 bg-black/5 text-center transition duration-300 hover:shadow-2xl dark:border-white/10 dark:bg-white/10"
                     >
-                        <img
-                            :src="profile"
-                            alt="profile"
-                            class="h-[300px] w-[240px] rounded-2xl object-contain"
-                        />
+                        <div
+                            class="flex items-center justify-between border-b border-black/10 bg-primary px-4 py-3 text-sm font-bold text-white dark:border-white/10"
+                        >
+                            <span class="tracking-wider">ID CARD</span>
+                            <QrCode class="h-5 w-5 opacity-80" />
+                        </div>
+
+                        <div class="p-6">
+                            <div class="flex justify-center">
+                                <img
+                                    :src="
+                                        personal?.photo
+                                            ? `/storage/${personal.photo}`
+                                            : '/images/default.png'
+                                    "
+                                    alt="avatar"
+                                    class="h-24 w-24 rounded-full border border-black/10 object-cover shadow-lg dark:border-white/10"
+                                />
+                            </div>
+
+                            <h2
+                                class="mt-4 text-lg font-semibold text-black dark:text-white"
+                            >
+                                Muammar Aufar Prasetya
+                            </h2>
+
+                            <p
+                                class="mt-1 text-sm font-medium text-black/80 italic dark:text-white/80"
+                            >
+                                {{ props.lastRole }}
+                            </p>
+
+                            <div
+                                class="my-4 border-t border-black/30 dark:border-white/10"
+                            ></div>
+
+                            <div
+                                class="space-y-1 text-xs text-black/80 dark:text-white/80"
+                            >
+                                <p class="font-medium">📍 Bekasi, Indonesia</p>
+                            </div>
+
+                            <div
+                                class="mt-4 flex flex-wrap justify-center gap-2"
+                            >
+                                <span
+                                    v-for="(role, i) in personal?.role_list ||
+                                    []"
+                                    :key="i"
+                                    class="rounded-full border border-black/10 px-2 py-0.5 text-[10px] dark:border-white/10"
+                                >
+                                    {{ role }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div
+                            class="absolute bottom-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-primary to-transparent opacity-70"
+                        ></div>
                     </div>
                 </div>
 
@@ -130,27 +109,7 @@ onBeforeUnmount(() => {
                     <p
                         class="max-w-7xl text-justify text-black md:text-lg dark:text-muted-foreground"
                     >
-                        An 8th-semester student in Automotive Industry
-                        Information Systems at STMI Polytechnic Jakarta with a
-                        strong interest in software development. Passionate
-                        about building effective digital solutions, continuously
-                        learning new technologies, and improving programming
-                        skills. Known for strong responsibility, discipline, and
-                        problem-solving abilities, both independently and in
-                        team environments. <br />
-                        <br />
-                        I am currently doing an internship at
-                        <span class="font-bold text-primary"
-                            >PT Enseval Putera Megatrading Tbk</span
-                        >
-                        as a
-                        <span class="font-bold text-chart-2"
-                            >Flutter Developer</span
-                        >. During this internship, I am gaining hands-on
-                        experience in building websites using Flutter, enhancing
-                        my skills in cross-platform development, and
-                        collaborating with the development team to deliver
-                        efficient and scalable solutions.
+                        {{ personal.about }}
                     </p>
 
                     <div

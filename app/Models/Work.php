@@ -18,35 +18,31 @@ class Work extends Model
         'end'
     ];
 
-    protected $casts = [
-        'start' => 'date',
-        'end'   => 'date',
-    ];
-
     protected $appends = [
-        'description',
         'start_month',
         'end_month',
         'date_range',
     ];
 
-    public function getDescriptionAttribute(): ?string
-    {
-        return $this->desc;
-    }
 
     public function getStartMonthAttribute(): ?string
     {
-        return $this->start
-            ? Carbon::parse($this->start)->translatedFormat('M Y')
-            : null;
+        if (!$this->start) {
+            return null;
+        }
+
+        return Carbon::createFromFormat('Y-m', $this->start)
+            ->translatedFormat('M Y');
     }
 
     public function getEndMonthAttribute(): ?string
     {
-        return $this->end
-            ? Carbon::parse($this->end)->translatedFormat('M Y')
-            : null;
+        if (!$this->end) {
+            return null;
+        }
+
+        return Carbon::createFromFormat('Y-m', $this->end)
+            ->translatedFormat('M Y');
     }
 
     public function getDateRangeAttribute(): string

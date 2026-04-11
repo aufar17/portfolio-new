@@ -1,16 +1,34 @@
 <script setup lang="ts">
+import { Link } from '@inertiajs/vue3';
+
 const year = new Date().getFullYear();
 
-const socials = [
+const items = [
     {
-        name: 'GitHub',
-        url: 'https://github.com/yourusername',
+        label: 'Home',
+        link: '#home',
     },
     {
-        name: 'LinkedIn',
-        url: 'https://linkedin.com/in/yourusername',
+        label: 'About',
+        link: '#about',
+    },
+    {
+        label: 'Project',
+        link: '#project',
+    },
+    {
+        label: 'Contact',
+        link: '#contact',
     },
 ];
+const props = withDefaults(
+    defineProps<{
+        lastRole: String;
+    }>(),
+    {
+        lastRole: () => '',
+    },
+);
 </script>
 
 <template>
@@ -37,7 +55,7 @@ const socials = [
                         Muammar Aufar Prasetya
                     </h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Web & Mobile Developer
+                        {{ lastRole }}
                     </p>
                 </div>
 
@@ -45,44 +63,23 @@ const socials = [
                     <div
                         class="flex flex-wrap justify-center gap-6 text-sm font-medium"
                     >
-                        <a
-                            href="#home"
-                            class="text-gray-600 hover:text-primary dark:text-gray-400"
-                            >Home</a
+                        <Link
+                            v-for="item in items"
+                            :key="item.label"
+                            :href="item.link"
+                            class="rounded-full border border-black/10 px-4 py-2 text-gray-600 transition hover:bg-black/10 hover:text-black dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
                         >
-                        <a
-                            href="#about"
-                            class="text-gray-600 hover:text-primary dark:text-gray-400"
-                            >About</a
-                        >
-                        <a
-                            href="#projects"
-                            class="text-gray-600 hover:text-primary dark:text-gray-400"
-                            >Projects</a
-                        >
-                        <a
-                            href="#contact"
-                            class="text-gray-600 hover:text-primary dark:text-gray-400"
-                            >Contact</a
-                        >
+                            {{ item.label }}
+                        </Link>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <a
-                        v-for="item in socials"
-                        :key="item.name"
-                        :href="item.url"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="group rounded-lg border border-white/10 bg-white/5 p-2 backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-white/10"
+                    <span
+                        class="rounded-full border border-black/10 bg-black/5 px-3 py-1 text-xs text-black backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-white"
                     >
-                        <span
-                            class="text-sm text-gray-700 transition group-hover:text-primary dark:text-gray-300"
-                        >
-                            {{ item.name }}
-                        </span>
-                    </a>
+                        v2.0
+                    </span>
                 </div>
             </div>
 

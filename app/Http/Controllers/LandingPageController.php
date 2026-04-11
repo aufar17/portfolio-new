@@ -18,4 +18,20 @@ class LandingPageController extends Controller
         $data = $this->service->getLandingPageData();
         return Inertia::render('LandingPage', $data);
     }
+    public function allProjects()
+    {
+        $projects = $this->service->getAllProjects();
+        $data = [
+            'projects' => $projects
+        ];
+        return Inertia::render('AllProject', $data);
+    }
+    public function projectDetail($slug)
+    {
+        $project = $this->service->projectDetail($slug);
+        $data = [
+            'project' => $project
+        ];
+        return Inertia::render('ProjectDetail', $data);
+    }
 }

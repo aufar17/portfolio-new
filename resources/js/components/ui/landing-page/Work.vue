@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { works } = defineProps<{
-    works: any[];
+    works?: any[];
 }>();
 </script>
 

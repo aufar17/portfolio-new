@@ -1,75 +1,22 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { personalAdmin } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
-import { route } from 'ziggy-js';
-
+import { personalAdmin } from '@/routes';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import Button from '@/components/ui/button/Button.vue';
 import { Pencil } from 'lucide-vue-next';
+import { usePersonalScript } from '@/script/admin/personal';
+
+const props = defineProps<{ personal: any }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Personal', href: personalAdmin().url },
 ];
 
-const props = defineProps<{
-    personal: any;
-}>();
-
-const fileInput = ref<HTMLInputElement | null>(null);
-const preview = ref<string | null>(null);
-
-const form = useForm({
-    desc: '',
-    role: '',
-    about: '',
-    photo: null as File | null,
-});
-
-watch(
-    () => props.personal,
-    (val) => {
-        if (val) {
-            form.desc = val.desc ?? '';
-            form.role = val.role ?? '';
-            form.about = val.about ?? '';
-        }
-    },
-    { immediate: true },
-);
-
-const avatarUrl = computed(() => {
-    if (preview.value) return preview.value;
-
-    if (props.personal?.photo) {
-        return `/storage/${props.personal.photo}`;
-    }
-
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        props.personal?.role ?? 'User',
-    )}&background=random&color=fff`;
-});
-
-const handleFile = (e: Event) => {
-    const target = e.target as HTMLInputElement;
-    const file = target.files?.[0];
-
-    if (!file) return;
-
-    form.photo = file;
-    preview.value = URL.createObjectURL(file);
-};
-
-const submit = () => {
-    if (!props.personal?.id) return;
-
-    form.put(route('update-personal', props.personal.id), {
-        forceFormData: true,
-    });
-};
+const { fileInput, preview, form, avatarUrl, handleFile, submit } =
+    usePersonalScript(props.personal);
 </script>
 <template>
     <Head title="Personal" />

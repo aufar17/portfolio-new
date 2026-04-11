@@ -18,6 +18,10 @@ Route::inertia('/', 'Welcome', [
 
 Route::get('landing-page', [LandingPageController::class, 'landingPage'])->name('landing-page');
 
+//Projects Section
+Route::get('all-projects', [LandingPageController::class, 'allProjects'])->name('all-projects');
+Route::get('project/{slug}', [LandingPageController::class, 'projectDetail'])->name('project-detail');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [MainController::class, 'dashboard'])->name('dashboard');
     Route::get('projects-admin', [MainController::class, 'projectsAdmin'])->name('projects-admin');
@@ -59,7 +63,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('update-personal/{id}', [PersonalController::class, 'update'])->name('update-personal');
     Route::delete('delete-personal/{id}', [PersonalController::class, 'delete'])->name('delete-personal');
 
-    //Personal Admin
+    //Social Admin
     Route::post('create-social', [SocialMediaController::class, 'create'])->name('create-social');
     Route::put('update-social/{id}', [SocialMediaController::class, 'update'])->name('update-social');
     Route::delete('delete-social/{id}', [SocialMediaController::class, 'delete'])->name('delete-social');

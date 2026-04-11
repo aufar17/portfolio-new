@@ -1,43 +1,17 @@
 <script setup lang="ts">
-import logo from '@/assets/img/logo.png';
-import { useSplash } from '@/composables/useSplash';
-import {
-    ArrowRight,
-    CodeXml,
-    Mail,
-    MailOpen,
-    MonitorCheck,
-    Smartphone,
-} from 'lucide-vue-next';
+import { UserHeroScript } from '@/script/landingPage/hero';
 import Badge from '../badge/Badge.vue';
 import Button from '../button/Button.vue';
-import { ref, watch } from 'vue';
 
-const skills = [
-    {
-        name: 'Web Developer',
-        icon: CodeXml,
-        color: 'text-red-500',
-    },
-    {
-        name: 'Mobile Developer',
-        icon: Smartphone,
-        color: 'text-green-500',
-    },
-    {
-        name: 'Software Engineer',
-        icon: MonitorCheck,
-        color: 'text-yellow-500',
-    },
-];
+const props = defineProps<{
+    personal: any;
+}>();
 
-const { splashDone } = useSplash(2500);
-const startTyping = ref(false);
-
-watch(splashDone, (val) => {
-    if (val) startTyping.value = true;
-});
+const { roles, startTyping, ArrowRight, Mail, MailOpen } = UserHeroScript(
+    props.personal,
+);
 </script>
+
 <style scoped>
 .typing {
     margin: 0 auto;
@@ -83,50 +57,53 @@ watch(splashDone, (val) => {
     }
 }
 </style>
-
 <template>
     <section
         id="home"
-        class="mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center text-center"
+        class="mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-4 text-center sm:px-6"
     >
-        <div class="flex w-full max-w-7xl flex-col items-center">
+        <div class="flex w-full flex-col items-center">
             <h1
                 :class="['typing', { start: startTyping }]"
-                class="typing text-6xl leading-tight font-bold tracking-tight md:text-5xl lg:text-6xl"
+                class="typing text-4xl leading-snug font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-6xl"
             >
                 Hi, I'm
                 <span class="text-primary">Muammar Aufar Prasetya</span>
             </h1>
 
-            <div class="mt-5 flex flex-wrap justify-center gap-2">
+            <div
+                class="mt-4 flex flex-wrap justify-center gap-2 sm:mt-5 sm:gap-3"
+            >
                 <Badge
-                    v-for="skill in skills"
-                    :key="skill.name"
-                    variant="default"
-                    class="text-md flex cursor-default items-center gap-2 rounded-2xl px-3 py-1 font-medium transition-all duration-200"
+                    v-for="(role, index) in roles"
+                    :key="index"
+                    class="sm:text-md text-md flex items-center gap-1 rounded-2xl px-2 py-1 font-medium transition-all duration-200 sm:px-3 sm:py-1"
                     :class="[
-                        skill.color,
+                        role.color,
                         'border border-black/10 bg-white/5 shadow-md hover:-translate-y-0.5 hover:scale-105 hover:shadow-lg dark:border-white/10',
                     ]"
                 >
-                    <span v-if="skill.icon">
-                        <component :is="skill.icon" class="h-4 w-4" />
-                    </span>
-                    {{ skill.name }}
+                    <component
+                        v-if="role.icon"
+                        :is="role.icon"
+                        class="h-3 w-3 sm:h-4 sm:w-4"
+                    />
+                    {{ role.name }}
                 </Badge>
             </div>
 
             <p
-                class="mt-10 max-w-2xl leading-relaxed text-muted-foreground md:text-lg"
+                class="mt-6 max-w-xl text-sm leading-relaxed text-muted-foreground sm:mt-10 sm:text-base md:text-lg"
             >
-                A professional web & mobile developer focused on modern,
-                responsive, and scalable applications.
+                {{ personal.desc }}
             </p>
 
-            <div class="mt-15 flex items-center justify-center gap-4">
+            <div
+                class="mt-8 flex flex-col items-center gap-3 sm:mt-15 sm:flex-row sm:gap-4"
+            >
                 <Button
                     variant="default"
-                    class="group inline-flex items-center gap-2 rounded-md bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                    class="group inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:px-6 sm:py-2.5"
                 >
                     View Projects
                     <ArrowRight
@@ -135,16 +112,14 @@ watch(splashDone, (val) => {
                 </Button>
                 <Button
                     variant="outline"
-                    class="group inline-flex items-center gap-2 rounded-md border border-gray-300 px-6 py-2.5 text-sm font-semibold text-foreground transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-secondary"
+                    class="group inline-flex items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-foreground transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:px-6 sm:py-2.5 dark:border-secondary"
                 >
                     <Mail
                         class="h-4 w-4 transition-all duration-200 group-hover:hidden"
                     />
-
                     <MailOpen
                         class="hidden h-4 w-4 transition-all duration-200 group-hover:block"
                     />
-
                     Contact Me
                 </Button>
             </div>

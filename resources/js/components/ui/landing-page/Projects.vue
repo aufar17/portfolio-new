@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { allProjects, projectDetail } from '@/routes';
 
 const props = withDefaults(
     defineProps<{
@@ -42,7 +43,8 @@ const getImage = (path: string) =>
         <div
             class="mx-auto grid max-w-7xl auto-rows-[200px] gap-6 sm:grid-cols-2 md:grid-cols-4"
         >
-            <div
+            <Link
+                :href="projectDetail(project.slug).url"
                 v-for="(project, i) in filteredProjects"
                 :key="project.id"
                 :class="[
@@ -83,29 +85,22 @@ const getImage = (path: string) =>
                         ></div>
                     </div>
                 </div>
-            </div>
+            </Link>
         </div>
 
         <div class="mt-10 text-center">
             <Link
-                href="/projects"
-                class="group relative inline-flex items-center gap-2 overflow-hidden rounded-lg px-6 py-3 font-semibold text-white transition-all duration-300"
+                :href="allProjects().url"
+                class="group inline-flex items-center gap-2 rounded-full border border-black/10 bg-primary/10 px-6 py-2 text-sm font-medium text-black backdrop-blur transition-all duration-300 hover:bg-primary hover:text-white dark:border-white/10 dark:text-white"
             >
+                See More Projects
                 <span
-                    class="absolute inset-0 bg-primary opacity-80 transition duration-300 group-hover:opacity-100 dark:bg-chart-1"
-                ></span>
-
-                <span class="relative z-10 flex items-center gap-2">
-                    More Projects
-                    <span
-                        class="transition-transform duration-300 group-hover:translate-x-1"
-                    >
-                        →
-                    </span>
+                    class="transition-transform duration-300 group-hover:translate-x-2"
+                >
+                    →
                 </span>
             </Link>
         </div>
-
         <div class="mx-auto mt-28 max-w-7xl">
             <div class="mb-20">
                 <h3

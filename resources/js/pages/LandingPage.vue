@@ -10,13 +10,15 @@ import Contact from '@/components/ui/landing-page/Contact.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Landing Page',
         href: dashboard(),
     },
 ];
 
 const props = withDefaults(
     defineProps<{
+        personal: any;
+        lastRole: String;
         skills: {
             hardSkills: any[];
             softSkills: any[];
@@ -24,8 +26,11 @@ const props = withDefaults(
         projects?: any[];
         works?: any[];
         educations?: any[];
+        contacts?: any[];
     }>(),
     {
+        personal: () => ({}),
+        lastRole: () => '',
         skills: () => ({
             hardSkills: [],
             softSkills: [],
@@ -33,22 +38,27 @@ const props = withDefaults(
         projects: () => [],
         works: () => [],
         educations: () => [],
+        contacts: () => [],
     },
 );
-console.log(props.skills.softSkills);
 </script>
 
 <template>
     <Head title="Portfolio  " />
 
     <LandingPageLayout :breadcrumbs="breadcrumbs">
-        <Hero />
-        <About :works="props.works" :educations="props.educations" />
+        <Hero :personal="props.personal" />
+        <About
+            :works="props.works"
+            :educations="props.educations"
+            :personal="props.personal"
+            :lastRole="props.lastRole"
+        />
         <Projects
             :projects="props.projects"
             :hard-skills="props.skills.hardSkills"
             :soft-skills="props.skills.softSkills"
         />
-        <Contact />
+        <Contact :contacts="props.contacts" />
     </LandingPageLayout>
 </template>

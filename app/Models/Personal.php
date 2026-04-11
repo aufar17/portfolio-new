@@ -15,4 +15,21 @@ class Personal extends Model
         'about',
         'photo',
     ];
+
+    protected $appends = [
+        'role_list',
+    ];
+
+    public function getRoleListAttribute(): array
+    {
+        if (!$this->role) {
+            return [];
+        }
+
+        return collect(explode(',', $this->role))
+            ->map(fn($item) => trim($item))
+            ->filter()
+            ->values()
+            ->toArray();
+    }
 }

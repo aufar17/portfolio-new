@@ -27,8 +27,6 @@ const props = defineProps({
 const {
     visible,
     mode,
-    selectedData,
-    selectedPhoto,
     isDelete,
     globalFields,
     form,

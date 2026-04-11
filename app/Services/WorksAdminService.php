@@ -24,14 +24,20 @@ class WorksAdminService
     public function create(Request $request)
     {
         $data = $this->validate($request);
-        $data['start'] = date('Y', strtotime($data['start']));
-        $data['end']   = date('Y', strtotime($data['end']));
+
+        $data['start'] = !empty($data['start'])
+            ? date('Y-m', strtotime($data['start']))
+            : null;
+
+        $data['end'] = !empty($data['end'])
+            ? date('Y-m', strtotime($data['end']))
+            : null;
 
         DB::beginTransaction();
         try {
             $create = Work::create($data);
-
             DB::commit();
+
             return $create;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -43,14 +49,20 @@ class WorksAdminService
     {
         $work = Work::findOrFail($id);
         $data = $this->validate($request);
-        $data['end']   = date('Y', strtotime($data['end']));
-        $data['start'] = date('Y', strtotime($data['start']));
+
+        $data['start'] = !empty($data['start'])
+            ? date('Y-m', strtotime($data['start']))
+            : null;
+
+        $data['end'] = !empty($data['end'])
+            ? date('Y-m', strtotime($data['end']))
+            : null;
 
         DB::beginTransaction();
         try {
             $work->update($data);
-
             DB::commit();
+
             return $work;
         } catch (\Exception $e) {
             DB::rollBack();

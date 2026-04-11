@@ -45,6 +45,9 @@ class PersonalAdminService
 
                 $data['photo'] = $path;
                 $data['photo_name'] = $file->getClientOriginalName();
+            } else {
+                unset($data['photo']);
+                unset($data['photo_name']);
             }
 
             if (!empty($data['role'])) {

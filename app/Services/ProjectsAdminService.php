@@ -48,6 +48,18 @@ class ProjectsAdminService
             if (!empty($data['tech'])) {
                 $data['tech_list'] = explode(',', $data['tech']);
             }
+
+            if (!empty($data['title'])) {
+                $baseSlug = Str::slug($data['title']);
+                $slug = $baseSlug;
+                $counter = 1;
+
+                while (Project::where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . $counter++;
+                }
+
+                $data['slug'] = $slug;
+            }
             $create = Project::create($data);
             DB::commit();
             return $create;
@@ -84,12 +96,30 @@ class ProjectsAdminService
 
                 $data['image'] = $path;
                 $data['image_name'] = $file->getClientOriginalName();
+            } else {
+                $data['image'] = $project->image;   
+                $data['image_name'] = $project->image_name;
             }
 
             if (!empty($data['tech'])) {
                 $data['tech_list'] = array_map('trim', explode(',', $data['tech']));
             }
 
+            if (!empty($data['title'])) {
+                $baseSlug = Str::slug($data['title']);
+                $slug = $baseSlug;
+                $counter = 1;
+
+                $exist =    Project::where('slug', $slug)
+                    ->where('id', '!=', $project->id)
+                    ->exists();
+
+                while ($exist) {
+                    $slug = $baseSlug . '-' . $counter++;
+                }
+
+                $data['slug'] = $slug;
+            }
             $project->update($data);
 
             DB::commit();
