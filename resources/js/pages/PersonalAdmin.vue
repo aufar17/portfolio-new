@@ -74,8 +74,6 @@ const { fileInput, preview, form, avatarUrl, handleFile, submit } =
                     </div>
 
                     <div class="col-span-2 flex justify-end gap-3">
-                        <Button type="reset" variant="outline"> Cancel </Button>
-
                         <Button
                             type="submit"
                             :disabled="form.processing"

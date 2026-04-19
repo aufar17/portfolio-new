@@ -18,15 +18,18 @@ class LandingPageService
         $lastRole = $this->getLastRole();
         $skills = $this->getSkills();
         $projects = $this->getProjects();
+        $achievements = $this->getAchievements();
         $works = $this->getWorks();
         $educations = $this->getEducations();
         $contacts = $this->getContact();
+
 
         $data = [
             'personal' => $personal,
             'lastRole' => $lastRole,
             'skills' => $skills,
             'projects' => $projects,
+            'achievements' => $achievements,
             'works' => $works,
             'educations' => $educations,
             'contacts' => $contacts
@@ -70,17 +73,32 @@ class LandingPageService
     }
     public function projectDetail($slug)
     {
-        $projects = Project::where('slug', $slug)->first();
-        return $projects;
+        $project = Project::where('slug', $slug)->first();
+        return $project;
+    }
+    public function getAchievements()
+    {
+        $achievements = Award::where('status', 1)->orderBy('created_at', 'asc')->get();
+        return $achievements;
+    }
+    public function getAllAchievements()
+    {
+        $achievements = Award::orderBy('created_at', 'asc')->get();
+        return $achievements;
+    }
+    public function achievementDetail($slug)
+    {
+        $achievement = Award::where('slug', $slug)->first();
+        return $achievement;
     }
     public function getWorks()
     {
-        $works = Work::orderBy('created_at', 'asc')->get();
+        $works = Work::orderBy('created_at', 'desc')->get();
         return $works;
     }
     public function getEducations()
     {
-        $educations = Education::orderBy('created_at', 'asc')->get();
+        $educations = Education::orderBy('created_at', 'desc')->get();
         return $educations;
     }
 

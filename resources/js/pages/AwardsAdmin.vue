@@ -15,6 +15,8 @@ import FileUpload from 'primevue/fileupload';
 import { useAwardScript } from '@/script/admin/awards';
 import Textarea from 'primevue/textarea';
 import DatePicker from 'primevue/datepicker';
+import RadioButton from 'primevue/radiobutton';
+import ToggleSwitch from 'primevue/toggleswitch';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Awards', href: awardsAdmin().url },
@@ -41,6 +43,7 @@ const {
     closeDialogDelete,
     submit,
     deleteAward,
+    toggleStatus,
 } = useAwardScript(props.awards);
 </script>
 
@@ -88,11 +91,23 @@ const {
                             {{ index + 1 }}
                         </template>
                     </Column>
-                    <Column field="title" header="Title" sortable />
-
+                    <Column field="title" header="Title" sortable>
+                        <template> </template
+                    ></Column>
+                    <Column field="type" header="Type" sortable>
+                        <template #body="{ data }">
+                            <span
+                                class="rounded-full bg-black px-2 py-1 text-xs font-semibold text-white dark:bg-white dark:text-black"
+                                >{{
+                                    data.type === 1 ? 'Awards' : 'Certs'
+                                }}</span
+                            >
+                        </template>
+                    </Column>
                     <Column field="description" header="Description" sortable>
                     </Column>
                     <Column field="issuer" header="Issuer" sortable> </Column>
+
                     <Column field="date_format" header="Date" sortable>
                     </Column>
                     <Column field="photo" header="Photo" sortable>
@@ -103,6 +118,16 @@ const {
                                 icon="pi pi-eye"
                                 size="small" /></template
                     ></Column>
+                    <Column field="status" header="Status">
+                        <template #body="{ data }">
+                            <ToggleSwitch
+                                :modelValue="data.status === 1"
+                                @update:modelValue="
+                                    (val) => toggleStatus(data, val)
+                                "
+                            />
+                        </template>
+                    </Column>
                     <Column header="Action">
                         <template #body="{ data }">
                             <div class="flex">
@@ -151,6 +176,32 @@ const {
                         {{ form.errors.title }}
                     </small>
                 </div>
+                <div class="col-span-2 flex flex-col gap-3">
+                    <label class="font-semibold">Type</label>
+                    <div class="flex items-center gap-6">
+                        <div
+                            v-for="option in [
+                                { label: 'Award', value: 1 },
+                                { label: 'Certification', value: 2 },
+                            ]"
+                            :key="option.value"
+                            class="flex items-center gap-2"
+                        >
+                            <RadioButton
+                                v-model="form.type"
+                                :inputId="'type' + option.value"
+                                name="type"
+                                :value="option.value"
+                            />
+                            <label :for="'type' + option.value">
+                                {{ option.label }}
+                            </label>
+                        </div>
+                    </div>
+                    <small v-if="form.errors.type" class="text-red-500">
+                        {{ form.errors.type }}
+                    </small>
+                </div>
                 <div class="col-span-2 flex flex-col gap-2">
                     <label class="font-semibold">Description</label>
                     <Textarea
@@ -193,7 +244,6 @@ const {
                 <div class="col-span-2 flex flex-col gap-2">
                     <label class="font-semibold">Photo</label>
                     <FileUpload
-                        required
                         mode="advanced"
                         accept="image/*"
                         :maxFileSize="1000000"

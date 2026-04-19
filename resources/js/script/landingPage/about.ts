@@ -14,12 +14,21 @@ export function UserAboutScript({
     works?: any[];
     educations?: any[];
 }) {
+    const preview = ref<string | null>(null);
+
     const stats = [
         { value: 1, suffix: '+', title: 'Experience' },
         { value: 10, suffix: '+', title: 'Projects' },
-        { value: 5, suffix: '+', title: 'Awards & Certs' },
+        { value: 5, suffix: '+', title: 'Achievements' },
     ];
 
+    const avatarUrl = computed(() => {
+        if (preview.value) return preview.value;
+
+        return personal?.photo
+            ? `/storage/${personal.photo}`
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent('Muammar Aufar')}`;
+    });
     type Tab = 'work' | 'education';
 
     const activeTab = ref<Tab>('work');
@@ -86,6 +95,7 @@ export function UserAboutScript({
 
     return {
         aboutSection,
+        avatarUrl,
         activeTab,
         tabs,
         activeIndex,

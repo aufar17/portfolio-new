@@ -1,6 +1,6 @@
 import { deleteEducation } from '@/routes';
 import { useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 export function useEducationScript(educations: any) {
     const route = window.route;
@@ -9,6 +9,7 @@ export function useEducationScript(educations: any) {
     const mode = ref<'create' | 'edit'>('create');
     const selectedData = ref<any>(null);
     const isDelete = ref(false);
+    const isPresent = ref(false);
 
     const excluded = ['id', 'created_at', 'updated_at'];
 
@@ -46,7 +47,7 @@ export function useEducationScript(educations: any) {
         form.title = data.title;
         form.start = data.start ? new Date(data.start) : null;
         form.end = data.end ? new Date(data.end) : null;
-
+        isPresent.value = data.end === null;
         visible.value = true;
     };
 
@@ -73,9 +74,11 @@ export function useEducationScript(educations: any) {
             start: data.start
                 ? new Date(data.start).toISOString().split('T')[0]
                 : null,
-            end: data.end
-                ? new Date(data.end).toISOString().split('T')[0]
-                : null,
+            end: isPresent.value
+                ? null
+                : form.end
+                  ? new Date(form.end).toISOString().split('T')[0]
+                  : null,
         }));
         if (mode.value === 'create') {
             form.post(route('create-education'), {
@@ -100,11 +103,17 @@ export function useEducationScript(educations: any) {
         });
     };
 
+    watch(isPresent, (val) => {
+        if (val) {
+            form.end = null;
+        }
+    });
     return {
         visible,
         mode,
         selectedData,
         isDelete,
+        isPresent,
         globalFields,
         form,
         openCreate,

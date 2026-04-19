@@ -34,4 +34,20 @@ class LandingPageController extends Controller
         ];
         return Inertia::render('ProjectDetail', $data);
     }
+    public function allAchievements()
+    {
+        $achievements = $this->service->getAllAchievements();
+        $data = [
+            'achievements' => $achievements
+        ];
+        return Inertia::render('AllAchievements', $data);
+    }
+    public function achievementDetail($slug)
+    {
+        $achievement = $this->service->achievementDetail($slug);
+        $data = [
+            'achievement' => $achievement
+        ];
+        return Inertia::render('AchievementDetail', $data);
+    }
 }

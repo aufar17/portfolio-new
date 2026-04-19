@@ -2,6 +2,9 @@
 import { UserHeroScript } from '@/script/landingPage/hero';
 import Badge from '../badge/Badge.vue';
 import Button from '../button/Button.vue';
+import { Link } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
+import { Medal } from 'lucide-vue-next';
 
 const props = defineProps<{
     personal: any;
@@ -10,6 +13,11 @@ const props = defineProps<{
 const { roles, startTyping, ArrowRight, Mail, MailOpen } = UserHeroScript(
     props.personal,
 );
+onMounted(() => {
+    setTimeout(() => {
+        startTyping.value = true;
+    }, 300);
+});
 </script>
 
 <style scoped>
@@ -60,24 +68,29 @@ const { roles, startTyping, ArrowRight, Mail, MailOpen } = UserHeroScript(
 <template>
     <section
         id="home"
-        class="mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-4 text-center sm:px-6"
+        class="mx-auto flex min-h-[70dvh] max-w-7xl flex-col items-center justify-center px-4 py-12 text-center sm:min-h-[80dvh] sm:px-6 sm:py-16 md:min-h-[85dvh] lg:min-h-screen"
     >
         <div class="flex w-full flex-col items-center">
             <h1
-                :class="['typing', { start: startTyping }]"
-                class="typing text-4xl leading-snug font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-6xl"
+                class="text-3xl leading-snug font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
             >
                 Hi, I'm
-                <span class="text-primary">Muammar Aufar Prasetya</span>
+                <br />
+                <span
+                    :class="['text-primary', { typing: startTyping }]"
+                    class="block sm:inline"
+                >
+                    Muammar Aufar Prasetya
+                </span>
             </h1>
 
             <div
-                class="mt-4 flex flex-wrap justify-center gap-2 sm:mt-5 sm:gap-3"
+                class="mt-3 flex flex-wrap justify-center gap-2 sm:mt-4 sm:gap-3"
             >
                 <Badge
                     v-for="(role, index) in roles"
                     :key="index"
-                    class="sm:text-md text-md flex items-center gap-1 rounded-2xl px-2 py-1 font-medium transition-all duration-200 sm:px-3 sm:py-1"
+                    class="flex items-center gap-1 rounded-2xl px-2 py-1 text-sm font-medium transition-all duration-200 sm:px-3 sm:py-1 sm:text-base"
                     :class="[
                         role.color,
                         'border border-black/10 bg-white/5 shadow-md hover:-translate-y-0.5 hover:scale-105 hover:shadow-lg dark:border-white/10',
@@ -93,35 +106,31 @@ const { roles, startTyping, ArrowRight, Mail, MailOpen } = UserHeroScript(
             </div>
 
             <p
-                class="mt-6 max-w-xl text-sm leading-relaxed text-muted-foreground sm:mt-10 sm:text-base md:text-lg"
+                class="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:mt-8 sm:text-base md:text-lg"
             >
                 {{ personal.desc }}
             </p>
 
             <div
-                class="mt-8 flex flex-col items-center gap-3 sm:mt-15 sm:flex-row sm:gap-4"
+                class="mt-6 flex flex-col items-center gap-3 sm:mt-10 sm:flex-row sm:gap-4"
             >
-                <Button
-                    variant="default"
+                <a
+                    href="#project"
                     class="group inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:px-6 sm:py-2.5"
                 >
                     View Projects
                     <ArrowRight
                         class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
                     />
-                </Button>
-                <Button
-                    variant="outline"
+                </a>
+                <a
+                    href="#achievement"
                     class="group inline-flex items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-foreground transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:px-6 sm:py-2.5 dark:border-secondary"
                 >
-                    <Mail
-                        class="h-4 w-4 transition-all duration-200 group-hover:hidden"
-                    />
-                    <MailOpen
-                        class="hidden h-4 w-4 transition-all duration-200 group-hover:block"
-                    />
-                    Contact Me
-                </Button>
+                    <Medal class="h-4 w-4 transition-all duration-200" />
+
+                    Achievement
+                </a>
             </div>
         </div>
     </section>

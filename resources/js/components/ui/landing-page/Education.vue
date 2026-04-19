@@ -123,7 +123,7 @@ const { educations } = defineProps<{
                         </div>
 
                         <span
-                            class="shrink-0 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white"
+                            class="shrink-0 rounded-full bg-destructive px-3 py-1 text-xs font-medium text-white"
                         >
                             {{ education.date_range }}
                         </span>

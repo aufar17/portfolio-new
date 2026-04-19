@@ -15,16 +15,15 @@ class EducationsAdminService
             'major' => 'required|string|max:255',
             'title' => 'required|string|max:255',
             'start' => 'required|date',
-            'end' => 'required|date',
+            'end' => 'nullable|date',
         ]);
     }
 
     public function create(Request $request)
     {
         $data = $this->validate($request);
-        $data['start'] = date('Y', strtotime($data['start']));
-        $data['end']   = date('Y', strtotime($data['end']));
-
+        $data['start'] = $this->formatYear($data['start']);
+        $data['end'] = $this->formatYear($data['end']);
         DB::beginTransaction();
         try {
             $create = Education::create($data);
@@ -41,9 +40,8 @@ class EducationsAdminService
     {
         $education = Education::findOrFail($id);
         $data = $this->validate($request);
-        $data['end']   = date('Y', strtotime($data['end']));
-        $data['start'] = date('Y', strtotime($data['start']));
-
+        $data['start'] = $this->formatYear($data['start']);
+        $data['end'] = $this->formatYear($data['end']);
         DB::beginTransaction();
         try {
             $education->update($data);
@@ -69,5 +67,10 @@ class EducationsAdminService
             DB::rollBack();
             throw $e;
         }
+    }
+
+    private function formatYear($date)
+    {
+        return $date ? date('Y', strtotime($date)) : null;
     }
 }

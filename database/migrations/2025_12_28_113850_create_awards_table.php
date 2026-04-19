@@ -14,9 +14,12 @@ return new class extends Migration
         Schema::create('awards', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('slug')->unique();
+            $table->boolean('type');
+            $table->boolean('status')->nullable();
             $table->text('description');
             $table->string('issuer');
-            $table->string('photo');
+            $table->string('photo')->nullable();
             $table->date('date');
             $table->timestamps();
         });

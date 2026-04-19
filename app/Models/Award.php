@@ -11,6 +11,9 @@ class Award extends Model
 
     protected $fillable = [
         'title',
+        'slug',
+        'type',
+        'status',
         'description',
         'issuer',
         'photo',

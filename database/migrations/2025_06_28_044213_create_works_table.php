@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('status');
             $table->text('desc');
             $table->string('start');
-            $table->string('end');
+            $table->string('end')->nullable();
             $table->timestamps();
         });
     }

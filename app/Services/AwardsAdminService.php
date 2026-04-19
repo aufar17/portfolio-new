@@ -16,6 +16,7 @@ class AwardsAdminService
     {
         return $request->validate([
             'title' => 'required|string|max:255',
+            'type' => 'required|integer',
             'description' => 'required|string|max:255',
             'issuer' => 'required|string|max:255',
             'date' => 'required|date',
@@ -42,7 +43,18 @@ class AwardsAdminService
                 $data['photo'] = $path;
                 $data['photo_name'] = $file->getClientOriginalName();
             }
+            if (!empty($data['title'])) {
+                $baseSlug = Str::slug($data['title']);
+                $slug = $baseSlug;
+                $counter = 1;
 
+                while (Award::where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . $counter++;
+                }
+
+                $data['slug'] = $slug;
+            }
+            $data['status'] = 0;
             $create = Award::create($data);
 
             DB::commit();
@@ -83,8 +95,26 @@ class AwardsAdminService
 
                 $data['photo'] = $path;
                 $data['photo_name'] = $file->getClientOriginalName();
+            } else {
+                $data['photo'] = $award->photo;
+                $data['photo_name'] = $award->photo_name;
             }
 
+            if (!empty($data['title'])) {
+                $baseSlug = Str::slug($data['title']);
+                $slug = $baseSlug;
+                $counter = 1;
+
+                $exist =    Award::where('slug', $slug)
+                    ->where('id', '!=', $award->id)
+                    ->exists();
+
+                while ($exist) {
+                    $slug = $baseSlug . '-' . $counter++;
+                }
+
+                $data['slug'] = $slug;
+            }
             $award->update($data);
 
             DB::commit();
@@ -107,6 +137,23 @@ class AwardsAdminService
             $delete = $award->delete();
             DB::commit();
             return $delete;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function updateStatusAward(Request $request, $id)
+    {
+        $award = Award::findOrFail($id);
+
+        DB::beginTransaction();
+        try {
+            $status = $award->update([
+                'status' => $request->status
+            ]);
+            DB::commit();
+            return $status;
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;

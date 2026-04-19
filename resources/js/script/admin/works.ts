@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 export function useWorkScript(works: any) {
     const route = window.route;
@@ -8,6 +8,7 @@ export function useWorkScript(works: any) {
     const mode = ref<'create' | 'edit'>('create');
     const selectedData = ref<any>(null);
     const isDelete = ref(false);
+    const isPresent = ref(false);
 
     const excluded = ['id', 'created_at', 'updated_at'];
 
@@ -101,11 +102,18 @@ export function useWorkScript(works: any) {
         });
     };
 
+    watch(isPresent, (val) => {
+        if (val) {
+            form.end = null;
+        }
+    });
+
     return {
         visible,
         mode,
         selectedData,
         isDelete,
+        isPresent,
         globalFields,
         form,
         openCreate,

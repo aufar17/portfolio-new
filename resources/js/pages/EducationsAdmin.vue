@@ -29,6 +29,7 @@ const {
     visible,
     mode,
     isDelete,
+    isPresent,
     form,
     globalFields,
     openCreate,
@@ -181,14 +182,20 @@ const {
                     <label>End</label>
                     <DatePicker
                         v-model="form.end"
+                        :disabled="isPresent"
                         showIcon
                         size="small"
-                        placeholder="Pick a end year"
+                        placeholder="Pick month & year"
                         :view="'year'"
                         :yearNavigator="true"
                         :monthNavigator="false"
                         dateFormat="yy"
                     />
+
+                    <label class="mt-2 flex items-center gap-2 text-sm">
+                        <input type="checkbox" v-model="isPresent" />
+                        Present
+                    </label>
                 </div>
 
                 <div class="flex justify-end gap-3 md:col-span-2">

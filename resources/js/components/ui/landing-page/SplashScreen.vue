@@ -4,17 +4,42 @@ import logo from '@/assets/img/logo.png';
 
 const hasShown = sessionStorage.getItem('splash-shown');
 const isVisible = ref(!hasShown);
+
+const progress = ref(0);
 const emit = defineEmits(['done']);
 
 onMounted(() => {
     if (!hasShown) {
-        setTimeout(() => {
-            isVisible.value = false;
-            sessionStorage.setItem('splash-shown', 'true');
-        }, 1500);
+        const interval = setInterval(() => {
+            progress.value += 3;
+
+            if (progress.value >= 100) {
+                clearInterval(interval);
+
+                setTimeout(() => {
+                    isVisible.value = false;
+                    sessionStorage.setItem('splash-shown', 'true');
+                    emit('done');
+                }, 300);
+            }
+        }, 40);
     }
 });
 </script>
+<style scoped>
+@keyframes loadingBar {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(200%);
+    }
+}
+
+.animate-loading-bar {
+    animation: loadingBar 1.2s ease-in-out infinite;
+}
+</style>
 <template>
     <transition name="fade">
         <div
@@ -50,17 +75,26 @@ onMounted(() => {
                 <h1
                     class="animate-fade-up mt-6 bg-gradient-to-r from-white to-white/60 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-5xl"
                 >
-                    Muammar Aufar Prasetya
+                    Aufar's Portfolio
                 </h1>
-                <p
-                    class="animate-fade-up mt-3 text-xs text-white/50 delay-200 md:text-sm"
-                >
-                    Crafting modern web experiences...
-                </p>
-                <div
-                    class="mx-auto mt-8 h-[3px] w-32 overflow-hidden rounded-full bg-white/10 md:w-48"
-                >
-                    <div class="loading-bar h-full bg-white"></div>
+                <div class="mx-auto mt-8 w-40 md:w-52">
+                    <p
+                        class="mb-2 text-center text-[11px] tracking-widest text-white/50"
+                    >
+                        Loading...
+                    </p>
+
+                    <div
+                        class="relative h-[3px] w-full overflow-hidden rounded-full bg-white/10"
+                    >
+                        <div
+                            class="animate-loading-bar h-full w-1/2 rounded-full bg-white"
+                        ></div>
+
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-40 blur-sm"
+                        ></div>
+                    </div>
                 </div>
             </div>
         </div>

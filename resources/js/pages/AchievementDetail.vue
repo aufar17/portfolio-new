@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
-import { Eye, MonitorCog } from 'lucide-vue-next';
+import { Award, Eye, FileBadge } from 'lucide-vue-next';
 import Dialog from 'primevue/dialog';
 import { ref } from 'vue';
 
 const props = defineProps<{
-    project: any;
+    achievement: any;
 }>();
 
 const getImage = (path: string) =>
@@ -37,40 +37,41 @@ const closeModal = () => {
                     <p
                         class="text-sm font-bold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400"
                     >
-                        Project Detail
+                        Achievement Detail
                     </p>
 
                     <h1
                         class="text-3xl font-extrabold tracking-tight md:text-5xl"
                     >
-                        {{ project.title }}
+                        {{ achievement.title }}
                     </h1>
-
-                    <p class="max-w-2xl text-gray-500 dark:text-gray-400">
-                        {{ project.subtitle }}
-                    </p>
                 </div>
             </div>
 
-            <div class="grid gap-6 lg:grid-cols-3">
+            <div class="grid gap-10 lg:grid-cols-3">
                 <div
-                    class="group relative overflow-hidden rounded-2xl border border-black/5 shadow-2xl lg:col-span-2 dark:border-white/10"
+                    class="group relative overflow-hidden rounded-3xl border border-black/5 shadow-2xl lg:col-span-2 dark:border-white/10"
                 >
-                    <div class="h-full w-full overflow-hidden">
+                    <div class="h-[260px] w-full overflow-hidden md:h-[520px]">
                         <img
-                            v-if="project.image"
-                            :src="getImage(project.image)"
-                            :alt="project.title"
-                            class="h-full w-full object-cover transition duration-700 ease-in-out group-hover:scale-110"
+                            v-if="achievement.photo"
+                            :src="getImage(achievement.photo)"
+                            class="h-full w-full cursor-pointer object-cover transition duration-700 group-hover:scale-105"
+                            @click="openModal(getImage(achievement.photo))"
                         />
 
                         <div
                             v-else
-                            class="flex h-full w-full items-center justify-center bg-gray-200 py-10 dark:bg-gray-800"
+                            class="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-800"
                         >
-                            <MonitorCog class="h-30 w-30 text-gray-500" />
+                            <Award
+                                v-if="achievement.type == 1"
+                                class="h-30 w-30 text-gray-500"
+                            />
+                            <FileBadge v-else class="h-30 w-30 text-gray-500" />
                         </div>
                     </div>
+
                     <div
                         class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent opacity-0 transition duration-300 group-hover:opacity-100"
                     ></div>
@@ -97,60 +98,30 @@ const closeModal = () => {
                         <p
                             class="mb-4 text-xs font-bold text-gray-500 uppercase"
                         >
-                            Responsibility
+                            Type
                         </p>
                         <p class="text-md mt-1 font-semibold">
-                            {{ project.responsibility }}
+                            {{
+                                achievement.type === 1
+                                    ? 'Award'
+                                    : 'Certification'
+                            }}
                         </p>
                     </div>
                     <div
-                        class="rounded-xl border border-gray-300 bg-white/70 p-6 font-bold shadow-sm backdrop-blur-xl transition hover:-translate-y-1 hover:shadow-lg dark:border-white/10 dark:bg-white/5"
+                        class="rounded-xl border border-gray-300 bg-white/70 p-6 font-bold shadow-sm backdrop-blur-xl transition hover:shadow-lg dark:border-white/10 dark:bg-white/5"
                     >
                         <p class="text-xs text-gray-500 uppercase">Year</p>
                         <p class="text-md mt-1 font-semibold">
-                            {{ project.date_range }}
+                            {{ achievement.date_format }}
                         </p>
 
                         <p class="mt-5 text-xs text-gray-500 uppercase">
-                            Associate
+                            Issuer
                         </p>
                         <p class="text-md mt-1 font-semibold">
-                            {{ project.associate }}
+                            {{ achievement.issuer }}
                         </p>
-                    </div>
-
-                    <div
-                        class="rounded-xl border border-gray-300 bg-white/70 p-6 backdrop-blur-xl dark:border-white/10 dark:bg-white/5"
-                    >
-                        <p
-                            class="mb-4 text-xs font-bold text-gray-500 uppercase"
-                        >
-                            Tech Stack
-                        </p>
-
-                        <div class="flex flex-wrap gap-2">
-                            <span
-                                v-for="(tech, i) in project.tech_list"
-                                :key="i"
-                                class="rounded-full bg-black px-3 py-1 text-xs font-medium text-white transition hover:-translate-y-0.5 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white dark:hover:text-black"
-                            >
-                                {{ tech }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="flex gap-1">
-                        <a
-                            :href="project.link"
-                            target="_blank"
-                            class="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium shadow-md transition hover:-translate-y-0.5 hover:shadow-lg dark:border-white/10 dark:bg-white/10"
-                        >
-                            <img
-                                src="https://cdn-icons-png.flaticon.com/512/25/25231.png"
-                                class="h-7 w-7"
-                                alt="Github"
-                            />
-                            Github
-                        </a>
                     </div>
                 </div>
             </div>
@@ -160,7 +131,7 @@ const closeModal = () => {
                     <h2 class="text-xl font-bold">Overview</h2>
 
                     <p class="leading-relaxed text-gray-600 dark:text-gray-300">
-                        {{ project.description }}
+                        {{ achievement.description }}
                     </p>
                 </div>
             </div>
@@ -171,7 +142,7 @@ const closeModal = () => {
         v-model:visible="isOpen"
         modal
         :closable="true"
-        :header="project.title"
+        :header="achievement.title"
         contentClass="p-0 bg-transparent shadow-none"
         :pt="{
             mask: { class: 'bg-black/80 backdrop-blur-sm' },

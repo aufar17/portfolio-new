@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('major');
             $table->string('title')->nullable();
             $table->string('start');
-            $table->string('end');
+            $table->string('end')->nullable();
             $table->timestamps();
         });
     }

@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { allProjects, projectDetail } from '@/routes';
+import { MonitorCog } from 'lucide-vue-next';
 
 const props = withDefaults(
     defineProps<{
@@ -26,6 +27,18 @@ const filteredProjects = computed(() => props.projects);
 const getImage = (path: string) =>
     path ? `/storage/${path}` : '/images/default-skill.png';
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+    transition: all 0.25s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+    transform: translateY(10px);
+}
+</style>
 
 <template>
     <section id="project" class="px-6 py-28">
@@ -56,11 +69,21 @@ const getImage = (path: string) =>
                     'group relative overflow-hidden rounded-2xl border border-black/10 bg-white/40 backdrop-blur-xl transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl dark:border-white/10 dark:bg-white/5',
                 ]"
             >
-                <img
-                    :src="getImage(project.image)"
-                    :alt="project.title"
-                    class="h-full w-full object-cover transition duration-700 ease-in-out group-hover:scale-110"
-                />
+                <div class="h-full w-full overflow-hidden">
+                    <img
+                        v-if="project.image"
+                        :src="getImage(project.image)"
+                        :alt="project.title"
+                        class="h-full w-full object-cover transition duration-700 ease-in-out group-hover:scale-110"
+                    />
+
+                    <div
+                        v-else
+                        class="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-800"
+                    >
+                        <MonitorCog class="h-30 w-30 text-gray-500" />
+                    </div>
+                </div>
 
                 <div
                     class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-80 transition duration-300 group-hover:opacity-100"
@@ -217,15 +240,3 @@ const getImage = (path: string) =>
         </div>
     </section>
 </template>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-    transition: all 0.25s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
-    transform: translateY(10px);
-}
-</style>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import { Contact, QrCode } from 'lucide-vue-next';
 import { UserAboutScript } from '@/script/landingPage/about';
 import Work from './Work.vue';
 import Education from './Education.vue';
@@ -10,20 +12,73 @@ const props = defineProps<{
     educations?: any[];
 }>();
 
-const { aboutSection, activeTab, tabs, activeIndex, animatedStats, stats } =
-    UserAboutScript({
-        personal: props.personal,
-        lastRole: props.lastRole,
-        works: props.works ?? [],
-        educations: props.educations ?? [],
-    });
-</script>
+const cardRef = ref<HTMLElement | null>(null);
 
+const handleMouseMove = (e: MouseEvent) => {
+    const card = cardRef.value;
+    if (!card) return;
+
+    const rect = card.getBoundingClientRect();
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = ((y - centerY) / centerY) * 10;
+    const rotateY = ((x - centerX) / centerX) * -10;
+
+    card.style.transform = `
+        perspective(1000px)
+        rotateX(${rotateX}deg)
+        rotateY(${rotateY}deg)
+        scale(1)
+    `;
+};
+
+const resetCard = () => {
+    const card = cardRef.value;
+    if (!card) return;
+
+    card.style.transform = `
+        perspective(1000px)
+        rotateX(0deg)
+        rotateY(0deg)
+        scale(1)
+    `;
+};
+const {
+    aboutSection,
+    avatarUrl,
+    activeTab,
+    tabs,
+    activeIndex,
+    animatedStats,
+    stats,
+} = UserAboutScript({
+    personal: props.personal,
+    lastRole: props.lastRole,
+    works: props.works ?? [],
+    educations: props.educations ?? [],
+});
+</script>
+<style>
+.translate-z-20 {
+    transform: translateZ(20px);
+}
+.translate-z-30 {
+    transform: translateZ(30px);
+}
+.translate-z-40 {
+    transform: translateZ(40px);
+}
+</style>
 <template>
     <section
         ref="aboutSection"
         id="about"
-        class="relative flex flex-col items-center justify-center px-6 py-28"
+        class="relative flex flex-col items-center justify-center px-6 py-20"
     >
         <div
             class="w-full max-w-7xl rounded-xl border border-black/10 bg-white/20 p-8 shadow-xl backdrop-blur-xl md:p-12 dark:border-white/10 dark:bg-white/5 dark:shadow-none"
@@ -33,7 +88,7 @@ const { aboutSection, activeTab, tabs, activeIndex, animatedStats, stats } =
             ></div>
 
             <div class="mb-16 text-center">
-                <h2 class="text-3xl font-bold md:text-5xl">
+                <h2 class="text-3xl font-semibold md:text-5xl">
                     About <span class="text-primary">Me</span>
                 </h2>
             </div>
@@ -41,36 +96,35 @@ const { aboutSection, activeTab, tabs, activeIndex, animatedStats, stats } =
             <div class="grid gap-10 md:grid-cols-[1fr_2fr]">
                 <div class="flex justify-center md:justify-start">
                     <div
-                        class="group relative w-[280px] overflow-hidden rounded-xl border border-black/10 bg-black/5 text-center transition duration-300 hover:shadow-2xl dark:border-white/10 dark:bg-white/10"
+                        ref="cardRef"
+                        @mousemove="handleMouseMove"
+                        @mouseleave="resetCard"
+                        class="group relative w-[280px] overflow-hidden rounded-xl border border-black/10 bg-black/5 text-center transition duration-300 ease-out will-change-transform hover:shadow-2xl dark:border-white/10 dark:bg-white/10"
                     >
                         <div
-                            class="flex items-center justify-between border-b border-black/10 bg-primary px-4 py-3 text-sm font-bold text-white dark:border-white/10"
+                            class="flex items-center justify-start border-b border-black/10 bg-primary px-4 py-3 text-sm font-bold text-white dark:border-white/10"
                         >
+                            <Contact class="me-3 h-5 w-5 opacity-80" />
                             <span class="tracking-wider">ID CARD</span>
-                            <QrCode class="h-5 w-5 opacity-80" />
                         </div>
 
-                        <div class="p-6">
+                        <div class="p-6 [transform-style:preserve-3d]">
                             <div class="flex justify-center">
                                 <img
-                                    :src="
-                                        personal?.photo
-                                            ? `/storage/${personal.photo}`
-                                            : '/images/default.png'
-                                    "
+                                    :src="avatarUrl"
                                     alt="avatar"
-                                    class="h-24 w-24 rounded-full border border-black/10 object-cover shadow-lg dark:border-white/10"
+                                    class="h-24 w-24 translate-z-40 rounded-full border border-black/10 object-cover shadow-lg dark:border-white/10"
                                 />
                             </div>
 
                             <h2
-                                class="mt-4 text-lg font-semibold text-black dark:text-white"
+                                class="text-md mt-4 translate-z-30 font-semibold text-black dark:text-white"
                             >
                                 Muammar Aufar Prasetya
                             </h2>
 
                             <p
-                                class="mt-1 text-sm font-medium text-black/80 italic dark:text-white/80"
+                                class="mt-1 translate-z-20 text-sm font-medium text-black/80 italic dark:text-white/80"
                             >
                                 {{ props.lastRole }}
                             </p>
@@ -80,13 +134,13 @@ const { aboutSection, activeTab, tabs, activeIndex, animatedStats, stats } =
                             ></div>
 
                             <div
-                                class="space-y-1 text-xs text-black/80 dark:text-white/80"
+                                class="translate-z-20 space-y-1 text-xs text-black/80 dark:text-white/80"
                             >
                                 <p class="font-medium">📍 Bekasi, Indonesia</p>
                             </div>
 
                             <div
-                                class="mt-4 flex flex-wrap justify-center gap-2"
+                                class="mt-4 flex translate-z-20 flex-wrap justify-center gap-2"
                             >
                                 <span
                                     v-for="(role, i) in personal?.role_list ||

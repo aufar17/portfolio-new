@@ -10,6 +10,7 @@ import {
     ContactRound,
     FolderGit,
     House,
+    Medal,
     Menu,
     Moon,
     Sun,
@@ -31,16 +32,16 @@ const mainNavItems: NavItem[] = [
     { title: 'Home', href: `home`, section: 'home', icon: House },
     { title: 'About', href: `about`, section: 'about', icon: User },
     {
-        title: 'Project',
+        title: 'Projects',
         href: `project`,
         section: 'project',
         icon: FolderGit,
     },
     {
-        title: 'Contact',
-        href: `contact`,
-        section: 'contact',
-        icon: ContactRound,
+        title: 'Achievements',
+        href: `achievement`,
+        section: 'achievement',
+        icon: Medal,
     },
 ];
 
@@ -123,11 +124,18 @@ const toggleTheme = () => {
         <div
             class="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4 md:px-12"
         >
-            <Link
-                :href="landingPage().url"
-                class="text-xl font-bold tracking-wide"
-            >
+            <Link :href="landingPage().url" class="flex items-center gap-3">
                 <img :src="logo" alt="logo" class="h-10 w-auto" />
+
+                <div class="flex flex-col leading-tight">
+                    <span
+                        class="text-xl font-semibold tracking-wide text-gray-900 dark:text-white"
+                    >
+                        Portfolio
+                    </span>
+                </div>
+
+                <span class="sr-only">Portfolio</span>
             </Link>
 
             <div class="hidden items-center gap-8 font-medium md:flex">
@@ -135,9 +143,7 @@ const toggleTheme = () => {
                     v-for="item in mainNavItems"
                     :key="item.title"
                     :href="
-                        isLandingPage
-                            ? `#${item.section}`
-                            : `/landing-page/#${item.section}`
+                        isLandingPage ? `#${item.section}` : `/#${item.section}`
                     "
                     class="flex items-center gap-2 rounded-md px-2 py-2 font-semibold transition-colors"
                     :class="
@@ -192,7 +198,7 @@ const toggleTheme = () => {
             <Link
                 v-for="item in mainNavItems"
                 :key="item.title"
-                :href="item.href"
+                :href="isLandingPage ? `#${item.section}` : `/#${item.section}`"
                 @click="isOpen = false"
                 class="flex items-center gap-3 rounded-md px-6 py-3 text-gray-900 transition-colors duration-200 hover:bg-black/10 dark:text-white dark:hover:bg-gray-700"
             >

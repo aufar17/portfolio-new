@@ -31,6 +31,8 @@ export function useAwardScript(awards: any) {
     const form = useForm({
         title: '',
         description: '',
+        type: '',
+        status: null as boolean | null,
         issuer: '',
         photo: null as File | null,
         date: null as Date | null,
@@ -51,7 +53,9 @@ export function useAwardScript(awards: any) {
         selectedData.value = data;
 
         form.title = data.title;
-        form.photo = data.photo;
+        form.photo = null;
+        form.type = data.type;
+        form.status = data.status;
         form.issuer = data.issuer;
         form.date = data.date ? new Date(data.date) : null;
         form.description = data.description;
@@ -106,6 +110,20 @@ export function useAwardScript(awards: any) {
         });
     };
 
+    const toggleStatus = (data: any, val: boolean) => {
+        const newStatus = val ? 1 : 0;
+
+        useForm({ status: newStatus }).put(
+            route('update-status-award', data.id),
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    data.status = newStatus;
+                },
+            },
+        );
+    };
+
     return {
         visible,
         photoModalVisible,
@@ -124,5 +142,6 @@ export function useAwardScript(awards: any) {
         closeDialogDelete,
         submit,
         deleteAward,
+        toggleStatus,
     };
 }

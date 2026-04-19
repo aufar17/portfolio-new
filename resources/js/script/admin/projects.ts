@@ -130,12 +130,15 @@ export function useProjectScript(projects: any) {
     const toggleStatus = (data: any, val: boolean) => {
         const newStatus = val ? 1 : 0;
 
-        useForm({ status: newStatus }).put(route('update-status', data.id), {
-            preserveScroll: true,
-            onSuccess: () => {
-                data.status = newStatus;
+        useForm({ status: newStatus }).put(
+            route('update-status-project', data.id),
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    data.status = newStatus;
+                },
             },
-        });
+        );
     };
 
     return {

@@ -30,7 +30,7 @@ export function usePersonalScript(personal: any) {
 
         return personal?.photo
             ? `/storage/${personal.photo}`
-            : `https://ui-avatars.com/api/?name=${encodeURIComponent(personal?.name ?? 'Muammar Aufar')}`;
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent('Muammar Aufar')}`;
     });
 
     const handleFile = (e: Event) => {

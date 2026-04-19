@@ -17,7 +17,7 @@ class WorksAdminService
             'status' => 'required|string|max:255',
             'desc' => 'required|string',
             'start' => 'required|date',
-            'end' => 'required|date',
+            'end' => 'nullable|date',
         ]);
     }
 

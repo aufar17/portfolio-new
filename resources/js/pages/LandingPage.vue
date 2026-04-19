@@ -6,7 +6,10 @@ import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
 import Hero from '@/components/ui/landing-page/Hero.vue';
 import About from '@/components/ui/landing-page/About.vue';
 import Projects from '@/components/ui/landing-page/Projects.vue';
-import Contact from '@/components/ui/landing-page/Contact.vue';
+import { ref } from 'vue';
+import ContactBubble from '@/components/contact/ContactBubble.vue';
+import ContactModal from '@/components/contact/ContactModal.vue';
+import Achievements from '@/components/ui/landing-page/Achievements.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -18,12 +21,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 const props = withDefaults(
     defineProps<{
         personal: any;
-        lastRole: String;
+        lastRole: string;
         skills: {
             hardSkills: any[];
             softSkills: any[];
         };
         projects?: any[];
+        achievements?: any[];
         works?: any[];
         educations?: any[];
         contacts?: any[];
@@ -36,15 +40,18 @@ const props = withDefaults(
             softSkills: [],
         }),
         projects: () => [],
+        achievements: () => [],
         works: () => [],
         educations: () => [],
         contacts: () => [],
     },
 );
+
+const isContactOpen = ref(false);
 </script>
 
 <template>
-    <Head title="Portfolio  " />
+    <Head title="Portfolio" />
 
     <LandingPageLayout :breadcrumbs="breadcrumbs">
         <Hero :personal="props.personal" />
@@ -59,6 +66,13 @@ const props = withDefaults(
             :hard-skills="props.skills.hardSkills"
             :soft-skills="props.skills.softSkills"
         />
-        <Contact :contacts="props.contacts" />
+        <Achievements :achievements="props.achievements" />
+
+        <ContactBubble @open="isContactOpen = true" />
+        <ContactModal
+            :open="isContactOpen"
+            @close="isContactOpen = false"
+            :contacts="props.contacts"
+        />
     </LandingPageLayout>
 </template>
