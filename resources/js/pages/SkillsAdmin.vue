@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
+import Button from 'primevue/button';
+import Column from 'primevue/column';
+import Dialog from 'primevue/dialog';
+import FileUpload from 'primevue/fileupload';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
+import InputText from 'primevue/inputtext';
+import RadioButton from 'primevue/radiobutton';
+import DialogForm from '@/components/admin/DialogForm.vue';
+import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { skillsAdmin } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
-import Column from 'primevue/column';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
-import Button from 'primevue/button';
-import InputText from 'primevue/inputtext';
-import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
-import DialogForm from '@/components/admin/DialogForm.vue';
-import Dialog from 'primevue/dialog';
 import { useSkillScript } from '@/script/admin/skill';
-import RadioButton from 'primevue/radiobutton';
-import FileUpload from 'primevue/fileupload';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Skills', href: skillsAdmin().url },

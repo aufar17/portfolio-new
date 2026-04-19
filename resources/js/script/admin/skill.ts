@@ -12,7 +12,9 @@ export function useSkillScript(skills: any) {
     const excluded = ['id', 'created_at', 'updated_at'];
 
     const globalFields = computed(() => {
-        if (!skills.data.length) return [];
+        if (!skills.data.length) {
+return [];
+}
 
         return Object.keys(skills.data[0]).filter(
             (key) =>
@@ -72,7 +74,9 @@ export function useSkillScript(skills: any) {
                 onSuccess: closeDialogForm,
             });
         } else {
-            if (!selectedData.value?.id) return;
+            if (!selectedData.value?.id) {
+return;
+}
 
             form.put(route('update-skill', selectedData.value.id), {
                 forceFormData: true,
@@ -82,7 +86,9 @@ export function useSkillScript(skills: any) {
     };
 
     const deleteSkill = () => {
-        if (!selectedData.value?.id) return;
+        if (!selectedData.value?.id) {
+return;
+}
 
         form.delete(route('delete-skill', selectedData.value.id), {
             onSuccess: closeDialogDelete,

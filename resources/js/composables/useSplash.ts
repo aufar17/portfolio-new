@@ -5,6 +5,7 @@ export function useSplash(duration = 2500) {
 
     onMounted(() => {
         const hasShown = sessionStorage.getItem('splash-shown');
+
         if (!hasShown) {
             setTimeout(() => {
                 splashDone.value = true;

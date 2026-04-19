@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import { dashboard } from '@/routes';
-import type { BreadcrumbItem } from '@/types';
-import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
-import Hero from '@/components/ui/landing-page/Hero.vue';
-import About from '@/components/ui/landing-page/About.vue';
-import Projects from '@/components/ui/landing-page/Projects.vue';
 import { ref } from 'vue';
 import ContactBubble from '@/components/contact/ContactBubble.vue';
 import ContactModal from '@/components/contact/ContactModal.vue';
+import About from '@/components/ui/landing-page/About.vue';
 import Achievements from '@/components/ui/landing-page/Achievements.vue';
+import Hero from '@/components/ui/landing-page/Hero.vue';
+import Projects from '@/components/ui/landing-page/Projects.vue';
+import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
+import { dashboard } from '@/routes';
+import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

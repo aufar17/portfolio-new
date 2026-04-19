@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
-import AppLayout from '@/layouts/AppLayout.vue';
-import { socialAdmin } from '@/routes';
-import type { BreadcrumbItem } from '@/types';
-import Column from 'primevue/column';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
 import Button from 'primevue/button';
-import InputText from 'primevue/inputtext';
-import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
-import DialogForm from '@/components/admin/DialogForm.vue';
+import Column from 'primevue/column';
+import DatePicker from 'primevue/datepicker';
 import Dialog from 'primevue/dialog';
 import FileUpload from 'primevue/fileupload';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
+import InputText from 'primevue/inputtext';
+import DialogForm from '@/components/admin/DialogForm.vue';
+import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
 import Textarea from 'primevue/textarea';
-import DatePicker from 'primevue/datepicker';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { socialAdmin } from '@/routes';
 import { useSocialScript } from '@/script/admin/socialMedia';
+import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Social Media', href: socialAdmin().url },

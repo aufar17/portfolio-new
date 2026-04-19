@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
-import AppLayout from '@/layouts/AppLayout.vue';
-import { awardsAdmin } from '@/routes';
-import type { BreadcrumbItem } from '@/types';
-import Column from 'primevue/column';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
 import Button from 'primevue/button';
-import InputText from 'primevue/inputtext';
-import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
-import DialogForm from '@/components/admin/DialogForm.vue';
+import Column from 'primevue/column';
+import DatePicker from 'primevue/datepicker';
 import Dialog from 'primevue/dialog';
 import FileUpload from 'primevue/fileupload';
-import { useAwardScript } from '@/script/admin/awards';
-import Textarea from 'primevue/textarea';
-import DatePicker from 'primevue/datepicker';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
+import InputText from 'primevue/inputtext';
 import RadioButton from 'primevue/radiobutton';
+import Textarea from 'primevue/textarea';
 import ToggleSwitch from 'primevue/toggleswitch';
+import DialogForm from '@/components/admin/DialogForm.vue';
+import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { awardsAdmin } from '@/routes';
+import { useAwardScript } from '@/script/admin/awards';
+import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Awards', href: awardsAdmin().url },

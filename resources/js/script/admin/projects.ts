@@ -24,7 +24,9 @@ export function useProjectScript(projects: any) {
     };
 
     const globalFields = computed(() => {
-        if (!projects.data.length) return [];
+        if (!projects.data.length) {
+return [];
+}
 
         return Object.keys(projects.data[0]).filter(
             (key) =>
@@ -110,7 +112,9 @@ export function useProjectScript(projects: any) {
                 onSuccess: closeDialogForm,
             });
         } else {
-            if (!selectedData.value?.id) return;
+            if (!selectedData.value?.id) {
+return;
+}
 
             form.put(route('update-project', selectedData.value.id), {
                 forceFormData: true,
@@ -120,7 +124,9 @@ export function useProjectScript(projects: any) {
     };
 
     const deleteProject = () => {
-        if (!selectedData.value?.id) return;
+        if (!selectedData.value?.id) {
+return;
+}
 
         form.delete(route('delete-project', selectedData.value.id), {
             onSuccess: closeDialogDelete,

@@ -14,7 +14,9 @@ export function useAwardScript(awards: any) {
     const excluded = ['id', 'created_at', 'updated_at'];
 
     const globalFields = computed(() => {
-        if (!awards.data.length) return [];
+        if (!awards.data.length) {
+return [];
+}
 
         return Object.keys(awards.data[0]).filter(
             (key) =>
@@ -87,13 +89,16 @@ export function useAwardScript(awards: any) {
                 ? new Date(data.date).toISOString().split('T')[0]
                 : null,
         }));
+
         if (mode.value === 'create') {
             form.post(route('create-award'), {
                 forceFormData: true,
                 onSuccess: closeDialogForm,
             });
         } else {
-            if (!selectedData.value?.id) return;
+            if (!selectedData.value?.id) {
+return;
+}
 
             form.put(route('update-award', selectedData.value.id), {
                 forceFormData: true,
@@ -103,7 +108,9 @@ export function useAwardScript(awards: any) {
     };
 
     const deleteAward = () => {
-        if (!selectedData.value?.id) return;
+        if (!selectedData.value?.id) {
+return;
+}
 
         form.delete(route('delete-award', selectedData.value.id), {
             onSuccess: closeDialogDelete,

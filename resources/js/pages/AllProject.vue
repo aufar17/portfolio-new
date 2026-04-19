@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
 import { MonitorCog, Search } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
+import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
 import { projectDetail } from '@/routes';
 
 const props = withDefaults(

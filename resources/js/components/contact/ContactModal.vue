@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { watch, onMounted, onUnmounted } from 'vue';
 import { Github, Linkedin, Instagram, X, ExternalLink } from 'lucide-vue-next';
+import { watch, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps<{
     open: boolean;
@@ -10,7 +10,9 @@ const props = defineProps<{
 const emit = defineEmits(['close']);
 
 const handleKey = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') emit('close');
+    if (e.key === 'Escape') {
+emit('close');
+}
 };
 
 onMounted(() => window.addEventListener('keydown', handleKey));

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import AppLayout from '@/layouts/AppLayout.vue';
-import type { BreadcrumbItem } from '@/types';
-import { personalAdmin } from '@/routes';
+import { Pencil } from 'lucide-vue-next';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import Button from '@/components/ui/button/Button.vue';
-import { Pencil } from 'lucide-vue-next';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { personalAdmin } from '@/routes';
 import { usePersonalScript } from '@/script/admin/personal';
+import type { BreadcrumbItem } from '@/types';
 
 const props = defineProps<{ personal: any }>();
 

@@ -1,6 +1,6 @@
-import { deleteEducation } from '@/routes';
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
+import { deleteEducation } from '@/routes';
 
 export function useEducationScript(educations: any) {
     const route = window.route;
@@ -14,7 +14,9 @@ export function useEducationScript(educations: any) {
     const excluded = ['id', 'created_at', 'updated_at'];
 
     const globalFields = computed(() => {
-        if (!educations.data.length) return [];
+        if (!educations.data.length) {
+return [];
+}
 
         return Object.keys(educations.data[0]).filter(
             (key) =>
@@ -80,13 +82,16 @@ export function useEducationScript(educations: any) {
                   ? new Date(form.end).toISOString().split('T')[0]
                   : null,
         }));
+
         if (mode.value === 'create') {
             form.post(route('create-education'), {
                 forceFormData: true,
                 onSuccess: closeDialogForm,
             });
         } else {
-            if (!selectedData.value?.id) return;
+            if (!selectedData.value?.id) {
+return;
+}
 
             form.put(route('update-education', selectedData.value.id), {
                 forceFormData: true,
@@ -96,7 +101,9 @@ export function useEducationScript(educations: any) {
     };
 
     const deleteEducation = () => {
-        if (!selectedData.value?.id) return;
+        if (!selectedData.value?.id) {
+return;
+}
 
         form.delete(route('delete-education', selectedData.value.id), {
             onSuccess: closeDialogDelete,
@@ -108,6 +115,7 @@ export function useEducationScript(educations: any) {
             form.end = null;
         }
     });
+
     return {
         visible,
         mode,

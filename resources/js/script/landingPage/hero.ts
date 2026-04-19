@@ -1,4 +1,3 @@
-import { useSplash } from '@/composables/useSplash';
 import {
     ArrowRight,
     CodeXml,
@@ -8,6 +7,7 @@ import {
     Smartphone,
 } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
+import { useSplash } from '@/composables/useSplash';
 
 export function UserHeroScript(personal: any) {
     const roleConfig = [
@@ -28,7 +28,9 @@ export function UserHeroScript(personal: any) {
     const startTyping = ref(false);
 
     watch(splashDone, (val) => {
-        if (val) startTyping.value = true;
+        if (val) {
+startTyping.value = true;
+}
     });
 
     return {

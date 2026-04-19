@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import Button from 'primevue/button';
+import Column from 'primevue/column';
+import DatePicker from 'primevue/datepicker';
+import Dialog from 'primevue/dialog';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
+import InputText from 'primevue/inputtext';
+import Textarea from 'primevue/textarea';
+import DialogForm from '@/components/admin/DialogForm.vue';
+import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { worksAdmin } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
-import Column from 'primevue/column';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
-import Button from 'primevue/button';
-import InputText from 'primevue/inputtext';
-import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
-import DialogForm from '@/components/admin/DialogForm.vue';
-import Dialog from 'primevue/dialog';
-import DatePicker from 'primevue/datepicker';
 import { useWorkScript } from '@/script/admin/works';
-import Textarea from 'primevue/textarea';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Work', href: worksAdmin().url },

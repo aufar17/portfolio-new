@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import AppContent from '@/components/AppContent.vue';
 import AppShell from '@/components/AppShell.vue';
 import Footer from '@/components/Footer.vue';
 import Navbar from '@/components/ui/landing-page/Navbar.vue';
 import SplashScreen from '@/components/ui/landing-page/SplashScreen.vue';
 import type { BreadcrumbItem } from '@/types';
-import { ref } from 'vue';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];

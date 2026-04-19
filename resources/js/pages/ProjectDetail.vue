@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
 import { Eye, MonitorCog } from 'lucide-vue-next';
 import Dialog from 'primevue/dialog';
 import { ref } from 'vue';
+import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
 
 const props = defineProps<{
     project: any;

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
 import { Award, FileBadge, Search } from 'lucide-vue-next';
+import { ref, computed, watch } from 'vue';
+import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
 import { achievementsDetail } from '@/routes';
 
 const props = withDefaults(
@@ -59,6 +59,7 @@ const filteredAchievements = computed(() => {
             : p.issuer?.toLowerCase().includes(keyword);
 
         const matchType = typeLabel(p.type).toLowerCase().includes(keyword);
+
         return matchTitle || matchIssuer || matchType;
     });
 });

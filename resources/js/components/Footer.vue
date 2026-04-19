@@ -23,7 +23,7 @@ const items = [
 ];
 const props = withDefaults(
     defineProps<{
-        lastRole: String;
+        lastRole: string;
     }>(),
     {
         lastRole: () => '',

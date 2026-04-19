@@ -1,5 +1,5 @@
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { BriefcaseBusiness, GraduationCap } from 'lucide-vue-next';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 
 type Tab = 'work' | 'education';
 
@@ -10,7 +10,7 @@ export function UserAboutScript({
     educations = [],
 }: {
     personal: any;
-    lastRole: String;
+    lastRole: string;
     works?: any[];
     educations?: any[];
 }) {
@@ -23,7 +23,9 @@ export function UserAboutScript({
     ];
 
     const avatarUrl = computed(() => {
-        if (preview.value) return preview.value;
+        if (preview.value) {
+return preview.value;
+}
 
         return personal?.photo
             ? `/storage/${personal.photo}`
