@@ -91,17 +91,11 @@ const getImage = (path: string) =>
 
                 <div class="absolute inset-0 flex items-end p-6">
                     <div
-                        class="translate-y-8 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100"
+                        class="translate-y-0 opacity-100 transition-all duration-500 ease-out md:translate-y-8 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100"
                     >
                         <h3 class="text-lg font-bold text-white drop-shadow-md">
                             {{ project.title }}
                         </h3>
-
-                        <p
-                            class="mt-1 line-clamp-2 text-sm text-white/80 transition-all duration-300 group-hover:text-white"
-                        >
-                            {{ project.description }}
-                        </p>
 
                         <div
                             class="mt-3 h-[2px] w-8 bg-white/60 transition-all duration-300 group-hover:w-16"
@@ -179,25 +173,25 @@ const getImage = (path: string) =>
                 <div :key="activeTab" class="mt-10">
                     <div
                         v-if="activeTab === 'hard'"
-                        class="grid grid-cols-4 gap-4 sm:grid-cols-3 md:grid-cols-6"
+                        class="grid grid-cols-3 gap-3 md:grid-cols-6 md:gap-4"
                     >
                         <div
                             v-for="skill in filteredSkills"
                             :key="skill.id"
-                            class="group flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-black/20 bg-white/40 p-4 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:border-white/20 dark:bg-white/10"
+                            class="group flex w-full items-center gap-3 rounded-xl border border-black/20 bg-white/40 p-3 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl md:aspect-square md:flex-col md:justify-center md:gap-2 md:p-4 dark:border-white/20 dark:bg-white/10"
                         >
                             <div
-                                class="mb-3 flex h-25 w-25 items-center justify-center rounded-lg bg-black/5 p-5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 dark:bg-white/10"
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-black/5 p-2 transition-all duration-300 md:mb-3 md:h-25 md:w-25 md:p-5 md:group-hover:scale-110 md:group-hover:rotate-3 dark:bg-white/10"
                             >
                                 <img
                                     :src="getImage(skill.icon)"
                                     :alt="skill.name"
-                                    class="h-18 w-18 object-contain"
+                                    class="h-20 w-20 object-contain md:h-18 md:w-18"
                                 />
                             </div>
 
                             <p
-                                class="text-md text-center font-semibold text-gray-700 transition-colors duration-300 group-hover:text-black dark:text-white/80 dark:group-hover:text-white"
+                                class="md:text-md text-left text-sm font-medium text-gray-700 md:text-center md:font-semibold md:group-hover:text-black dark:text-white/80 dark:md:group-hover:text-white"
                             >
                                 {{ skill.name }}
                             </p>
@@ -218,7 +212,7 @@ const getImage = (path: string) =>
                             ></div>
 
                             <span
-                                class="relative z-10 transition-all duration-300 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="md:text-md relative z-10 text-xs transition-all duration-300 group-hover:text-gray-900 sm:text-sm dark:group-hover:text-white"
                             >
                                 {{ skill.name }}
                             </span>

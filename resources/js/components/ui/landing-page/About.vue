@@ -7,7 +7,7 @@ import Education from './Education.vue';
 
 const props = defineProps<{
     personal: any;
-    lastRole: String;
+    lastRole: string;
     works?: any[];
     educations?: any[];
 }>();
