@@ -174,7 +174,7 @@ const closeModal = () => {
                         <h2 class="text-lg font-bold sm:text-xl">Overview</h2>
 
                         <p
-                            class="text-sm leading-relaxed text-gray-600 sm:text-base dark:text-gray-300"
+                            class="text-justify text-sm leading-relaxed text-gray-600 sm:text-base dark:text-gray-300"
                         >
                             {{ project.description }}
                         </p>

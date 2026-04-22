@@ -137,7 +137,7 @@ const closeModal = () => {
                         <h2 class="text-xl font-bold">Overview</h2>
 
                         <p
-                            class="leading-relaxed text-gray-600 dark:text-gray-300"
+                            class="text-justify leading-relaxed text-gray-600 dark:text-gray-300"
                         >
                             {{ achievement.description }}
                         </p>

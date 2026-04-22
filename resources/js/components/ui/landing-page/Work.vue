@@ -73,7 +73,7 @@ const { works } = defineProps<{
                             </div>
                         </div>
                         <p
-                            class="mt-3 text-sm leading-relaxed text-black dark:text-gray-300"
+                            class="mt-3 text-justify text-sm leading-relaxed text-black dark:text-gray-300"
                         >
                             {{ work.desc }}
                         </p>
