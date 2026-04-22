@@ -44,11 +44,13 @@ const getImage = (path: string) =>
     <section id="project" class="px-6 py-28">
         <div class="mb-20 text-center">
             <h2
-                class="text-5xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100"
+                class="text-3xl font-extrabold tracking-tight text-gray-900 md:text-5xl dark:text-gray-100"
             >
                 Projects
             </h2>
-            <p class="mt-3 text-gray-500 dark:text-gray-400">
+            <p
+                class="md:text-md mt-3 text-sm text-gray-500 lg:text-lg dark:text-gray-400"
+            >
                 A collection of projects I have worked on and developed
             </p>
         </div>
@@ -121,12 +123,12 @@ const getImage = (path: string) =>
         <div class="mx-auto mt-28 max-w-7xl">
             <div class="mb-20">
                 <h3
-                    class="text-center text-5xl font-bold text-gray-900 dark:text-white"
+                    class="text-center text-3xl font-bold text-gray-900 md:text-5xl dark:text-white"
                 >
                     Skills
                 </h3>
                 <p
-                    class="mt-3 text-center tracking-wide text-gray-500 dark:text-gray-400"
+                    class="md:text-md mt-3 text-center text-sm tracking-wide text-gray-500 lg:text-lg dark:text-gray-400"
                 >
                     Tools, Languages, Frameworks and Abilities
                 </p>
@@ -173,7 +175,7 @@ const getImage = (path: string) =>
                 <div :key="activeTab" class="mt-10">
                     <div
                         v-if="activeTab === 'hard'"
-                        class="grid grid-cols-3 gap-3 md:grid-cols-6 md:gap-4"
+                        class="grid grid-cols-2 gap-3 md:grid-cols-6 md:gap-4"
                     >
                         <div
                             v-for="skill in filteredSkills"

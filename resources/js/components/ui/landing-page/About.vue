@@ -161,7 +161,7 @@ const {
 
                 <div class="flex flex-col justify-start gap-10">
                     <p
-                        class="max-w-7xl text-justify text-black md:text-lg dark:text-muted-foreground"
+                        class="text-md text-justify text-black md:text-lg dark:text-muted-foreground"
                     >
                         {{ personal.about }}
                     </p>

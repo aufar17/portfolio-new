@@ -122,12 +122,6 @@ const { works } = defineProps<{
                                     {{ work.company }}
                                 </h3>
                             </div>
-
-                            <span
-                                class="shrink-0 rounded-md bg-destructive px-3 py-1 text-xs font-medium text-white dark:bg-chart-5"
-                            >
-                                {{ work.date_range }}
-                            </span>
                         </div>
 
                         <div class="mt-3 space-y-2">
@@ -146,6 +140,14 @@ const { works } = defineProps<{
                                 <i class="pi pi-user"></i>
                                 <span class="font-semibold">
                                     {{ work.role }}
+                                </span>
+                            </div>
+                            <div
+                                class="flex items-center gap-2 text-sm text-destructive dark:text-chart-1"
+                            >
+                                <i class="pi pi-calendar"></i>
+                                <span class="font-semibold">
+                                    {{ work.date_range }}
                                 </span>
                             </div>
                         </div>

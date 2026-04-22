@@ -121,12 +121,6 @@ const { educations } = defineProps<{
                                 {{ education.institution }}
                             </h3>
                         </div>
-
-                        <span
-                            class="shrink-0 rounded-full bg-destructive px-3 py-1 text-xs font-medium text-white"
-                        >
-                            {{ education.date_range }}
-                        </span>
                     </div>
 
                     <div class="mt-3 space-y-2">
@@ -149,6 +143,16 @@ const { educations } = defineProps<{
                                 <span class="font-semibold">{{
                                     education.title
                                 }}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div
+                                class="flex items-center gap-2 text-sm text-destructive dark:text-chart-1"
+                            >
+                                <i class="pi pi-graduation-cap"></i>
+                                <span class="font-semibold">
+                                    {{ education.date_range }}
+                                </span>
                             </div>
                         </div>
                     </div>

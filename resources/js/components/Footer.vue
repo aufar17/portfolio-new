@@ -4,23 +4,12 @@ import { Link } from '@inertiajs/vue3';
 const year = new Date().getFullYear();
 
 const items = [
-    {
-        label: 'Home',
-        link: '#home',
-    },
-    {
-        label: 'About',
-        link: '#about',
-    },
-    {
-        label: 'Project',
-        link: '#project',
-    },
-    {
-        label: 'Contact',
-        link: '#contact',
-    },
+    { label: 'Home', link: '#home' },
+    { label: 'About', link: '#about' },
+    { label: 'Project', link: '#project' },
+    { label: 'Contact', link: '#contact' },
 ];
+
 const props = withDefaults(
     defineProps<{
         lastRole: string;
@@ -33,22 +22,20 @@ const props = withDefaults(
 
 <template>
     <footer
-        class="relative mt-24 border-t border-black/10 dark:border-white/10"
+        class="relative mt-16 border-t border-black/10 sm:mt-20 md:mt-24 dark:border-white/10"
     >
         <div class="pointer-events-none absolute inset-0 opacity-30">
             <div
-                class="absolute -top-10 left-1/4 h-40 w-40 rounded-full bg-primary/30 blur-3xl"
+                class="absolute -top-10 left-1/4 h-32 w-32 rounded-full bg-primary/30 blur-3xl sm:h-36 sm:w-36 md:h-40 md:w-40"
             ></div>
             <div
-                class="absolute right-1/4 bottom-0 h-40 w-40 rounded-full bg-secondary/30 blur-3xl"
+                class="absolute right-1/4 bottom-0 h-32 w-32 rounded-full bg-secondary/30 blur-3xl sm:h-36 sm:w-36 md:h-40 md:w-40"
             ></div>
         </div>
 
-        <div class="relative w-full px-4 py-10 lg:px-12">
-            <div
-                class="relative flex flex-col items-center gap-6 md:flex-row md:items-center md:justify-between"
-            >
-                <div class="text-center md:text-left">
+        <div class="relative w-full px-4 py-8 sm:py-10 lg:px-12">
+            <div class="hidden items-center justify-between md:flex">
+                <div class="text-left">
                     <h3
                         class="text-lg font-semibold text-gray-900 dark:text-white"
                     >
@@ -84,7 +71,7 @@ const props = withDefaults(
             </div>
 
             <div
-                class="mt-8 text-center text-xs text-gray-500 dark:text-gray-400"
+                class="mt-4 text-center text-[10px] text-gray-500 sm:text-xs md:mt-8 dark:text-gray-400"
             >
                 © {{ year }} Muammar Aufar. All rights reserved.
             </div>

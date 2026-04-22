@@ -26,11 +26,13 @@ const getPhoto = (path: string) =>
 
         <div class="mb-20 text-center">
             <h2
-                class="text-5xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100"
+                class="text-3xl font-extrabold tracking-tight text-gray-900 md:text-5xl dark:text-gray-100"
             >
                 Achievements
             </h2>
-            <p class="mt-3 text-gray-500 dark:text-gray-400">
+            <p
+                class="md:text-md mt-3 text-sm text-gray-500 lg:text-lg dark:text-gray-400"
+            >
                 Awards and Certificates
             </p>
         </div>

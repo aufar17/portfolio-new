@@ -33,12 +33,6 @@ onMounted(() => {
         blink-caret 0.9s step-end infinite;
 }
 
-.typing,
-.typing::selection,
-.typing::-moz-selection {
-    caret-color: transparent;
-}
-
 @keyframes typing {
     from {
         width: 0;
@@ -60,19 +54,23 @@ onMounted(() => {
 
 @media (max-width: 640px) {
     .typing {
-        font-size: 2.25rem;
-        line-height: 1.1;
+        width: 100% !important;
+        white-space: normal;
+        overflow: visible;
+        border-right: none;
+        animation: none;
+        display: block;
     }
 }
 </style>
 <template>
     <section
         id="home"
-        class="mx-auto flex min-h-[70dvh] max-w-7xl flex-col items-center justify-center px-4 py-12 text-center sm:min-h-[80dvh] sm:px-6 sm:py-16 md:min-h-[85dvh] lg:min-h-screen"
+        class="mx-auto flex min-h-[70dvh] max-w-7xl flex-col items-center justify-center px-6 py-12 text-center sm:min-h-[80dvh] sm:py-16 md:min-h-[85dvh] lg:min-h-screen"
     >
         <div class="flex w-full flex-col items-center">
             <h1
-                class="text-3xl leading-snug font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
+                class="text-3xl font-bold sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
             >
                 Hi, I'm
                 <br />
@@ -90,7 +88,7 @@ onMounted(() => {
                 <Badge
                     v-for="(role, index) in roles"
                     :key="index"
-                    class="flex items-center gap-1 rounded-2xl px-2 py-1 text-sm font-medium transition-all duration-200 sm:px-3 sm:py-1 sm:text-base"
+                    class="flex items-center gap-1 rounded-2xl px-2 py-1 text-xs font-medium transition-all duration-200 sm:px-3 sm:py-1 sm:text-sm md:text-base"
                     :class="[
                         role.color,
                         'border border-black/10 bg-white/5 shadow-md hover:-translate-y-0.5 hover:scale-105 hover:shadow-lg dark:border-white/10',
@@ -99,20 +97,19 @@ onMounted(() => {
                     <component
                         v-if="role.icon"
                         :is="role.icon"
-                        class="h-3 w-3 sm:h-4 sm:w-4"
+                        class="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5"
                     />
                     {{ role.name }}
                 </Badge>
             </div>
 
             <p
-                class="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:mt-8 sm:text-base md:text-lg"
+                class="mt-4 text-sm leading-relaxed text-muted-foreground sm:mt-6 sm:text-sm md:mt-7 md:text-base lg:text-lg"
             >
                 {{ personal.desc }}
             </p>
-
             <div
-                class="mt-6 flex flex-col items-center gap-3 sm:mt-10 sm:flex-row sm:gap-4"
+                class="flex-col-2 mt-6 flex items-center gap-3 sm:mt-10 sm:flex-row sm:gap-4"
             >
                 <a
                     href="#project"
