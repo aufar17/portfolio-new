@@ -175,7 +175,7 @@ const getImage = (path: string) =>
                 <div :key="activeTab" class="mt-8 sm:mt-10">
                     <div
                         v-if="activeTab === 'hard'"
-                        class="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-6 md:gap-4"
+                        class="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-7 md:gap-4"
                     >
                         <div
                             v-for="skill in filteredSkills"
