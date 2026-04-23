@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const year = new Date().getFullYear();
 
+const page = usePage();
+const isLandingPage = computed(() => page.url === '/landing-page');
 const items = [
-    { label: 'Home', link: '#home' },
-    { label: 'About', link: '#about' },
-    { label: 'Project', link: '#project' },
-    { label: 'Contact', link: '#contact' },
+    { label: 'Home', link: 'home' },
+    { label: 'About', link: 'about' },
+    { label: 'Project', link: 'project' },
+    { label: 'Achievement', link: 'achievement' },
 ];
 
 const props = withDefaults(
@@ -53,7 +56,11 @@ const props = withDefaults(
                         <Link
                             v-for="item in items"
                             :key="item.label"
-                            :href="item.link"
+                            :href="
+                                isLandingPage
+                                    ? `#${item.link}`
+                                    : `/#${item.link}`
+                            "
                             class="rounded-full border border-black/10 px-4 py-2 text-gray-600 transition hover:bg-black/10 hover:text-black dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
                         >
                             {{ item.label }}
