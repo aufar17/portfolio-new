@@ -120,25 +120,25 @@ const getImage = (path: string) =>
                 </span>
             </Link>
         </div>
-        <div class="mx-auto mt-28 max-w-7xl">
-            <div class="mb-20">
+        <div class="mx-auto mt-20 max-w-7xl px-4 sm:mt-24 sm:px-6 md:mt-28">
+            <div class="mb-12 sm:mb-16 md:mb-20">
                 <h3
-                    class="text-center text-3xl font-bold text-gray-900 md:text-5xl dark:text-white"
+                    class="text-center text-2xl font-bold text-gray-900 sm:text-3xl md:text-5xl dark:text-white"
                 >
                     Skills
                 </h3>
                 <p
-                    class="md:text-md mt-3 text-center text-sm tracking-wide text-gray-500 lg:text-lg dark:text-gray-400"
+                    class="mt-2 text-center text-xs tracking-wide text-gray-500 sm:mt-3 sm:text-sm md:text-base lg:text-lg dark:text-gray-400"
                 >
                     Tools, Languages, Frameworks and Abilities
                 </p>
             </div>
 
             <div
-                class="relative flex w-full overflow-hidden rounded-xl border border-black/10 bg-white/50 p-1 shadow-lg backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-white/5"
+                class="relative flex w-full overflow-hidden rounded-xl border border-black/10 bg-white/50 p-1 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-white/5"
             >
                 <div
-                    class="absolute top-1 bottom-1 w-1/2 rounded-lg bg-gradient-to-r from-primary/90 to-primary shadow-md transition-all duration-500 ease-in-out dark:from-primary/90 dark:to-primary"
+                    class="absolute top-1 bottom-1 w-1/2 rounded-lg bg-gradient-to-r from-primary/90 to-primary shadow-md transition-all duration-500 ease-in-out"
                     :class="
                         activeTab === 'soft'
                             ? 'translate-x-full'
@@ -148,7 +148,7 @@ const getImage = (path: string) =>
 
                 <button
                     @click="activeTab = 'hard'"
-                    class="relative z-10 flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-300"
+                    class="relative z-10 flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-300 sm:px-4 sm:text-sm"
                     :class="
                         activeTab === 'hard'
                             ? 'text-white'
@@ -160,7 +160,7 @@ const getImage = (path: string) =>
 
                 <button
                     @click="activeTab = 'soft'"
-                    class="relative z-10 flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-300"
+                    class="relative z-10 flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-300 sm:px-4 sm:text-sm"
                     :class="
                         activeTab === 'soft'
                             ? 'text-white'
@@ -172,15 +172,15 @@ const getImage = (path: string) =>
             </div>
 
             <transition name="fade" mode="out-in">
-                <div :key="activeTab" class="mt-10">
+                <div :key="activeTab" class="mt-8 sm:mt-10">
                     <div
                         v-if="activeTab === 'hard'"
-                        class="grid grid-cols-2 gap-3 md:grid-cols-6 md:gap-4"
+                        class="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-6 md:gap-4"
                     >
                         <div
                             v-for="skill in filteredSkills"
                             :key="skill.id"
-                            class="group flex w-full items-center gap-3 rounded-xl border border-black/20 bg-white/40 p-3 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl md:aspect-square md:flex-col md:justify-center md:gap-2 md:p-4 dark:border-white/20 dark:bg-white/10"
+                            class="group flex items-center gap-3 rounded-xl border border-black/20 bg-white/40 p-3 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl md:aspect-square md:flex-col md:justify-center md:gap-2 md:p-4 dark:border-white/20 dark:bg-white/10"
                         >
                             <div
                                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-black/5 p-2 transition-all duration-300 md:mb-3 md:h-25 md:w-25 md:p-5 md:group-hover:scale-110 md:group-hover:rotate-3 dark:bg-white/10"
@@ -202,32 +202,32 @@ const getImage = (path: string) =>
 
                     <div
                         v-else
-                        class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4"
+                        class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4"
                     >
                         <div
                             v-for="skill in filteredSkills"
                             :key="skill.id"
-                            class="group relative cursor-pointer overflow-hidden rounded-lg border border-black/10 bg-white/50 px-4 py-3 text-center font-medium text-gray-700 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-white/5 dark:text-white/80"
+                            class="group relative cursor-pointer overflow-hidden rounded-lg border border-black/10 bg-white/50 px-3 py-2 text-center font-medium text-gray-700 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:px-4 sm:py-3 dark:border-white/10 dark:bg-white/5 dark:text-white/80"
                         >
                             <div
-                                class="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:from-chart-1/20"
+                                class="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                             ></div>
 
                             <span
-                                class="md:text-md relative z-10 text-xs transition-all duration-300 group-hover:text-gray-900 sm:text-sm dark:group-hover:text-white"
+                                class="relative z-10 text-[11px] transition-all duration-300 group-hover:text-gray-900 sm:text-xs md:text-sm dark:group-hover:text-white"
                             >
                                 {{ skill.name }}
                             </span>
 
                             <div
-                                class="absolute bottom-0 left-1/2 h-[2px] w-0 -translate-x-1/2 bg-primary transition-all duration-300 group-hover:w-1/2 dark:bg-chart-1"
+                                class="absolute bottom-0 left-1/2 h-[2px] w-0 -translate-x-1/2 bg-primary transition-all duration-300 group-hover:w-1/2"
                             ></div>
                         </div>
                     </div>
 
                     <div
                         v-if="filteredSkills.length === 0"
-                        class="mt-6 text-center font-medium tracking-wide text-gray-900 dark:text-white"
+                        class="mt-6 text-center text-sm font-medium tracking-wide text-gray-900 sm:text-base dark:text-white"
                     >
                         No skills data
                     </div>
