@@ -19,9 +19,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Work', href: worksAdmin().url },
 ];
 
-const props = defineProps({
-    works: Object,
-});
+const props = defineProps<{
+    works: any[];
+}>();
 
 const {
     visible,
@@ -52,8 +52,8 @@ const {
                     Works Data
                 </h2>
                 <BasedDataTable
-                    :value="works?.data || []"
-                    :totalRecords="works?.total || 0"
+                    :value="works || []"
+                    :totalRecords="works?.length || 0"
                     :globalFilterFields="globalFields"
                 >
                     <template #header="{ filters }">

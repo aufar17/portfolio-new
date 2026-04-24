@@ -24,14 +24,13 @@ export function useProjectScript(projects: any) {
     };
 
     const globalFields = computed(() => {
-        if (!projects.data.length) {
-return [];
-}
+        if (!projects || !projects.length) {
+            return [];
+        }
 
-        return Object.keys(projects.data[0]).filter(
+        return Object.keys(projects[0]).filter(
             (key) =>
-                typeof projects.data[0][key] !== 'object' &&
-                !excluded.includes(key),
+                typeof projects[0][key] !== 'object' && !excluded.includes(key),
         );
     });
 
@@ -113,8 +112,8 @@ return [];
             });
         } else {
             if (!selectedData.value?.id) {
-return;
-}
+                return;
+            }
 
             form.put(route('update-project', selectedData.value.id), {
                 forceFormData: true,
@@ -125,8 +124,8 @@ return;
 
     const deleteProject = () => {
         if (!selectedData.value?.id) {
-return;
-}
+            return;
+        }
 
         form.delete(route('delete-project', selectedData.value.id), {
             onSuccess: closeDialogDelete,

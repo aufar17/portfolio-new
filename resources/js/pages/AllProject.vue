@@ -16,7 +16,7 @@ const props = withDefaults(
 
 const search = ref('');
 const currentPage = ref(1);
-const perPage = 5;
+const perPage = 6;
 
 const filteredProjects = computed(() => {
     return props.projects.filter((p) => {

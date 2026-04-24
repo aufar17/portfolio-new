@@ -13,14 +13,13 @@ export function useSocialScript(socials: any) {
     const excluded = ['id', 'created_at', 'updated_at'];
 
     const globalFields = computed(() => {
-        if (!socials.data.length) {
-return [];
-}
+        if (!socials.length) {
+            return [];
+        }
 
-        return Object.keys(socials.data[0]).filter(
+        return Object.keys(socials[0]).filter(
             (key) =>
-                typeof socials.data[0][key] !== 'object' &&
-                !excluded.includes(key),
+                typeof socials[0][key] !== 'object' && !excluded.includes(key),
         );
     });
 
@@ -77,8 +76,8 @@ return [];
             });
         } else {
             if (!selectedData.value?.id) {
-return;
-}
+                return;
+            }
 
             form.put(route('update-social', selectedData.value.id), {
                 forceFormData: true,
@@ -89,8 +88,8 @@ return;
 
     const deleteSocial = () => {
         if (!selectedData.value?.id) {
-return;
-}
+            return;
+        }
 
         form.delete(route('delete-social', selectedData.value.id), {
             onSuccess: closeDialogDelete,

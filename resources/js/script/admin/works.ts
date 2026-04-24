@@ -13,14 +13,13 @@ export function useWorkScript(works: any) {
     const excluded = ['id', 'created_at', 'updated_at'];
 
     const globalFields = computed(() => {
-        if (!works.data.length) {
-return [];
-}
+        if (!works.length) {
+            return [];
+        }
 
-        return Object.keys(works.data[0]).filter(
+        return Object.keys(works[0]).filter(
             (key) =>
-                typeof works.data[0][key] !== 'object' &&
-                !excluded.includes(key),
+                typeof works[0][key] !== 'object' && !excluded.includes(key),
         );
     });
 
@@ -89,8 +88,8 @@ return [];
             });
         } else {
             if (!selectedData.value?.id) {
-return;
-}
+                return;
+            }
 
             form.put(route('update-work', selectedData.value.id), {
                 forceFormData: true,
@@ -101,8 +100,8 @@ return;
 
     const deleteWork = () => {
         if (!selectedData.value?.id) {
-return;
-}
+            return;
+        }
 
         form.delete(route('delete-work', selectedData.value.id), {
             onSuccess: closeDialogDelete,

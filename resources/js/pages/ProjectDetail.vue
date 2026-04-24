@@ -152,7 +152,7 @@ const closeModal = () => {
                             </div>
                         </div>
 
-                        <div class="flex gap-2">
+                        <div class="flex gap-2" v-if="project.link">
                             <a
                                 :href="project.link"
                                 target="_blank"

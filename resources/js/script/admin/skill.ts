@@ -12,14 +12,13 @@ export function useSkillScript(skills: any) {
     const excluded = ['id', 'created_at', 'updated_at'];
 
     const globalFields = computed(() => {
-        if (!skills.data.length) {
-return [];
-}
+        if (!skills.length) {
+            return [];
+        }
 
-        return Object.keys(skills.data[0]).filter(
+        return Object.keys(skills[0]).filter(
             (key) =>
-                typeof skills.data[0][key] !== 'object' &&
-                !excluded.includes(key),
+                typeof skills[0][key] !== 'object' && !excluded.includes(key),
         );
     });
 
@@ -75,8 +74,8 @@ return [];
             });
         } else {
             if (!selectedData.value?.id) {
-return;
-}
+                return;
+            }
 
             form.put(route('update-skill', selectedData.value.id), {
                 forceFormData: true,
@@ -87,8 +86,8 @@ return;
 
     const deleteSkill = () => {
         if (!selectedData.value?.id) {
-return;
-}
+            return;
+        }
 
         form.delete(route('delete-skill', selectedData.value.id), {
             onSuccess: closeDialogDelete,

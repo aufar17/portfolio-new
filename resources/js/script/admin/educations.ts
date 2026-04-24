@@ -14,13 +14,13 @@ export function useEducationScript(educations: any) {
     const excluded = ['id', 'created_at', 'updated_at'];
 
     const globalFields = computed(() => {
-        if (!educations.data.length) {
-return [];
-}
+        if (!educations.length) {
+            return [];
+        }
 
-        return Object.keys(educations.data[0]).filter(
+        return Object.keys(educations[0]).filter(
             (key) =>
-                typeof educations.data[0][key] !== 'object' &&
+                typeof educations[0][key] !== 'object' &&
                 !excluded.includes(key),
         );
     });
@@ -90,8 +90,8 @@ return [];
             });
         } else {
             if (!selectedData.value?.id) {
-return;
-}
+                return;
+            }
 
             form.put(route('update-education', selectedData.value.id), {
                 forceFormData: true,
@@ -102,8 +102,8 @@ return;
 
     const deleteEducation = () => {
         if (!selectedData.value?.id) {
-return;
-}
+            return;
+        }
 
         form.delete(route('delete-education', selectedData.value.id), {
             onSuccess: closeDialogDelete,

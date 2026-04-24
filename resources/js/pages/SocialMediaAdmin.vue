@@ -20,9 +20,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Social Media', href: socialAdmin().url },
 ];
 
-const props = defineProps({
-    social: Object,
-});
+const props = defineProps<{
+    social: any[];
+}>();
 
 const {
     visible,
@@ -52,8 +52,8 @@ const {
                     Social Media Data
                 </h2>
                 <BasedDataTable
-                    :value="social?.data || []"
-                    :totalRecords="social?.total || 0"
+                    :value="social || []"
+                    :totalRecords="social?.length || 0"
                     :globalFilterFields="globalFields"
                 >
                     <template #header="{ filters }">

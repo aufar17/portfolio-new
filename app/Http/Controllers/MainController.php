@@ -21,7 +21,7 @@ class MainController extends Controller
     }
     public function projectsAdmin()
     {
-        $projects = Project::orderBy('created_at', 'asc')->paginate(10);
+        $projects = Project::orderBy('created_at', 'asc')->get();
         $data = [
             'projects' => $projects
         ];
@@ -29,7 +29,7 @@ class MainController extends Controller
     }
     public function skillsAdmin()
     {
-        $skills = Skill::orderBy('created_at', 'asc')->paginate(10);
+        $skills = Skill::orderBy('created_at', 'asc')->get();
         $data = [
             'skills' => $skills
         ];
@@ -37,7 +37,7 @@ class MainController extends Controller
     }
     public function awardsAdmin()
     {
-        $awards = Award::orderBy('created_at', 'asc')->paginate(10);
+        $awards = Award::orderBy('created_at', 'asc')->get();
         $data = [
             'awards' => $awards
         ];
@@ -45,7 +45,7 @@ class MainController extends Controller
     }
     public function educationsAdmin()
     {
-        $educations = Education::orderBy('created_at', 'asc')->paginate(10);
+        $educations = Education::orderBy('created_at', 'asc')->get();
         $data = [
             'educations' => $educations
         ];
@@ -54,7 +54,7 @@ class MainController extends Controller
 
     public function worksAdmin()
     {
-        $works = Work::orderBy('created_at', 'asc')->paginate(10);
+        $works = Work::orderBy('created_at', 'asc')->get();
         $data = [
             'works' => $works
         ];
@@ -70,7 +70,7 @@ class MainController extends Controller
     }
     public function socialAdmin()
     {
-        $social = SocialMedia::orderBy('created_at', 'asc')->paginate(10);
+        $social = SocialMedia::orderBy('created_at', 'asc')->get();
         $data = [
             'social' => $social
         ];

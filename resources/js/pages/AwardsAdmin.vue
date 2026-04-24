@@ -22,9 +22,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Awards', href: awardsAdmin().url },
 ];
 
-const props = defineProps({
-    awards: Object,
-});
+const props = defineProps<{
+    awards: any[];
+}>();
 
 const {
     visible,
@@ -59,8 +59,8 @@ const {
                     Awards Data
                 </h2>
                 <BasedDataTable
-                    :value="awards?.data || []"
-                    :totalRecords="awards?.total || 0"
+                    :value="awards || []"
+                    :totalRecords="awards?.length || 0"
                     :globalFilterFields="globalFields"
                 >
                     <template #header="{ filters }">
