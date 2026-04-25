@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { MonitorCog, Search } from 'lucide-vue-next';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
 import { projectDetail } from '@/routes';
 
@@ -52,6 +52,12 @@ const goToPage = (page: number) => {
         currentPage.value = page;
     }
 };
+
+watch(filteredProjects, () => {
+    if (currentPage.value > totalPages.value) {
+        currentPage.value = 1;
+    }
+});
 
 const getImage = (path: string) =>
     path ? `/storage/${path}` : '/images/default-skill.png';

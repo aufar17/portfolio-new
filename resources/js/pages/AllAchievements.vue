@@ -16,7 +16,7 @@ const props = withDefaults(
 
 const search = ref('');
 const currentPage = ref(1);
-const perPage = 5;
+const perPage = 2;
 
 const filteredAchievements = computed(() => {
     return props.achievements.filter((p) => {
@@ -62,8 +62,10 @@ const typeLabel = (type: number) => {
     return map[type] ?? '';
 };
 
-watch(search, () => {
-    currentPage.value = 1;
+watch(filteredAchievements, () => {
+    if (currentPage.value > totalPages.value) {
+        currentPage.value = 1;
+    }
 });
 
 const getPhoto = (path: string) =>

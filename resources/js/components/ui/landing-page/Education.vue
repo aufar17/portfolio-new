@@ -149,7 +149,7 @@ const { educations } = defineProps<{
                             <div
                                 class="flex items-center gap-2 text-sm text-destructive dark:text-chart-1"
                             >
-                                <i class="pi pi-graduation-cap"></i>
+                                <i class="pi pi-calendar"></i>
                                 <span class="font-semibold">
                                     {{ education.date_range }}
                                 </span>
