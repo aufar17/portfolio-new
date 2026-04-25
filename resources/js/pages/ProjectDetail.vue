@@ -60,7 +60,7 @@ const closeModal = () => {
                         class="group relative overflow-hidden rounded-2xl border border-black/5 shadow-2xl lg:col-span-2 dark:border-white/10"
                     >
                         <div
-                            class="h-[220px] w-full overflow-hidden sm:h-[280px] md:h-[350px] lg:h-full"
+                            class="h-[220px] w-full overflow-hidden sm:h-[280px] md:h-[570px]"
                         >
                             <img
                                 v-if="project.image"
