@@ -119,7 +119,7 @@ const {
                     <Column field="status" header="Status">
                         <template #body="{ data }">
                             <ToggleSwitch
-                                :modelValue="data.status === 1"
+                                :modelValue="data.status"
                                 @update:modelValue="
                                     (val) => toggleStatus(data, val)
                                 "
