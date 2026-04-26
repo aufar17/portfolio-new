@@ -25,16 +25,12 @@ class Education extends Model
 
     public function getStartMonthAttribute(): ?string
     {
-        return $this->start
-            ? Carbon::parse($this->start)->translatedFormat('Y')
-            : null;
+        return $this->start ?: null;
     }
 
     public function getEndMonthAttribute(): ?string
     {
-        return $this->end
-            ? Carbon::parse($this->end)->translatedFormat('Y')
-            : null;
+        return $this->end ?: null;
     }
 
     public function getDateRangeAttribute(): string
@@ -44,9 +40,9 @@ class Education extends Model
         }
 
         if (!$this->end) {
-            return $this->start_month . ' — Present';
+            return $this->start . ' — Present';
         }
 
-        return $this->start_month . ' — ' . $this->end_month;
+        return $this->start . ' — ' . $this->end;
     }
 }

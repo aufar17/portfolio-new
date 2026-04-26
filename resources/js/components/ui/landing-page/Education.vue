@@ -100,7 +100,7 @@ const { educations } = defineProps<{
             ></div>
 
             <div
-                v-for="(education, index) in educations"
+                v-for="education in educations"
                 :key="education.id"
                 class="relative pl-14"
             >
