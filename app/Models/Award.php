@@ -20,12 +20,18 @@ class Award extends Model
         'date',
     ];
 
+    protected $casts = [
+        'status' => 'boolean',
+        'type' => 'boolean',
+        'date' => 'date',
+    ];
+
     protected $appends = [
         'date_format'
     ];
 
-    public function getDateFormatAttribute($value)
+    public function getDateFormatAttribute()
     {
-        return Carbon::parse($value)->format('M Y');
+        return $this->date?->format('M Y');
     }
 }

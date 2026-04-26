@@ -117,17 +117,12 @@ export function useAwardScript(awards: any) {
     };
 
     const toggleStatus = (data: any, val: boolean) => {
-        const newStatus = val ? 1 : 0;
-
-        useForm({ status: newStatus }).put(
-            route('update-status-award', data.id),
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    data.status = newStatus;
-                },
+        useForm({ status: val }).put(route('update-status-award', data.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                data.status = val;
             },
-        );
+        });
     };
 
     return {

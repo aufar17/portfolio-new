@@ -178,11 +178,11 @@ const {
                     <label class="font-semibold">Type</label>
                     <div class="flex items-center gap-6">
                         <div
-                            v-for="option in [
-                                { label: 'Award', value: 0 },
-                                { label: 'Certification', value: 1 },
+                            v-for="(option, i) in [
+                                { label: 'Award', value: false },
+                                { label: 'Certification', value: true },
                             ]"
-                            :key="option.value"
+                            :key="i"
                             class="flex items-center gap-2"
                         >
                             <RadioButton
