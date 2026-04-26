@@ -99,7 +99,7 @@ const {
                             <span
                                 class="rounded-full bg-black px-2 py-1 text-xs font-semibold text-white dark:bg-white dark:text-black"
                                 >{{
-                                    data.type === 1 ? 'Awards' : 'Certs'
+                                    data.type === 0 ? 'Awards' : 'Certs'
                                 }}</span
                             >
                         </template>
@@ -181,8 +181,8 @@ const {
                     <div class="flex items-center gap-6">
                         <div
                             v-for="option in [
-                                { label: 'Award', value: 1 },
-                                { label: 'Certification', value: 2 },
+                                { label: 'Award', value: 0 },
+                                { label: 'Certification', value: 1 },
                             ]"
                             :key="option.value"
                             class="flex items-center gap-2"

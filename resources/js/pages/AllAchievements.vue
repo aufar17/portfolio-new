@@ -16,7 +16,7 @@ const props = withDefaults(
 
 const search = ref('');
 const currentPage = ref(1);
-const perPage = 2;
+const perPage = 6;
 
 const filteredAchievements = computed(() => {
     return props.achievements.filter((p) => {
@@ -56,8 +56,8 @@ const goToPage = (page: number) => {
 
 const typeLabel = (type: number) => {
     const map: Record<number, string> = {
-        1: 'awards',
-        2: 'certification',
+        0: 'awards',
+        1: 'certification',
     };
     return map[type] ?? '';
 };
@@ -130,7 +130,7 @@ const getPhoto = (path: string) =>
                                 class="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-800"
                             >
                                 <Award
-                                    v-if="item.type == 1"
+                                    v-if="item.type == 0"
                                     class="h-14 w-14 text-gray-500 sm:h-20 sm:w-20 md:h-24 md:w-24"
                                 />
                                 <FileBadge
@@ -180,7 +180,7 @@ const getPhoto = (path: string) =>
                                 class="rounded-full bg-primary px-2 py-1 text-[10px] font-semibold text-white uppercase shadow-sm sm:px-3 sm:text-[11px]"
                             >
                                 {{
-                                    item.type === 1 ? 'Award' : 'Certification'
+                                    item.type === 0 ? 'Award' : 'Certification'
                                 }}
                             </span>
                         </div>

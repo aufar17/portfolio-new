@@ -2,7 +2,7 @@
 import { achievementDetail } from '@/actions/App/Http/Controllers/LandingPageController';
 import { allAchievements } from '@/routes';
 import { Link } from '@inertiajs/vue3';
-import { Award, FileBadge } from 'lucide-vue-next';
+import { Award, Building2, CalendarDays, FileBadge } from 'lucide-vue-next';
 
 const props = defineProps<{
     achievements?: any[];
@@ -58,7 +58,7 @@ const getPhoto = (path: string) =>
                             class="flex h-full w-full items-center justify-center bg-gray-200 py-10 dark:bg-gray-800"
                         >
                             <Award
-                                v-if="item.type == 1"
+                                v-if="item.type == 0"
                                 class="h-30 w-30 text-gray-500"
                             />
 
@@ -73,7 +73,7 @@ const getPhoto = (path: string) =>
                     <span
                         class="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-black backdrop-blur dark:bg-black/60 dark:text-white"
                     >
-                        {{ item.type == 1 ? 'Award' : 'Certification' }}
+                        {{ item.type == 0 ? 'Award' : 'Certification' }}
                     </span>
                 </div>
 
@@ -84,19 +84,19 @@ const getPhoto = (path: string) =>
                         {{ item.title }}
                     </h3>
 
-                    <div class="flex items-center justify-start gap-2">
-                        <span
-                            class="inline-flex items-center rounded-full border border-black/10 bg-black/5 px-3 py-1 text-[11px] font-medium text-gray-700 backdrop-blur dark:border-white/10 dark:bg-white/10 dark:text-gray-200"
-                        >
-                            {{ item.issuer }}
-                        </span>
+                    <span
+                        class="inline-flex items-center gap-2 text-xs font-semibold text-chart-1 dark:text-chart-1"
+                    >
+                        <Building2 class="h-4 w-4" />
+                        {{ item.issuer }}
+                    </span>
 
-                        <span
-                            class="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary dark:bg-white/10 dark:text-white"
-                        >
-                            {{ item.date_format }}
-                        </span>
-                    </div>
+                    <span
+                        class="inline-flex items-center gap-2 text-xs font-medium text-chart-2 dark:text-chart-2"
+                    >
+                        <CalendarDays class="h-4 w-4" />
+                        {{ item.date_format }}
+                    </span>
 
                     <p
                         class="line-clamp-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300"

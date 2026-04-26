@@ -16,7 +16,7 @@ class AwardsAdminService
     {
         return $request->validate([
             'title' => 'required|string|max:255',
-            'type' => 'required|integer',
+            'type' => 'required',
             'description' => 'required|string',
             'issuer' => 'required|string|max:255',
             'date' => 'required|date',
