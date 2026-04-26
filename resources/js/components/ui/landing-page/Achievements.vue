@@ -58,7 +58,7 @@ const getPhoto = (path: string) =>
                             class="flex h-full w-full items-center justify-center bg-gray-200 py-10 dark:bg-gray-800"
                         >
                             <Award
-                                v-if="item.type == 0"
+                                v-if="!item.type"
                                 class="h-30 w-30 text-gray-500"
                             />
 
@@ -73,7 +73,7 @@ const getPhoto = (path: string) =>
                     <span
                         class="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-black backdrop-blur dark:bg-black/60 dark:text-white"
                     >
-                        {{ item.type == 0 ? 'Award' : 'Certification' }}
+                        {{ item.type ? 'Certification' : 'Awards' }}
                     </span>
                 </div>
 

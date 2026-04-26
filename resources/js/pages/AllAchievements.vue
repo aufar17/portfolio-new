@@ -29,7 +29,6 @@ const filteredAchievements = computed(() => {
             : p.issuer?.toLowerCase().includes(keyword);
 
         const matchType = typeLabel(p.type).toLowerCase().includes(keyword);
-
         return matchTitle || matchIssuer || matchType;
     });
 });
@@ -54,12 +53,8 @@ const goToPage = (page: number) => {
     }
 };
 
-const typeLabel = (type: number) => {
-    const map: Record<number, string> = {
-        0: 'awards',
-        1: 'certification',
-    };
-    return map[type] ?? '';
+const typeLabel = (type: boolean) => {
+    return type ? 'certification' : 'awards';
 };
 
 watch(filteredAchievements, () => {
@@ -130,7 +125,7 @@ const getPhoto = (path: string) =>
                                 class="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-800"
                             >
                                 <Award
-                                    v-if="item.type == 0"
+                                    v-if="!item.type"
                                     class="h-14 w-14 text-gray-500 sm:h-20 sm:w-20 md:h-24 md:w-24"
                                 />
                                 <FileBadge
@@ -179,9 +174,7 @@ const getPhoto = (path: string) =>
                             <span
                                 class="rounded-full bg-primary px-2 py-1 text-[10px] font-semibold text-white uppercase shadow-sm sm:px-3 sm:text-[11px]"
                             >
-                                {{
-                                    item.type === 0 ? 'Award' : 'Certification'
-                                }}
+                                {{ item.type ? 'Certification' : 'Award' }}
                             </span>
                         </div>
                     </div>

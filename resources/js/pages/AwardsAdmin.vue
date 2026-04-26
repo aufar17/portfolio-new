@@ -98,9 +98,7 @@ const {
                         <template #body="{ data }">
                             <span
                                 class="rounded-full bg-black px-2 py-1 text-xs font-semibold text-white dark:bg-white dark:text-black"
-                                >{{
-                                    data.type === 0 ? 'Awards' : 'Certs'
-                                }}</span
+                                >{{ data.type ? 'Certs' : 'Awards' }}</span
                             >
                         </template>
                     </Column>

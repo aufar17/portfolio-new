@@ -68,7 +68,7 @@ const closeModal = () => {
                                 class="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-800"
                             >
                                 <Award
-                                    v-if="achievement.type == 0"
+                                    v-if="!achievement.type"
                                     class="h-30 w-30 text-gray-500"
                                 />
                                 <FileBadge
@@ -108,9 +108,7 @@ const closeModal = () => {
                             </p>
                             <p class="text-md mt-1 font-semibold">
                                 {{
-                                    achievement.type === 0
-                                        ? 'Award'
-                                        : 'Certification'
+                                    achievement.type ? 'Certification' : 'Award'
                                 }}
                             </p>
                         </div>
