@@ -1,12 +1,21 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue';
+import { onBeforeUnmount, ref, useId } from 'vue';
+import {
+    A_CROSSBAR,
+    A_KNEE,
+    A_SILHOUETTE,
+    A_SPLIT_LEFT,
+    A_SPLIT_RIGHT,
+    A_VISOR,
+} from '@/components/site/abotShape';
 import { gsap, prefersReducedMotion } from '@/motion/gsap';
 import { useMotion } from '@/motion/useMotion';
 import type { BotGesture } from '@/script/landingPage/botDialog';
 
 /**
  * Hero mascot "Abot": a robot whose frame is the capital "A" of the logo,
- * drawn in SVG and coloured only through theme tokens. The counter of the A
+ * drawn in SVG with every corner rounded (geometry in `abotShape.ts`) and
+ * coloured only through theme tokens. The counter of the A
  * is its visor, the crossbar its shoulders (arms hang from the ends) and the
  * legs of the A are its legs. Like the logo, the left leg is a circuit panel
  * and the right one a solid slab.
@@ -26,6 +35,9 @@ defineProps<{
 const SHOULDER_LEFT = '32 161';
 const SHOULDER_RIGHT = '188 161';
 const FEET = '110 212';
+
+// Clip ids for the two legs, unique per instance.
+const uid = useId();
 
 const root = ref<HTMLButtonElement | null>(null);
 const body = ref<SVGGElement | null>(null);
@@ -330,9 +342,19 @@ useMotion(root, ({ reduce, desktop }) => {
                     <circle cx="110" cy="-2" r="6" class="fill-brand-red" />
                 </g>
 
+                <defs>
+                    <clipPath :id="`${uid}-left`">
+                        <path :d="A_SPLIT_LEFT" />
+                    </clipPath>
+                    <clipPath :id="`${uid}-right`">
+                        <path :d="A_SPLIT_RIGHT" />
+                    </clipPath>
+                </defs>
+
                 <!-- Left leg of the A: circuit panel (the logo's PCB side) -->
                 <path
-                    d="M98 40 L110 62 L39 204 L16 204 Z"
+                    :d="A_SILHOUETTE"
+                    :clip-path="`url(#${uid}-left)`"
                     stroke-width="2"
                     stroke-linejoin="round"
                     class="fill-card stroke-border"
@@ -355,8 +377,8 @@ useMotion(root, ({ reduce, desktop }) => {
 
                 <!-- Right leg of the A, running over the apex: solid slab -->
                 <path
-                    d="M98 40 L100 36 Q110 16 120 36 L204 204 L181 204 L110 62 Z"
-                    stroke-linejoin="round"
+                    :d="A_SILHOUETTE"
+                    :clip-path="`url(#${uid}-right)`"
                     class="fill-primary"
                 />
                 <path
@@ -369,12 +391,7 @@ useMotion(root, ({ reduce, desktop }) => {
 
                 <!-- The counter of the A is the visor -->
                 <g ref="visor">
-                    <path
-                        d="M110 78 L80 140 L140 140 Z"
-                        stroke-width="10"
-                        stroke-linejoin="round"
-                        class="fill-primary stroke-primary"
-                    />
+                    <path :d="A_VISOR" class="fill-primary" />
                     <path
                         d="M95 104 Q99 95 106 92"
                         stroke-width="3"
@@ -462,11 +479,8 @@ useMotion(root, ({ reduce, desktop }) => {
 
                 <!-- Crossbar of the A: shoulder panel -->
                 <rect
-                    x="22"
-                    y="148"
-                    width="176"
-                    height="26"
-                    rx="13"
+                    v-bind="A_CROSSBAR"
+                    :rx="A_CROSSBAR.height / 2"
                     stroke-width="2"
                     class="fill-card stroke-border"
                 />
@@ -483,10 +497,7 @@ useMotion(root, ({ reduce, desktop }) => {
                 />
 
                 <!-- Hexagon knee joint, from the logo -->
-                <path
-                    d="M37 182 L43.1 185.5 L43.1 192.5 L37 196 L30.9 192.5 L30.9 185.5 Z"
-                    class="fill-primary"
-                />
+                <path :d="A_KNEE" class="fill-primary" />
 
                 <!-- Feet under the legs of the A -->
                 <rect

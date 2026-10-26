@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
+import { createPour, drawPourBand } from '@/motion/liquidPour';
 import { onThemeChange, readPaintColors } from '@/motion/paintColors';
-import { createSpray, drawSprayBand } from '@/motion/sprayPaint';
 import { useMotion } from '@/motion/useMotion';
 
 /**
- * Spray-paint transition at a section boundary (motion/sprayPaint.ts). Place
- * it between two sections: as the boundary scrolls from 80% of the viewport
- * to the top, paint covers the screen and is then sprayed away to show the
- * next section. Scrubbed, no pin.
+ * Poured-paint transition at a section boundary (motion/liquidPour.ts).
+ * Place it between two sections: as the boundary scrolls from 80% of the
+ * viewport to the top, paint runs down over the screen and then drains off
+ * the bottom to show the next section. Scrubbed, no pin.
  *
  * The overlay canvas only works while the boundary is in range; outside it,
- * it is empty, hidden and off the ticker. Phones get fewer particles, no
- * drips and 1x resolution. Reduced motion shows a static spray stroke as a
+ * it is empty, hidden and off the ticker. Phones get fewer drips, a coarser
+ * edge and 1x resolution. Reduced motion shows a static pour edge as a
  * divider instead. Colours follow the theme.
  */
 const marker = ref<HTMLElement | null>(null);
@@ -22,7 +22,7 @@ const band = ref<HTMLCanvasElement | null>(null);
 
 useMotion(marker, ({ desktop, reduce }) => {
     if (reduce) {
-        const paint = () => band.value && drawSprayBand(band.value);
+        const paint = () => band.value && drawPourBand(band.value);
         paint();
 
         const offTheme = onThemeChange(paint);
@@ -35,9 +35,8 @@ useMotion(marker, ({ desktop, reduce }) => {
     }
 
     const canvas = overlay.value!;
-    const spray = createSpray(canvas, {
-        density: desktop ? 1 : 0.35,
-        drips: desktop,
+    const pour = createPour(canvas, {
+        mobile: !desktop,
         dpr: desktop ? Math.min(window.devicePixelRatio || 1, 1.5) : 1,
     });
 
@@ -47,7 +46,7 @@ useMotion(marker, ({ desktop, reduce }) => {
     const tick = () => {
         if (dirty) {
             dirty = false;
-            spray.render(progress);
+            pour.render(progress);
         }
     };
 
@@ -71,18 +70,18 @@ useMotion(marker, ({ desktop, reduce }) => {
         },
         onToggle: (self) => {
             // Leaving at either end: draw that end (empty) before hiding.
-            spray.render(self.progress);
+            pour.render(self.progress);
             setActive(self.isActive);
         },
         onRefresh: (self) => {
-            spray.resize();
-            spray.render(self.progress, true);
+            pour.resize();
+            pour.render(self.progress);
         },
     });
 
     const offTheme = onThemeChange(() => {
-        spray.setColors(readPaintColors());
-        spray.render(progress, true);
+        pour.setColors(readPaintColors());
+        pour.render(progress);
     });
 
     return () => {

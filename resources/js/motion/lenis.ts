@@ -19,13 +19,36 @@ const raf = (time: number) => lenis?.raf(time * 1000);
 
 export const getLenis = () => lenis;
 
+// Until when a programmatic glide is (at most) running.
+let gliding = 0;
+
+/**
+ * True while a smooth scroll started by code (anchor link, scrollToTarget)
+ * is under way, so scroll effects passed on the way can stay out of sight.
+ */
+export const isAutoScrolling = () => performance.now() < gliding;
+
+const glide = (target: HTMLElement | string | number) => {
+    // Cleared on arrival; the cap covers a glide cut short by the user.
+    gliding = performance.now() + 3000;
+    lenis?.scrollTo(target, {
+        onComplete: () => {
+            gliding = 0;
+        },
+    });
+};
+
 /** Smooth-scrolls to an element, `#id` or y position, honouring scroll-margin. */
 export function scrollToTarget(
     target: HTMLElement | string | number,
     options: { immediate?: boolean } = {},
 ) {
     if (lenis) {
-        lenis.scrollTo(target, { immediate: options.immediate });
+        if (options.immediate) {
+            lenis.scrollTo(target, { immediate: true });
+        } else {
+            glide(target);
+        }
 
         return;
     }
@@ -76,7 +99,7 @@ const onAnchorClick = (event: MouseEvent) => {
     }
 
     event.preventDefault();
-    lenis.scrollTo(target);
+    glide(target);
     // Keep Inertia's history state; only the hash changes.
     history.replaceState(history.state, '', url.hash);
 };

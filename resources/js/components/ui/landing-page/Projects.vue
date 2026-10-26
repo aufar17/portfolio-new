@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import { Blocks, Brain, Wrench } from 'lucide-vue-next';
+import { Link } from '@inertiajs/vue3';
+import {
+    ArrowUpRight,
+    Blocks,
+    Brain,
+    MonitorCog,
+    Wrench,
+} from 'lucide-vue-next';
 import { computed, ref } from 'vue';
-import CardDeck from '@/components/site/CardDeck.vue';
 import CtaLink from '@/components/site/CtaLink.vue';
-import DeckPanel from '@/components/site/DeckPanel.vue';
-import PaintRoller from '@/components/site/PaintRoller.vue';
-import ProjectCard from '@/components/site/ProjectCard.vue';
+import DeckMedia from '@/components/site/DeckMedia.vue';
+import DeckShowcase from '@/components/site/DeckShowcase.vue';
+import PageTransition from '@/components/site/PageTransition.vue';
 import Reveal from '@/components/site/Reveal.vue';
 import SectionHeading from '@/components/site/SectionHeading.vue';
 import SegmentedControl from '@/components/site/SegmentedControl.vue';
@@ -17,8 +23,9 @@ import {
     releaseTransforms,
     ScrollTrigger,
 } from '@/motion/gsap';
+import { mediaTransitionName } from '@/motion/transition';
 import { useMotion } from '@/motion/useMotion';
-import { allProjects } from '@/routes';
+import { allProjects, projectDetail } from '@/routes';
 
 const props = withDefaults(
     defineProps<{
@@ -32,9 +39,6 @@ const props = withDefaults(
         softSkills: () => [],
     },
 );
-
-// Index of the front card, shared by the deck and its panel.
-const activeProject = ref(0);
 
 type SkillTab = 'hard' | 'soft';
 
@@ -124,41 +128,93 @@ useMotion(skillsBox, ({ reduce }) => {
             description="A collection of projects I have worked on and developed"
         />
 
-        <!-- Panel left, deck right from lg; deck first, compact controls below it otherwise -->
-        <div
+        <!-- Active project's info left, image stack right from lg -->
+        <DeckShowcase
             v-if="props.projects.length"
-            class="grid items-center gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14"
+            :items="props.projects"
+            label="Projects"
+            item-label="project"
         >
-            <Reveal class="order-last lg:order-none">
-                <DeckPanel
-                    v-model:active="activeProject"
-                    :items="props.projects"
-                    item-label="project"
-                    list-label="Projects"
+            <template #info="{ item, shareMedia }">
+                <p
+                    v-if="item.date_range"
+                    data-meta
+                    class="text-xs font-semibold tracking-wider text-brand-red-strong uppercase"
                 >
-                    <template #cta>
-                        <CtaLink :href="allProjects().url">
-                            See More Projects
-                        </CtaLink>
-                    </template>
-                </DeckPanel>
-            </Reveal>
+                    {{ item.date_range }}
+                </p>
+                <h3
+                    data-lines
+                    class="mt-3 text-subheading font-bold text-balance text-foreground lg:text-3xl"
+                >
+                    {{ item.title }}
+                </h3>
+                <p
+                    data-lines
+                    class="mt-4 leading-relaxed text-pretty text-muted-foreground"
+                >
+                    {{ item.description }}
+                </p>
+                <ul
+                    v-if="item.tech_list?.length"
+                    data-meta
+                    class="mt-5 flex flex-wrap gap-1.5"
+                    aria-label="Tech stack"
+                >
+                    <li
+                        v-for="(tech, index) in item.tech_list"
+                        :key="index"
+                        class="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary-strong"
+                    >
+                        {{ tech }}
+                    </li>
+                </ul>
+                <div data-meta class="mt-6">
+                    <Link
+                        :href="projectDetail(item.slug).url"
+                        view-transition
+                        class="group inline-flex items-center gap-2 rounded-full text-sm font-semibold text-foreground focus-ring"
+                        @before="
+                            shareMedia(mediaTransitionName('project', item.id))
+                        "
+                    >
+                        View project
+                        <span class="sr-only">{{ item.title }}</span>
+                        <span
+                            class="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground transition-transform duration-200 ease-out-expo group-hover:rotate-45"
+                            aria-hidden="true"
+                        >
+                            <ArrowUpRight class="size-4" />
+                        </span>
+                    </Link>
+                </div>
+            </template>
 
-            <CardDeck
-                v-model:active="activeProject"
-                :items="props.projects"
-                label="Projects"
-            >
-                <template #card="{ item }">
-                    <ProjectCard :project="item" variant="deck" />
-                </template>
-            </CardDeck>
-        </div>
+            <template #media="{ item }">
+                <DeckMedia
+                    :href="projectDetail(item.slug).url"
+                    :image="storageUrl(item.image)"
+                    :alt="item.title"
+                    :transition-name="mediaTransitionName('project', item.id)"
+                >
+                    <template #fallback>
+                        <MonitorCog
+                            class="size-16 text-muted-foreground/60"
+                            aria-hidden="true"
+                        />
+                    </template>
+                </DeckMedia>
+            </template>
+
+            <template #cta>
+                <CtaLink :href="allProjects().url">See More Projects</CtaLink>
+            </template>
+        </DeckShowcase>
         <Reveal v-else class="flex justify-center">
             <CtaLink :href="allProjects().url">See More Projects</CtaLink>
         </Reveal>
 
-        <PaintRoller class="mt-20 md:mt-24" />
+        <PageTransition :boundary="1" class="mt-20 md:mt-24" />
 
         <!-- Skills -->
         <div class="mt-16 md:mt-20">

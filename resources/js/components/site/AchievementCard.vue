@@ -14,15 +14,9 @@ import { mediaTransitionName, shareElement } from '@/motion/transition';
 import { useTilt } from '@/motion/useTilt';
 import { achievementsDetail } from '@/routes';
 
-const props = withDefaults(
-    defineProps<{
-        item: any;
-        variant?: 'deck' | 'card';
-    }>(),
-    {
-        variant: 'card',
-    },
-);
+const props = defineProps<{
+    item: any;
+}>();
 
 const image = storageUrl(props.item.photo);
 
@@ -41,115 +35,8 @@ useTilt(computed(() => (link.value?.$el as HTMLElement | undefined) ?? null));
 </script>
 
 <template>
-    <!-- Deck card: compact and opaque, stacked like cards on a table. Native
-         link/image dragging is off so the deck can drag the card. -->
     <Link
         ref="link"
-        v-if="variant === 'deck'"
-        :href="achievementsDetail(item.slug).url"
-        view-transition
-        draggable="false"
-        @before="shareMedia"
-        class="group relative grid h-full overflow-hidden rounded-3xl border border-surface-border bg-card shadow-elevated focus-ring sm:min-h-[20rem] sm:grid-cols-[2fr_3fr]"
-    >
-        <div
-            ref="mediaBox"
-            class="relative aspect-[16/10] overflow-hidden bg-muted sm:aspect-auto"
-        >
-            <!-- Absolute from sm so the text, not the image, sets the height -->
-            <div
-                v-if="image"
-                data-media
-                class="size-full sm:absolute sm:inset-0"
-            >
-                <img
-                    :src="image"
-                    :alt="item.title"
-                    loading="lazy"
-                    draggable="false"
-                    class="size-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-105"
-                />
-            </div>
-            <div
-                v-else
-                class="grid size-full place-items-center sm:absolute sm:inset-0"
-            >
-                <FileBadge
-                    v-if="item.type"
-                    class="size-14 text-muted-foreground/60"
-                    aria-hidden="true"
-                />
-                <Award
-                    v-else
-                    class="size-14 text-muted-foreground/60"
-                    aria-hidden="true"
-                />
-            </div>
-        </div>
-
-        <div class="flex flex-col gap-3 p-6 sm:p-8">
-            <span
-                class="w-fit rounded-full bg-brand-red/10 px-3 py-1 text-xs font-semibold text-brand-red-strong"
-            >
-                {{ item.type ? 'Certification' : 'Award' }}
-            </span>
-            <h3
-                class="text-lg leading-snug font-bold text-balance text-foreground transition-colors duration-200 group-hover:text-primary-strong sm:text-xl"
-            >
-                {{ item.title }}
-            </h3>
-            <div
-                class="flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-medium text-muted-foreground sm:text-sm"
-            >
-                <span
-                    v-if="item.issuer"
-                    class="inline-flex items-center gap-1.5"
-                >
-                    <Building2
-                        class="size-3.5 text-brand-red-strong"
-                        aria-hidden="true"
-                    />
-                    {{ item.issuer }}
-                </span>
-                <span
-                    v-if="item.date_format"
-                    class="inline-flex items-center gap-1.5"
-                >
-                    <CalendarDays
-                        class="size-3.5 text-primary-strong"
-                        aria-hidden="true"
-                    />
-                    {{ item.date_format }}
-                </span>
-            </div>
-            <p
-                class="line-clamp-3 text-sm leading-relaxed text-muted-foreground"
-            >
-                {{ item.description }}
-            </p>
-            <span
-                class="mt-auto inline-flex items-center gap-2 pt-2 text-sm font-semibold text-foreground"
-                aria-hidden="true"
-            >
-                View detail
-                <span
-                    class="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground transition-transform duration-200 ease-out-expo group-hover:rotate-45"
-                >
-                    <ArrowUpRight class="size-4" />
-                </span>
-            </span>
-        </div>
-        <span
-            data-tilt-glare
-            class="pointer-events-none absolute top-0 left-0 z-10 size-56 rounded-full bg-[radial-gradient(circle,var(--tilt-glare),transparent_70%)] opacity-0"
-            aria-hidden="true"
-        />
-    </Link>
-
-    <!-- Listing card -->
-    <Link
-        ref="link"
-        v-else
         :href="achievementsDetail(item.slug).url"
         view-transition
         @before="shareMedia"

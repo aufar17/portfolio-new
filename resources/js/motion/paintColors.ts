@@ -5,18 +5,11 @@
  * the token is a `color-mix()`) is handed to the canvas. Nothing here is a
  * colour literal; the palette stays in app.css.
  */
-export type PaintToken =
-    'primary' | 'primary-strong' | 'brand-red' | 'card' | 'border';
+export type PaintToken = 'primary' | 'primary-strong' | 'primary-foreground';
 
 export type PaintColors = Record<PaintToken, string>;
 
-const TOKENS: PaintToken[] = [
-    'primary',
-    'primary-strong',
-    'brand-red',
-    'card',
-    'border',
-];
+const TOKENS: PaintToken[] = ['primary', 'primary-strong', 'primary-foreground'];
 
 export function readPaintColors(): PaintColors {
     const probe = document.createElement('span');

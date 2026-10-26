@@ -186,12 +186,15 @@ useEventListener('resize', () => {
 <template>
     <header
         ref="header"
-        class="fixed inset-x-0 top-0 z-50 px-3 pt-3 [view-transition-name:site-header] sm:px-4 sm:pt-4"
+        class="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4"
     >
+        <!-- The view-transition name sits on the pill, not the header: an
+             element with a view-transition-name is a backdrop root, so on the
+             header it would leave the glass blurring nothing behind it -->
         <nav
             ref="nav"
             aria-label="Main"
-            class="mx-auto flex max-w-5xl items-center justify-between gap-4 rounded-full border py-2 pr-2 pl-3 transition-all duration-500 ease-out-expo sm:pl-4"
+            class="mx-auto flex max-w-5xl items-center justify-between gap-4 rounded-full border py-2 pr-2 pl-3 [view-transition-name:site-header] transition-[background-color,border-color,box-shadow,backdrop-filter] duration-250 ease-out-expo sm:pl-4"
             :class="
                 isScrolled ? 'glass-nav' : 'border-transparent bg-transparent'
             "

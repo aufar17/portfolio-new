@@ -3,10 +3,8 @@ import { Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import ContactBubble from '@/components/contact/ContactBubble.vue';
 import ContactModal from '@/components/contact/ContactModal.vue';
-import PaintDrip from '@/components/site/PaintDrip.vue';
-import PaintSplash from '@/components/site/PaintSplash.vue';
-import PaintStencil from '@/components/site/PaintStencil.vue';
-import SprayTransition from '@/components/site/SprayTransition.vue';
+import PageTransition from '@/components/site/PageTransition.vue';
+import PourTransition from '@/components/site/PourTransition.vue';
 import About from '@/components/ui/landing-page/About.vue';
 import Achievements from '@/components/ui/landing-page/Achievements.vue';
 import Hero from '@/components/ui/landing-page/Hero.vue';
@@ -66,22 +64,22 @@ const isContactOpen = ref(false);
 
     <LandingPageLayout :breadcrumbs="breadcrumbs" :last-role="props.lastRole">
         <Hero :personal="props.personal" :last-role="props.lastRole" />
-        <SprayTransition />
+        <PourTransition />
         <About
             :works="props.works"
             :educations="props.educations"
             :personal="props.personal"
             :lastRole="props.lastRole"
         />
-        <PaintDrip />
+        <PageTransition :boundary="0" />
         <Projects
             :projects="props.projects"
             :hard-skills="props.skills.hardSkills"
             :soft-skills="props.skills.softSkills"
         />
-        <PaintStencil />
+        <PageTransition :boundary="2" />
         <Achievements :achievements="props.achievements" />
-        <PaintSplash />
+        <PageTransition :boundary="3" />
 
         <ContactBubble @open="isContactOpen = true" />
         <ContactModal

@@ -136,8 +136,11 @@
     --surface-border: hsl(222 47% 11% / 0.08);
     --surface-highlight: hsl(0 0% 100% / 0.75);
 
-    --glass-nav-bg: hsl(0 0% 100% / 0.02);
-    --glass-nav-border: hsl(222 47% 11% / 0.06);
+    /* Navbar glass once scrolled: mostly opaque, derived from the theme tokens */
+    --glass-nav-bg: color-mix(in oklab, var(--background) 85%, transparent);
+    --glass-nav-border: color-mix(in oklab, var(--border) 70%, transparent);
+    --glass-nav-shadow: color-mix(in oklab, var(--foreground) 18%, transparent);
+    --glass-nav-sheen: color-mix(in oklab, var(--background) 70%, transparent);
 
     --tile-bg: hsl(0 0% 100%);
     --tile-border: hsl(220 13% 84%);
@@ -195,8 +198,8 @@
     --surface-border: hsl(0 0% 100% / 0.08);
     --surface-highlight: hsl(0 0% 100% / 0.05);
 
-    --glass-nav-bg: hsl(0 0% 100% / 0.02);
-    --glass-nav-border: hsl(0 0% 100% / 0.06);
+    --glass-nav-shadow: color-mix(in oklab, var(--background) 60%, transparent);
+    --glass-nav-sheen: color-mix(in oklab, var(--foreground) 8%, transparent);
 
     --tile-bg: hsl(222 22% 12% / 0.7);
     --tile-border: hsl(0 0% 100% / 0.08);
@@ -254,12 +257,20 @@
         var(--shadow-soft);
 }
 
-/* Clear frosted glass for the navbar: almost no tint, just blur */
+/* Frosted glass for the scrolled navbar: tinted enough to keep text readable
+   over images and the paint transition, with a soft shadow and a top sheen */
 @utility glass-nav {
     background-color: var(--glass-nav-bg);
     border: 1px solid var(--glass-nav-border);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    box-shadow:
+        inset 0 1px 0 0 var(--glass-nav-sheen),
+        0 10px 30px -14px var(--glass-nav-shadow);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+
+    @supports not (backdrop-filter: blur(1px)) {
+        background-color: color-mix(in oklab, var(--background) 92%, transparent);
+    }
 }
 
 /* Opaque tile that stays visible on the light background (glass in dark) */
