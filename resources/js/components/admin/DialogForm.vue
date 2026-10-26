@@ -1,33 +1,66 @@
 <script setup lang="ts">
+import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 
-const props = defineProps({
-    visible: Boolean,
-    title: String,
-    width: String,
-});
+/**
+ * Create/edit dialog. Content goes in the default slot inside a <form>;
+ * the footer's Save button submits it.
+ */
+const props = withDefaults(
+    defineProps<{
+        title: string;
+        width?: string;
+        processing?: boolean;
+        formId?: string;
+    }>(),
+    {
+        width: '40rem',
+        processing: false,
+        formId: 'crud-form',
+    },
+);
 
-const emit = defineEmits(['update:visible']);
+const visible = defineModel<boolean>('visible', { required: true });
+
+const emit = defineEmits(['submit', 'cancel']);
 </script>
 
 <template>
     <Dialog
-        :visible="visible"
-        @update:visible="(val) => emit('update:visible', val)"
+        v-model:visible="visible"
         :header="title"
         modal
-        :style="{ width: width ?? '70rem' }"
-        :breakpoints="{
-            '1199px': '75vw',
-            '575px': '90vw',
-        }"
+        :draggable="false"
+        :style="{ width: props.width }"
+        :breakpoints="{ '1199px': '80vw', '640px': '95vw' }"
+        :pt="{ mask: { class: 'backdrop-blur-sm' } }"
+        @hide="emit('cancel')"
     >
-        <div class="p-2">
+        <form
+            :id="formId"
+            class="grid grid-cols-1 gap-5 pt-1 md:grid-cols-2"
+            @submit.prevent="emit('submit')"
+        >
             <slot />
-        </div>
+        </form>
 
         <template #footer>
-            <slot name="footer" />
+            <div class="flex w-full justify-end gap-2 pt-2">
+                <Button
+                    label="Cancel"
+                    severity="secondary"
+                    outlined
+                    :disabled="processing"
+                    @click="visible = false"
+                />
+                <Button
+                    type="submit"
+                    :form="formId"
+                    label="Save"
+                    icon="pi pi-check"
+                    :loading="processing"
+                />
+            </div>
         </template>
     </Dialog>
 </template>

@@ -1,172 +1,84 @@
-import { useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
+import { useCrudResource } from '@/composables/useCrudResource';
+import { storageUrl } from '@/lib/utils';
 
-export function useProjectScript(projects: any) {
-    const route = window.route;
+const toDateString = (value: Date | string | null) =>
+    value ? new Date(value).toISOString().split('T')[0] : null;
 
-    const visible = ref(false);
+export function useProjectScript(projects: any[]) {
+    const crud = useCrudResource({
+        entity: 'Project',
+        items: () => projects,
+        routes: {
+            create: 'create-project',
+            update: 'update-project',
+            delete: 'delete-project',
+        },
+        initial: {
+            title: '',
+            description: '',
+            responsibility: '',
+            start: null as Date | null,
+            end: null as Date | null,
+            status: null as string | null,
+            tech: '',
+            link: '',
+            associate: '',
+            image: null as File | null,
+        },
+        fill: (data) => ({
+            title: data.title,
+            description: data.description,
+            responsibility: data.responsibility,
+            start: data.start ? new Date(data.start) : null,
+            end: data.end ? new Date(data.end) : null,
+            tech: data.tech,
+            link: data.link,
+            associate: data.associate,
+            image: null,
+        }),
+        transform: (data) => ({
+            ...data,
+            start: toDateString(data.start),
+            end: toDateString(data.end),
+        }),
+    });
+
     const techModalVisible = ref(false);
     const imageModalVisible = ref(false);
-    const mode = ref<'create' | 'edit'>('create');
-    const excluded = ['id', 'created_at', 'updated_at'];
-    const isDelete = ref(false);
-    const selectedData = ref<any>(null);
     const selectedTech = ref<string[]>([]);
-    const selectedImage = ref<string[]>([]);
+    const selectedImage = ref<string | null>(null);
 
     const openTechModal = (tech: string[]) => {
         selectedTech.value = tech || [];
         techModalVisible.value = true;
     };
-    const openImageModal = (image: string[]) => {
-        selectedImage.value = image || [];
+
+    const openImageModal = (image: string | null) => {
+        selectedImage.value = storageUrl(image);
         imageModalVisible.value = true;
     };
 
-    const globalFields = computed(() => {
-        if (!projects || !projects.length) {
-            return [];
-        }
-
-        return Object.keys(projects[0]).filter(
-            (key) =>
-                typeof projects[0][key] !== 'object' && !excluded.includes(key),
-        );
-    });
-
-    const form = useForm({
-        title: '',
-        description: '',
-        responsibility: '',
-        start: null as Date | null,
-        end: null as Date | null,
-        status: null as string | null,
-        tech: '',
-        link: '',
-        associate: '',
-        image: null as File | null,
-    });
-
-    const handleFile = (event: any) => {
-        form.image = event.files[0];
-    };
-
-    const openCreate = () => {
-        mode.value = 'create';
-        selectedData.value = null;
-        form.reset();
-        visible.value = true;
-    };
-
-    const openEdit = (data: any) => {
-        mode.value = 'edit';
-        selectedData.value = data;
-
-        form.title = data.title;
-        form.description = data.description;
-        form.responsibility = data.responsibility;
-
-        form.start = data.start ? new Date(data.start) : null;
-        form.end = data.end ? new Date(data.end) : null;
-
-        form.tech = data.tech;
-        form.link = data.link;
-        form.associate = data.associate;
-        form.image = null;
-
-        visible.value = true;
-    };
-
-    const openDelete = (data: any) => {
-        selectedData.value = data;
-        isDelete.value = true;
-    };
-
-    const closeDialogForm = () => {
-        visible.value = false;
-        form.reset();
-        form.clearErrors();
-    };
-
-    const closeDialogDelete = () => {
-        isDelete.value = false;
-        form.reset();
-        form.clearErrors();
-    };
-
-    const submit = () => {
-        form.transform((data) => ({
-            ...data,
-            start: data.start
-                ? new Date(data.start).toISOString().split('T')[0]
-                : null,
-            end: data.end
-                ? new Date(data.end).toISOString().split('T')[0]
-                : null,
-        }));
-
-        if (mode.value === 'create') {
-            form.post(route('create-project'), {
-                forceFormData: true,
-                onSuccess: closeDialogForm,
-            });
-        } else {
-            if (!selectedData.value?.id) {
-                return;
-            }
-
-            form.put(route('update-project', selectedData.value.id), {
-                forceFormData: true,
-                onSuccess: closeDialogForm,
-            });
-        }
-    };
-
-    const deleteProject = () => {
-        if (!selectedData.value?.id) {
-            return;
-        }
-
-        form.delete(route('delete-project', selectedData.value.id), {
-            onSuccess: closeDialogDelete,
-        });
+    const handleFile = (file: File | null) => {
+        crud.form.image = file;
     };
 
     const toggleStatus = (data: any, val: boolean) => {
         const newStatus = val ? 1 : 0;
-
-        useForm({ status: newStatus }).put(
-            route('update-status-project', data.id),
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    data.status = newStatus;
-                },
-            },
-        );
+        crud.updateStatus('update-status-project', data, newStatus, () => {
+            data.status = newStatus;
+        });
     };
 
     return {
-        visible,
-        mode,
-        selectedData,
-        imageModalVisible,
+        ...crud,
         techModalVisible,
+        imageModalVisible,
         selectedTech,
         selectedImage,
-        isDelete,
-        globalFields,
-        form,
         openTechModal,
         openImageModal,
         handleFile,
-        openCreate,
-        openEdit,
-        openDelete,
-        closeDialogForm,
-        closeDialogDelete,
-        submit,
-        deleteProject,
         toggleStatus,
     };
 }

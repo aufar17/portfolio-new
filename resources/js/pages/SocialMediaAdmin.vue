@@ -1,17 +1,12 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
-import Button from 'primevue/button';
 import Column from 'primevue/column';
-import DatePicker from 'primevue/datepicker';
-import Dialog from 'primevue/dialog';
-import FileUpload from 'primevue/fileupload';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
 import InputText from 'primevue/inputtext';
-import DialogForm from '@/components/admin/DialogForm.vue';
-import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
 import Textarea from 'primevue/textarea';
-import AppLayout from '@/layouts/AppLayout.vue';
+import AdminPage from '@/components/admin/AdminPage.vue';
+import DialogForm from '@/components/admin/DialogForm.vue';
+import FormField from '@/components/admin/FormField.vue';
+import RowActions from '@/components/admin/RowActions.vue';
+import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
 import { socialAdmin } from '@/routes';
 import { useSocialScript } from '@/script/admin/socialMedia';
 import type { BreadcrumbItem } from '@/types';
@@ -27,198 +22,177 @@ const props = defineProps<{
 const {
     visible,
     mode,
-    isDelete,
-    globalFields,
     form,
+    globalFields,
     openCreate,
     openEdit,
-    openDelete,
-    closeDialogForm,
-    closeDialogDelete,
+    closeForm,
     submit,
-    deleteSocial,
+    confirmDelete,
 } = useSocialScript(props.social);
 </script>
 
 <template>
-    <Head />
-
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-4">
-            <div class="rounded-xl border bg-background p-4 shadow-sm">
-                <h2
-                    class="m-2 text-xl font-semibold text-primary dark:text-white"
-                >
-                    Social Media Data
-                </h2>
-                <BasedDataTable
-                    :value="social || []"
-                    :totalRecords="social?.length || 0"
-                    :globalFilterFields="globalFields"
-                >
-                    <template #header="{ filters }">
-                        <div class="flex justify-between gap-4">
-                            <Button
-                                label="New Social Media"
-                                raised
-                                icon="pi pi-plus"
-                                size="small"
-                                @click="openCreate"
-                            />
-
-                            <IconField class="w-72">
-                                <InputIcon>
-                                    <i class="pi pi-search" />
-                                </InputIcon>
-                                <InputText
-                                    v-model="filters.global.value"
-                                    placeholder="Search"
-                                    class="p-inputtext-sm"
-                                />
-                            </IconField>
-                        </div>
-                    </template>
-
-                    <Column header="No." sortable>
-                        <template #body="{ index }">
-                            {{ index + 1 }}
-                        </template>
-                    </Column>
-                    <Column field="name" header="Name" sortable />
-
-                    <Column field="link" header="Link" sortable> </Column>
-                    <Column field="icon" header="Icon" sortable>
-                        <template #body="{ data }">
-                            <img
-                                :src="data.icon"
-                                alt="No icon"
-                                class="h-8 w-8 object-contain"
-                            />
-                        </template>
-                    </Column>
-                    <Column header="Action">
-                        <template #body="{ data }">
-                            <div class="flex">
-                                <Button
-                                    severity="warn"
-                                    icon="pi pi-pen-to-square"
-                                    raised
-                                    size="small"
-                                    class="mr-2"
-                                    @click="openEdit(data)"
-                                />
-                                <Button
-                                    severity="danger"
-                                    raised
-                                    icon="pi pi-trash"
-                                    size="small"
-                                    class="mr-2"
-                                    @click="openDelete(data)"
-                                />
-                            </div>
-                        </template>
-                    </Column>
-                </BasedDataTable>
-            </div>
-        </div>
+    <AdminPage
+        title="Social Media"
+        description="Manage the contact links shown in the contact modal."
+        :breadcrumbs="breadcrumbs"
+    >
+        <BasedDataTable
+            :value="social || []"
+            :total-records="social?.length || 0"
+            :global-filter-fields="globalFields"
+            create-label="New Social Media"
+            search-placeholder="Search social media…"
+            min-width="40rem"
+            @create="openCreate"
+        >
+            <Column header="Icon">
+                <template #body="{ data }">
+                    <span
+                        class="grid size-10 place-items-center rounded-lg border border-border bg-muted p-1.5"
+                        :style="{ boxShadow: `inset 0 -2px 0 ${data.color}` }"
+                    >
+                        <img
+                            :src="data.icon"
+                            :alt="`${data.name} icon`"
+                            class="size-full object-contain"
+                        />
+                    </span>
+                </template>
+            </Column>
+            <Column field="name" header="Name" sortable>
+                <template #body="{ data }">
+                    <span class="font-semibold text-foreground">{{
+                        data.name
+                    }}</span>
+                </template>
+            </Column>
+            <Column field="link" header="Link" sortable>
+                <template #body="{ data }">
+                    <a
+                        :href="data.link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="block max-w-[18rem] truncate font-medium text-primary-strong hover:underline"
+                    >
+                        {{ data.link }}
+                    </a>
+                </template>
+            </Column>
+            <Column header="Action" frozen align-frozen="right">
+                <template #body="{ data }">
+                    <RowActions
+                        :name="data.name"
+                        @edit="openEdit(data)"
+                        @delete="confirmDelete(data)"
+                    />
+                </template>
+            </Column>
+        </BasedDataTable>
 
         <DialogForm
-            maximizable
-            width="40rem"
             v-model:visible="visible"
             :title="
                 mode === 'create' ? 'New Social Media' : 'Edit Social Media'
             "
+            :processing="form.processing"
+            @submit="submit"
+            @cancel="closeForm"
         >
-            <form
-                @submit.prevent="submit"
-                class="grid grid-cols-2 gap-6 md:grid-cols-2"
+            <FormField
+                v-slot="{ id, invalid }"
+                id="social-name"
+                label="Name"
+                :error="form.errors.name"
+                required
             >
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Name</label>
+                <InputText
+                    :id="id"
+                    v-model="form.name"
+                    :invalid="invalid"
+                    placeholder="LinkedIn"
+                    required
+                />
+            </FormField>
+
+            <FormField
+                v-slot="{ id, invalid }"
+                id="social-link"
+                label="Link"
+                :error="form.errors.link"
+                required
+            >
+                <Textarea
+                    :id="id"
+                    v-model="form.link"
+                    :invalid="invalid"
+                    rows="2"
+                    auto-resize
+                    placeholder="https://…"
+                    required
+                />
+            </FormField>
+
+            <FormField
+                v-slot="{ id, invalid }"
+                id="social-icon"
+                label="Icon URL"
+                :error="form.errors.icon"
+                required
+            >
+                <div class="flex items-center gap-3">
+                    <span
+                        class="grid size-10 shrink-0 place-items-center rounded-lg border border-border bg-muted p-1.5"
+                    >
+                        <img
+                            v-if="form.icon"
+                            :src="form.icon"
+                            alt="Icon preview"
+                            class="size-full object-contain"
+                        />
+                        <i
+                            v-else
+                            class="pi pi-image text-muted-foreground"
+                            aria-hidden="true"
+                        />
+                    </span>
                     <InputText
-                        v-model="form.name"
-                        size="small"
-                        placeholder="Name"
-                        required
-                    />
-                    <small v-if="form.errors.name" class="text-red-500">
-                        {{ form.errors.name }}
-                    </small>
-                </div>
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Link</label>
-                    <Textarea
-                        v-model="form.link"
-                        size="small"
-                        rows="2"
-                        placeholder="Link"
-                        required
-                    />
-                    <small v-if="form.errors.link" class="text-red-500">
-                        {{ form.errors.link }}
-                    </small>
-                </div>
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Icon</label>
-                    <InputText
+                        :id="id"
                         v-model="form.icon"
-                        size="small"
-                        placeholder="Icon"
+                        :invalid="invalid"
+                        placeholder="https://…/icon.png"
+                        class="flex-1"
                         required
                     />
-                    <small v-if="form.errors.icon" class="text-red-500">
-                        {{ form.errors.icon }}
-                    </small>
                 </div>
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Color</label>
-                    <InputText
+            </FormField>
+
+            <FormField
+                v-slot="{ id, invalid }"
+                id="social-color"
+                label="Color"
+                hint="Hex color used for the hover glow, e.g. #0A66C2."
+                :error="form.errors.color"
+                required
+            >
+                <div class="flex items-center gap-3">
+                    <input
                         v-model="form.color"
-                        size="small"
-                        placeholder="Color"
+                        type="color"
+                        class="size-10 shrink-0 cursor-pointer rounded-lg border border-border bg-transparent p-1"
+                        aria-label="Pick color"
+                    />
+                    <InputText
+                        :id="id"
+                        v-model="form.color"
+                        :invalid="invalid"
+                        placeholder="#0A66C2"
+                        class="flex-1"
                         required
                     />
-                    <small v-if="form.errors.color" class="text-red-500">
-                        {{ form.errors.color }}
-                    </small>
                 </div>
-
-                <div class="flex justify-end gap-3 md:col-span-2">
-                    <Button
-                        label="Cancel"
-                        severity="secondary"
-                        @click="closeDialogForm"
-                    />
-                    <Button
-                        type="submit"
-                        label="Save"
-                        severity="success"
-                        :loading="form.processing"
-                        :disabled="form.processing"
-                        class="!font-bold"
-                    />
-                </div>
-            </form>
+            </FormField>
         </DialogForm>
-        <Dialog v-model:visible="isDelete" header="Delete Award" modal>
-            <p>Are you sure you want to delete this award?</p>
-
-            <template #footer>
-                <Button
-                    label="Cancel"
-                    severity="secondary"
-                    @click="closeDialogDelete"
-                />
-                <Button
-                    icon="pi pi-trash"
-                    :loading="form.processing"
-                    :disabled="form.processing"
-                    label="Delete"
-                    severity="danger"
-                    @click="deleteSocial"
-                />
-            </template>
-        </Dialog>
-    </AppLayout>
+    </AdminPage>
 </template>

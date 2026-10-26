@@ -1,6 +1,15 @@
 <script setup lang="ts">
-import { Github, Linkedin, Instagram, X, ExternalLink } from 'lucide-vue-next';
-import { watch, onMounted, onUnmounted } from 'vue';
+import { ArrowUpRight, X } from 'lucide-vue-next';
+import {
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogOverlay,
+    DialogPortal,
+    DialogRoot,
+    DialogTitle,
+} from 'reka-ui';
+import { computed } from 'vue';
 
 const props = defineProps<{
     open: boolean;
@@ -9,110 +18,101 @@ const props = defineProps<{
 
 const emit = defineEmits(['close']);
 
-const handleKey = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-emit('close');
-}
-};
-
-onMounted(() => window.addEventListener('keydown', handleKey));
-onUnmounted(() => window.removeEventListener('keydown', handleKey));
-
-watch(
-    () => props.open,
-    (val) => {
-        document.body.style.overflow = val ? 'hidden' : '';
+const isOpen = computed({
+    get: () => props.open,
+    set: (value) => {
+        if (!value) {
+            emit('close');
+        }
     },
-);
+});
 </script>
 
-<style scoped>
-.modal-enter-from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-}
-.modal-enter-active {
-    transition: all 0.3s ease;
-}
-.modal-leave-to {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-}
-.modal-leave-active {
-    transition: all 0.2s ease;
-}
-</style>
-
 <template>
-    <transition name="modal">
-        <div
-            v-if="open"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-white/40 px-4 backdrop-blur-md dark:bg-black/40"
-            @click.self="emit('close')"
-        >
-            <div
-                class="w-full max-w-lg rounded-xl border border-white/10 bg-white/70 p-6 shadow-2xl backdrop-blur-xl dark:bg-neutral-900/70"
+    <!-- Built from reka-ui primitives (not ui/dialog, which admin shares) so
+         open/close can run through Vue <Transition>. -->
+    <DialogRoot v-model:open="isOpen">
+        <DialogPortal>
+            <Transition
+                enter-active-class="transition-opacity duration-200 ease-out-expo"
+                enter-from-class="opacity-0"
+                leave-active-class="transition-opacity duration-150 ease-out-expo"
+                leave-to-class="opacity-0"
             >
-                <div class="mb-6 flex items-start justify-between">
-                    <div>
-                        <h2 class="text-xl font-semibold tracking-tight">
+                <DialogOverlay class="fixed inset-0 z-50 bg-black/80" />
+            </Transition>
+            <Transition
+                enter-active-class="transition duration-250 ease-out-expo"
+                enter-from-class="scale-95 opacity-0"
+                leave-active-class="transition duration-150 ease-out-expo"
+                leave-to-class="scale-95 opacity-0"
+            >
+                <DialogContent
+                    class="fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 rounded-xl surface-glass bg-background/85 p-6 sm:max-w-md sm:p-7"
+                >
+                    <div class="flex flex-col gap-2 text-left">
+                        <DialogTitle class="text-2xl font-bold tracking-tight">
                             Get in Touch
-                        </h2>
-                        <p class="text-sm text-black/60 dark:text-white/60">
+                        </DialogTitle>
+                        <DialogDescription
+                            class="text-sm text-muted-foreground"
+                        >
                             Feel free to reach out through any platform
-                        </p>
+                        </DialogDescription>
                     </div>
 
-                    <button
-                        @click="emit('close')"
-                        class="rounded-lg p-2 transition hover:bg-black/10 dark:hover:bg-white/10"
+                    <ul class="flex flex-col gap-2.5">
+                        <li v-for="contact in contacts" :key="contact.id">
+                            <a
+                                :href="contact.link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="group relative flex items-center gap-4 overflow-hidden rounded-xl border border-border bg-card/60 px-4 py-3 focus-ring transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-soft"
+                            >
+                                <span
+                                    class="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                                    :style="{
+                                        background: `linear-gradient(120deg, transparent, ${contact.color}1f, transparent)`,
+                                    }"
+                                    aria-hidden="true"
+                                />
+                                <span
+                                    class="relative grid size-11 shrink-0 place-items-center rounded-lg border border-border bg-background transition-transform duration-300 ease-out-expo group-hover:scale-110"
+                                >
+                                    <img
+                                        :src="contact.icon"
+                                        alt=""
+                                        class="size-6 object-contain"
+                                    />
+                                </span>
+                                <span class="relative flex-1 font-semibold">
+                                    {{ contact.name }}
+                                    <span class="sr-only"
+                                        >(opens in new tab)</span
+                                    >
+                                </span>
+                                <ArrowUpRight
+                                    class="relative size-4 text-muted-foreground transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary-strong"
+                                    aria-hidden="true"
+                                />
+                            </a>
+                        </li>
+                    </ul>
+
+                    <p
+                        class="border-t border-border pt-4 text-center text-xs text-muted-foreground"
                     >
-                        <X class="h-5 w-5" />
-                    </button>
-                </div>
+                        Let’s collaborate and build something great together
+                    </p>
 
-                <div class="space-y-3">
-                    <a
-                        v-for="contact in contacts"
-                        :key="contact.id"
-                        :href="contact.link"
-                        target="_blank"
-                        class="group relative flex items-center gap-4 overflow-hidden rounded-xl border border-black/10 bg-white/60 px-4 py-3 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-white/5"
+                    <DialogClose
+                        class="absolute top-5 right-5 rounded-full p-2 text-muted-foreground focus-ring transition-colors hover:bg-muted hover:text-foreground"
                     >
-                        <div
-                            class="absolute inset-0 opacity-0 transition group-hover:opacity-100"
-                            :style="{
-                                background: `linear-gradient(120deg, transparent, ${contact.color}20, transparent)`,
-                            }"
-                        ></div>
-
-                        <div
-                            class="relative flex h-11 w-11 items-center justify-center rounded-xl border border-black/10 bg-white/70 shadow-md backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg dark:border-white/10 dark:bg-white/10"
-                        >
-                            <img
-                                :src="contact.icon"
-                                class="h-7 w-7 object-contain transition-transform duration-300 group-hover:scale-110"
-                            />
-                        </div>
-
-                        <div class="relative flex-1">
-                            <p class="font-medium">
-                                {{ contact.name }}
-                            </p>
-                        </div>
-
-                        <ExternalLink
-                            class="relative h-4 w-4 opacity-50 transition group-hover:translate-x-1 group-hover:opacity-100"
-                        />
-                    </a>
-                </div>
-
-                <div
-                    class="mt-6 border-t border-black/10 pt-4 text-center text-xs text-black/60 dark:border-white/10 dark:text-white/50"
-                >
-                    Let’s collaborate and build something great together
-                </div>
-            </div>
-        </div>
-    </transition>
+                        <X class="size-4" aria-hidden="true" />
+                        <span class="sr-only">Close</span>
+                    </DialogClose>
+                </DialogContent>
+            </Transition>
+        </DialogPortal>
+    </DialogRoot>
 </template>

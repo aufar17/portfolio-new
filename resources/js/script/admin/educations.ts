@@ -1,135 +1,59 @@
-import { useForm } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
-import { deleteEducation } from '@/routes';
+import { ref, watch } from 'vue';
+import { useCrudResource } from '@/composables/useCrudResource';
 
-export function useEducationScript(educations: any) {
-    const route = window.route;
+const toDateString = (value: Date | string | null) =>
+    value ? new Date(value).toISOString().split('T')[0] : null;
 
-    const visible = ref(false);
-    const mode = ref<'create' | 'edit'>('create');
-    const selectedData = ref<any>(null);
-    const isDelete = ref(false);
+export function useEducationScript(educations: any[]) {
     const isPresent = ref(false);
 
-    const excluded = ['id', 'created_at', 'updated_at'];
+    const crud = useCrudResource({
+        entity: 'Education',
+        items: () => educations,
+        routes: {
+            create: 'create-education',
+            update: 'update-education',
+            delete: 'delete-education',
+        },
+        initial: {
+            institution: '',
+            major: '',
+            title: '',
+            start: null as Date | null,
+            end: null as Date | null,
+        },
+        fill: (data) => {
+            isPresent.value = data.end === null;
 
-    const globalFields = computed(() => {
-        if (!educations.length) {
-            return [];
-        }
-
-        return Object.keys(educations[0]).filter(
-            (key) =>
-                typeof educations[0][key] !== 'object' &&
-                !excluded.includes(key),
-        );
-    });
-
-    const form = useForm({
-        institution: '',
-        major: '',
-        title: '',
-        start: null as Date | null,
-        end: null as Date | null,
+            return {
+                institution: data.institution,
+                major: data.major,
+                title: data.title,
+                start: data.start ? new Date(data.start) : null,
+                end: data.end ? new Date(data.end) : null,
+            };
+        },
+        transform: (data) => ({
+            ...data,
+            start: toDateString(data.start),
+            end: isPresent.value ? null : toDateString(data.end),
+        }),
     });
 
     const openCreate = () => {
-        mode.value = 'create';
-        selectedData.value = null;
-        form.reset();
-        visible.value = true;
-    };
-
-    const openEdit = (data: any) => {
-        mode.value = 'edit';
-        selectedData.value = data;
-
-        form.institution = data.institution;
-        form.major = data.major;
-        form.title = data.title;
-        form.start = data.start ? new Date(data.start) : null;
-        form.end = data.end ? new Date(data.end) : null;
-        isPresent.value = data.end === null;
-        visible.value = true;
-    };
-
-    const openDelete = (data: any) => {
-        selectedData.value = data;
-        isDelete.value = true;
-    };
-
-    const closeDialogForm = () => {
-        visible.value = false;
-        form.reset();
-        form.clearErrors();
-    };
-
-    const closeDialogDelete = () => {
-        isDelete.value = false;
-        form.reset();
-        form.clearErrors();
-    };
-
-    const submit = () => {
-        form.transform((data) => ({
-            ...data,
-            start: data.start
-                ? new Date(data.start).toISOString().split('T')[0]
-                : null,
-            end: isPresent.value
-                ? null
-                : form.end
-                  ? new Date(form.end).toISOString().split('T')[0]
-                  : null,
-        }));
-
-        if (mode.value === 'create') {
-            form.post(route('create-education'), {
-                forceFormData: true,
-                onSuccess: closeDialogForm,
-            });
-        } else {
-            if (!selectedData.value?.id) {
-                return;
-            }
-
-            form.put(route('update-education', selectedData.value.id), {
-                forceFormData: true,
-                onSuccess: closeDialogForm,
-            });
-        }
-    };
-
-    const deleteEducation = () => {
-        if (!selectedData.value?.id) {
-            return;
-        }
-
-        form.delete(route('delete-education', selectedData.value.id), {
-            onSuccess: closeDialogDelete,
-        });
+        isPresent.value = false;
+        crud.openCreate();
     };
 
     watch(isPresent, (val) => {
         if (val) {
-            form.end = null;
+            crud.form.end = null;
         }
     });
 
     return {
-        visible,
-        mode,
-        selectedData,
-        isDelete,
-        isPresent,
-        globalFields,
-        form,
+        ...crud,
         openCreate,
-        openEdit,
-        openDelete,
-        closeDialogForm,
-        closeDialogDelete,
-        submit,
-        deleteEducation,
+        isPresent,
     };
 }

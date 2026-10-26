@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
 import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DatePicker from 'primevue/datepicker';
 import Dialog from 'primevue/dialog';
-import FileUpload from 'primevue/fileupload';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
-import DialogForm from '@/components/admin/DialogForm.vue';
-import { useProjectScript } from '@/script/admin/projects';
 import ToggleSwitch from 'primevue/toggleswitch';
+import AdminPage from '@/components/admin/AdminPage.vue';
+import DialogForm from '@/components/admin/DialogForm.vue';
+import FormField from '@/components/admin/FormField.vue';
+import ImagePreviewDialog from '@/components/admin/ImagePreviewDialog.vue';
+import ImageUploadField from '@/components/admin/ImageUploadField.vue';
+import RowActions from '@/components/admin/RowActions.vue';
 import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
+import { storageUrl } from '@/lib/utils';
 import { projectsAdmin } from '@/routes';
+import { useProjectScript } from '@/script/admin/projects';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -28,7 +29,7 @@ const props = defineProps<{
 const {
     visible,
     mode,
-    isDelete,
+    selected,
     form,
     globalFields,
     techModalVisible,
@@ -39,326 +40,289 @@ const {
     openImageModal,
     openCreate,
     openEdit,
-    openDelete,
-    closeDialogForm,
-    closeDialogDelete,
+    closeForm,
     submit,
-    deleteProject,
+    confirmDelete,
     handleFile,
     toggleStatus,
 } = useProjectScript(props.projects);
 </script>
 
 <template>
-    <Head />
-
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-4">
-            <div class="rounded-xl border bg-background p-4 shadow-sm">
-                <h2
-                    class="m-2 text-xl font-semibold text-primary dark:text-white"
-                >
-                    Projects Data
-                </h2>
-                <BasedDataTable
-                    :value="projects || []"
-                    :totalRecords="projects?.length || 0"
-                    :globalFilterFields="globalFields"
-                >
-                    <template #header="{ filters }">
-                        <div class="flex justify-between gap-4">
-                            <Button
-                                label="New Project"
-                                raised
-                                icon="pi pi-plus"
-                                size="small"
-                                @click="openCreate"
-                            />
-
-                            <IconField class="w-72">
-                                <InputIcon>
-                                    <i class="pi pi-search" />
-                                </InputIcon>
-                                <InputText
-                                    v-model="filters.global.value"
-                                    placeholder="Search"
-                                    class="p-inputtext-sm"
-                                />
-                            </IconField>
-                        </div>
-                    </template>
-
-                    <Column header="No." sortable>
-                        <template #body="{ index }">
-                            {{ index + 1 }}
-                        </template>
-                    </Column>
-                    <Column field="title" header="Title" sortable />
-
-                    <Column field="description" header="Description" sortable>
-                        <template #body="{ data }">
-                            <div class="line-clamp-2">
-                                {{ data.description ?? '-' }}
-                            </div>
-                        </template>
-                    </Column>
-                    <Column
-                        field="responsibility"
-                        header="Responsibility"
-                        sortable
+    <AdminPage
+        title="Projects"
+        description="Manage the projects shown on your portfolio."
+        :breadcrumbs="breadcrumbs"
+    >
+        <BasedDataTable
+            :value="projects || []"
+            :total-records="projects?.length || 0"
+            :global-filter-fields="globalFields"
+            create-label="New Project"
+            search-placeholder="Search projects…"
+            min-width="72rem"
+            @create="openCreate"
+        >
+            <Column field="title" header="Title" sortable>
+                <template #body="{ data }">
+                    <span class="font-semibold text-foreground">{{
+                        data.title
+                    }}</span>
+                </template>
+            </Column>
+            <Column field="description" header="Description" sortable>
+                <template #body="{ data }">
+                    <p class="line-clamp-2 max-w-xs text-muted-foreground">
+                        {{ data.description ?? '-' }}
+                    </p>
+                </template>
+            </Column>
+            <Column field="responsibility" header="Responsibility" sortable>
+                <template #body="{ data }">
+                    <p class="line-clamp-2 max-w-xs text-muted-foreground">
+                        {{ data.responsibility ?? '-' }}
+                    </p>
+                </template>
+            </Column>
+            <Column field="associate" header="Associate" sortable />
+            <Column field="link" header="Link" sortable>
+                <template #body="{ data }">
+                    <a
+                        v-if="data.link"
+                        :href="data.link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="block max-w-[12rem] truncate font-medium text-primary-strong hover:underline"
                     >
-                        <template #body="{ data }">
-                            <div class="line-clamp-2">
-                                {{ data.responsibility ?? '-' }}
-                            </div>
-                        </template>
-                    </Column>
+                        {{ data.link }}
+                    </a>
+                    <span v-else class="text-muted-foreground">-</span>
+                </template>
+            </Column>
+            <Column header="Tech Stack">
+                <template #body="{ data }">
+                    <Button
+                        label="View"
+                        icon="pi pi-tags"
+                        size="small"
+                        severity="secondary"
+                        outlined
+                        :aria-label="`View tech stack of ${data.title}`"
+                        @click="openTechModal(data.tech_list)"
+                    />
+                </template>
+            </Column>
+            <Column header="Image">
+                <template #body="{ data }">
+                    <button
+                        type="button"
+                        class="block size-12 overflow-hidden rounded-lg border border-border bg-muted focus-ring"
+                        :aria-label="`View image of ${data.title}`"
+                        @click="openImageModal(data.image)"
+                    >
+                        <img
+                            v-if="data.image"
+                            :src="storageUrl(data.image)!"
+                            alt=""
+                            class="size-full object-cover"
+                        />
+                        <i
+                            v-else
+                            class="pi pi-image text-muted-foreground"
+                            aria-hidden="true"
+                        />
+                    </button>
+                </template>
+            </Column>
+            <Column field="status" header="Status">
+                <template #body="{ data }">
+                    <ToggleSwitch
+                        :model-value="data.status === 1"
+                        :aria-label="`Publish ${data.title}`"
+                        @update:model-value="(val) => toggleStatus(data, val)"
+                    />
+                </template>
+            </Column>
+            <Column header="Action" frozen align-frozen="right">
+                <template #body="{ data }">
+                    <RowActions
+                        :name="data.title"
+                        @edit="openEdit(data)"
+                        @delete="confirmDelete(data)"
+                    />
+                </template>
+            </Column>
+        </BasedDataTable>
 
-                    <Column field="associate" header="Associate" sortable />
-                    <Column field="link" header="Link" sortable />
-                    <Column header="Tech Stack">
-                        <template #body="{ data }">
-                            <Button
-                                label="View"
-                                icon="pi pi-eye"
-                                size="small"
-                                @click="openTechModal(data.tech_list)"
-                            />
-                        </template>
-                    </Column>
-                    <Column header="Tech Stack">
-                        <template #body="{ data }">
-                            <Button
-                                label="Image"
-                                icon="pi pi-image"
-                                size="small"
-                                @click="openImageModal(data.image)"
-                            />
-                        </template>
-                    </Column>
-                    <Column field="status" header="Status">
-                        <template #body="{ data }">
-                            <ToggleSwitch
-                                :modelValue="data.status === 1"
-                                @update:modelValue="
-                                    (val) => toggleStatus(data, val)
-                                "
-                            />
-                        </template>
-                    </Column>
-                    <Column header="Action">
-                        <template #body="{ data }">
-                            <div class="flex">
-                                <Button
-                                    severity="warn"
-                                    icon="pi pi-pen-to-square"
-                                    raised
-                                    size="small"
-                                    class="mr-2"
-                                    @click="openEdit(data)"
-                                />
-                                <Button
-                                    severity="danger"
-                                    raised
-                                    icon="pi pi-trash"
-                                    size="small"
-                                    class="mr-2"
-                                    @click="openDelete(data)"
-                                />
-                            </div>
-                        </template>
-                    </Column>
-                </BasedDataTable>
-            </div>
-        </div>
-
-        <!-- FORM MODAL -->
         <DialogForm
-            maximizable
             v-model:visible="visible"
             :title="mode === 'create' ? 'New Project' : 'Edit Project'"
+            width="48rem"
+            :processing="form.processing"
+            @submit="submit"
+            @cancel="closeForm"
         >
-            <form
-                @submit.prevent="submit"
-                class="grid grid-cols-2 gap-6 md:grid-cols-2"
+            <FormField
+                v-slot="{ id, invalid }"
+                id="project-title"
+                label="Title"
+                :error="form.errors.title"
+                required
             >
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Title</label>
-                    <InputText
-                        v-model="form.title"
-                        size="small"
-                        placeholder="Title Project"
-                        required
-                    />
-                    <small v-if="form.errors.title" class="text-red-500">
-                        {{ form.errors.title }}
-                    </small>
-                </div>
+                <InputText
+                    :id="id"
+                    v-model="form.title"
+                    :invalid="invalid"
+                    placeholder="Project title"
+                    required
+                />
+            </FormField>
 
-                <div class="flex flex-col gap-2">
-                    <label>Start</label>
-                    <DatePicker
-                        v-model="form.start"
-                        showIcon
-                        size="small"
-                        placeholder="Pick a start date"
-                    />
-                </div>
+            <FormField
+                v-slot="{ id, invalid }"
+                id="project-start"
+                label="Start"
+                :error="form.errors.start"
+                :full="false"
+            >
+                <DatePicker
+                    v-model="form.start"
+                    :input-id="id"
+                    :invalid="invalid"
+                    show-icon
+                    placeholder="Pick a start date"
+                />
+            </FormField>
 
-                <div class="flex flex-col gap-2">
-                    <label>End</label>
-                    <DatePicker
-                        v-model="form.end"
-                        showIcon
-                        size="small"
-                        placeholder="Pick a end date"
-                    />
-                </div>
+            <FormField
+                v-slot="{ id, invalid }"
+                id="project-end"
+                label="End"
+                :error="form.errors.end"
+                :full="false"
+            >
+                <DatePicker
+                    v-model="form.end"
+                    :input-id="id"
+                    :invalid="invalid"
+                    show-icon
+                    placeholder="Pick an end date"
+                />
+            </FormField>
 
-                <div class="flex flex-col gap-2 md:col-span-2">
-                    <label>Tech Stack</label>
-                    <InputText
-                        v-model="form.tech"
-                        size="small"
-                        placeholder="Tech Stack"
-                    />
-                </div>
+            <FormField
+                v-slot="{ id, invalid }"
+                id="project-tech"
+                label="Tech Stack"
+                hint="Separate each technology with a comma."
+                :error="form.errors.tech"
+            >
+                <InputText
+                    :id="id"
+                    v-model="form.tech"
+                    :invalid="invalid"
+                    placeholder="Laravel, Vue, Tailwind"
+                />
+            </FormField>
 
-                <div class="flex flex-col gap-2 md:col-span-2">
-                    <label>Description</label>
-                    <Textarea
-                        v-model="form.description"
-                        rows="2"
-                        placeholder="Description"
-                        size="small"
-                    />
-                </div>
+            <FormField
+                v-slot="{ id, invalid }"
+                id="project-description"
+                label="Description"
+                :error="form.errors.description"
+            >
+                <Textarea
+                    :id="id"
+                    v-model="form.description"
+                    :invalid="invalid"
+                    rows="3"
+                    auto-resize
+                    placeholder="What is this project about?"
+                />
+            </FormField>
 
-                <div class="flex flex-col gap-2 md:col-span-2">
-                    <label>Responsibility</label>
-                    <Textarea
-                        v-model="form.responsibility"
-                        rows="2"
-                        size="small"
-                        placeholder="Responsibility"
-                    />
-                </div>
+            <FormField
+                v-slot="{ id, invalid }"
+                id="project-responsibility"
+                label="Responsibility"
+                :error="form.errors.responsibility"
+            >
+                <Textarea
+                    :id="id"
+                    v-model="form.responsibility"
+                    :invalid="invalid"
+                    rows="2"
+                    auto-resize
+                    placeholder="Your role in the project"
+                />
+            </FormField>
 
-                <div class="flex flex-col gap-2 md:col-span-2">
-                    <label>Link</label>
-                    <InputText
-                        v-model="form.link"
-                        size="small"
-                        placeholder="Link"
-                    />
-                </div>
+            <FormField
+                v-slot="{ id, invalid }"
+                id="project-link"
+                label="Link"
+                :error="form.errors.link"
+                :full="false"
+            >
+                <InputText
+                    :id="id"
+                    v-model="form.link"
+                    :invalid="invalid"
+                    type="url"
+                    placeholder="https://github.com/…"
+                />
+            </FormField>
 
-                <div class="flex flex-col gap-2 md:col-span-2">
-                    <label>Associate</label>
-                    <InputText
-                        v-model="form.associate"
-                        size="small"
-                        placeholder="Associate"
-                    />
-                </div>
+            <FormField
+                v-slot="{ id, invalid }"
+                id="project-associate"
+                label="Associate"
+                :error="form.errors.associate"
+                :full="false"
+            >
+                <InputText
+                    :id="id"
+                    v-model="form.associate"
+                    :invalid="invalid"
+                    placeholder="Company or organisation"
+                />
+            </FormField>
 
-                <div class="flex flex-col gap-2 md:col-span-2">
-                    <FileUpload
-                        mode="advanced"
-                        accept="image/*"
-                        :maxFileSize="1000000"
-                        chooseLabel="Upload Image"
-                        cancelLabel="Cancel"
-                        cancelIcon="pi pi-times"
-                        @select="handleFile"
-                        :customUpload="true"
-                        :auto="false"
-                    />
-                </div>
-
-                <div class="flex justify-end gap-3 md:col-span-2">
-                    <Button
-                        label="Cancel"
-                        severity="secondary"
-                        @click="closeDialogForm"
-                    />
-                    <Button
-                        type="submit"
-                        label="Save"
-                        severity="success"
-                        :loading="form.processing"
-                        :disabled="form.processing"
-                        class="!font-bold"
-                    />
-                </div>
-            </form>
+            <ImageUploadField
+                id="project-image"
+                label="Image"
+                :current-src="
+                    mode === 'edit' ? storageUrl(selected?.image) : null
+                "
+                :error="form.errors.image"
+                @select="handleFile"
+            />
         </DialogForm>
 
-        <!-- DELETE MODAL -->
-        <Dialog v-model:visible="isDelete" header="Delete Project" modal>
-            <p>Are you sure you want to delete this project?</p>
-
-            <template #footer>
-                <Button
-                    label="Cancel"
-                    severity="secondary"
-                    @click="closeDialogDelete"
-                />
-                <Button
-                    icon="pi pi-trash"
-                    :loading="form.processing"
-                    :disabled="form.processing"
-                    label="Delete"
-                    severity="danger"
-                    @click="deleteProject"
-                />
-            </template>
-        </Dialog>
-
-        <!-- TECH MODAL -->
         <Dialog
             v-model:visible="techModalVisible"
             header="Tech Stack"
             modal
-            :style="{ width: '30rem' }"
+            dismissable-mask
+            :style="{ width: '28rem' }"
+            :breakpoints="{ '640px': '95vw' }"
         >
-            <div class="flex flex-wrap gap-2">
-                <span
+            <ul v-if="selectedTech.length" class="flex flex-wrap gap-2">
+                <li
                     v-for="tech in selectedTech"
                     :key="tech"
-                    class="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary shadow-lg transition-all duration-200 hover:scale-105 hover:bg-primary/20 dark:border-white/20 dark:bg-white/10 dark:text-white"
+                    class="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-strong"
                 >
                     {{ tech }}
-                </span>
-
-                <span
-                    v-if="!selectedTech.length"
-                    class="text-sm text-muted-foreground dark:text-gray-400"
-                >
-                    No tech stack
-                </span>
-            </div>
+                </li>
+            </ul>
+            <p v-else class="text-sm text-muted-foreground">No tech stack</p>
         </Dialog>
 
-        <!-- IMAGE MODAL -->
-        <Dialog
+        <ImagePreviewDialog
             v-model:visible="imageModalVisible"
-            modal
-            :closable="true"
-            header="Image"
-            contentClass="p-0 bg-transparent shadow-none"
-            :pt="{
-                mask: { class: 'bg-black/80 backdrop-blur-sm' },
-            }"
-        >
-            <img
-                v-if="selectedImage"
-                :src="`/storage/${selectedImage}`"
-                alt="image"
-                class="block max-h-[70vh] max-w-[70vw] rounded-lg object-contain shadow-2xl"
-            />
-
-            <span v-else class="text-white">No image</span>
-        </Dialog>
-    </AppLayout>
+            :src="selectedImage"
+            title="Project image"
+        />
+    </AdminPage>
 </template>

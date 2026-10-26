@@ -5,7 +5,7 @@ import { computed } from 'vue';
 const year = new Date().getFullYear();
 
 const page = usePage();
-const isLandingPage = computed(() => page.url === '/landing-page');
+const isLandingPage = computed(() => page.url.split(/[?#]/)[0] === '/');
 const items = [
     { label: 'Home', link: 'home' },
     { label: 'About', link: 'about' },
@@ -13,12 +13,12 @@ const items = [
     { label: 'Achievement', link: 'achievement' },
 ];
 
-const props = withDefaults(
+withDefaults(
     defineProps<{
-        lastRole: string;
+        lastRole?: string;
     }>(),
     {
-        lastRole: () => '',
+        lastRole: '',
     },
 );
 </script>
@@ -32,56 +32,58 @@ const props = withDefaults(
                 class="absolute -top-10 left-1/4 h-32 w-32 rounded-full bg-primary/30 blur-3xl sm:h-36 sm:w-36 md:h-40 md:w-40"
             ></div>
             <div
-                class="absolute right-1/4 bottom-0 h-32 w-32 rounded-full bg-secondary/30 blur-3xl sm:h-36 sm:w-36 md:h-40 md:w-40"
+                class="absolute right-1/4 bottom-0 h-32 w-32 rounded-full bg-brand-red/20 blur-3xl sm:h-36 sm:w-36 md:h-40 md:w-40"
             ></div>
         </div>
 
-        <div class="relative w-full px-4 py-8 sm:py-10 lg:px-12">
+        <div class="relative w-full px-4 pt-8 pb-24 sm:pt-10 md:pb-10 lg:px-12">
             <div class="hidden items-center justify-between md:flex">
                 <div class="text-left">
-                    <h3
-                        class="text-lg font-semibold text-gray-900 dark:text-white"
-                    >
+                    <p class="text-lg font-semibold text-foreground">
                         Muammar Aufar Prasetya
-                    </h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                    </p>
+                    <p v-if="lastRole" class="text-sm text-muted-foreground">
                         {{ lastRole }}
                     </p>
                 </div>
 
-                <div class="md:absolute md:left-1/2 md:-translate-x-1/2">
-                    <div
+                <nav
+                    aria-label="Footer"
+                    class="md:absolute md:left-1/2 md:-translate-x-1/2"
+                >
+                    <ul
                         class="flex flex-wrap justify-center gap-6 text-sm font-medium"
                     >
-                        <Link
-                            v-for="item in items"
-                            :key="item.label"
-                            :href="
-                                isLandingPage
-                                    ? `#${item.link}`
-                                    : `/#${item.link}`
-                            "
-                            class="rounded-full border border-black/10 px-4 py-2 text-gray-600 transition hover:bg-black/10 hover:text-black dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
-                        >
-                            {{ item.label }}
-                        </Link>
-                    </div>
-                </div>
+                        <li v-for="item in items" :key="item.label">
+                            <component
+                                :is="isLandingPage ? 'a' : Link"
+                                :href="
+                                    isLandingPage
+                                        ? `#${item.link}`
+                                        : `/#${item.link}`
+                                "
+                                class="block rounded-full border border-black/10 px-4 py-2 text-muted-foreground focus-ring transition hover:bg-black/10 hover:text-foreground dark:border-white/10 dark:hover:bg-white/10"
+                            >
+                                {{ item.label }}
+                            </component>
+                        </li>
+                    </ul>
+                </nav>
 
                 <div class="flex items-center gap-3">
                     <span
-                        class="rounded-full border border-black/10 bg-black/5 px-3 py-1 text-xs text-black backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-white"
+                        class="rounded-full border border-black/10 bg-black/5 px-3 py-1 text-xs text-foreground backdrop-blur dark:border-white/10 dark:bg-white/5"
                     >
                         v2.0
                     </span>
                 </div>
             </div>
 
-            <div
-                class="mt-4 text-center text-[10px] text-gray-500 sm:text-xs md:mt-8 dark:text-gray-400"
+            <p
+                class="mt-4 text-center text-[10px] text-muted-foreground sm:text-xs md:mt-8"
             >
                 © {{ year }} Muammar Aufar. All rights reserved.
-            </div>
+            </p>
         </div>
     </footer>
 </template>

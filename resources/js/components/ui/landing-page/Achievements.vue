@@ -1,130 +1,116 @@
 <script setup lang="ts">
-import { achievementDetail } from '@/actions/App/Http/Controllers/LandingPageController';
+import { ref } from 'vue';
+import AchievementCard from '@/components/site/AchievementCard.vue';
+import CtaLink from '@/components/site/CtaLink.vue';
+import Reveal from '@/components/site/Reveal.vue';
+import SectionHeading from '@/components/site/SectionHeading.vue';
+import { gsap } from '@/motion/gsap';
+import { revealMedia } from '@/motion/reveal';
+import { useMotion } from '@/motion/useMotion';
 import { allAchievements } from '@/routes';
-import { Link } from '@inertiajs/vue3';
-import { Award, Building2, CalendarDays, FileBadge } from 'lucide-vue-next';
 
-const props = defineProps<{
+defineProps<{
     achievements?: any[];
 }>();
-const getPhoto = (path: string) =>
-    path ? `/storage/${path}` : '/images/default-skill.png';
+
+const list = ref<HTMLElement | null>(null);
+
+/** Base tilt of each card in the deck, alternating sides. */
+const tiltFor = (index: number) => (index % 2 === 0 ? 1.5 : -1.5);
+
+/**
+ * Deck variant of the stack: smaller cards, tighter steps and an alternating
+ * tilt, like cards dealt onto a table. As the next card lands, the one below
+ * straightens, sinks back slightly and dims, scrubbed to scroll.
+ */
+useMotion(list, ({ reduce, desktop }) => {
+    if (reduce) {
+        return;
+    }
+
+    const items = gsap.utils.toArray<HTMLElement>('[data-deck-item]');
+
+    items.forEach((item, i) => {
+        const card = item.querySelector('[data-deck-card]');
+
+        gsap.from(item, {
+            opacity: 0,
+            y: desktop ? 48 : 24,
+            scrollTrigger: { trigger: item, start: 'top 90%', once: true },
+        });
+
+        const media = item.querySelector('[data-media]');
+
+        if (media) {
+            revealMedia(media, { trigger: item });
+        }
+
+        if (!desktop) {
+            return;
+        }
+
+        gsap.set(card, { rotation: tiltFor(i) });
+
+        const next = items[i + 1];
+
+        if (!next) {
+            return;
+        }
+
+        gsap.timeline({
+            scrollTrigger: {
+                trigger: next,
+                start: 'top bottom',
+                end: 'top top+=160',
+                scrub: true,
+            },
+        })
+            .to(card, { scale: 0.9, rotation: 0, y: -12, ease: 'none' })
+            .to(
+                item.querySelector('[data-deck-overlay]'),
+                { opacity: 0.55, ease: 'none' },
+                0,
+            );
+    });
+});
 </script>
 
 <template>
-    <section
-        id="achievement"
-        class="relative mx-auto max-w-7xl px-4 py-28 sm:px-6"
-    >
-        <div
-            class="pointer-events-none absolute inset-0 -z-10 opacity-30 blur-3xl"
-        >
-            <div
-                class="absolute top-0 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/30"
-            ></div>
-        </div>
+    <section id="achievement" class="container-page section-y">
+        <SectionHeading
+            eyebrow="Recognition"
+            title="Achievements"
+            description="Awards and Certificates"
+        />
 
-        <div class="mb-20 text-center">
-            <h2
-                class="text-3xl font-extrabold tracking-tight text-gray-900 md:text-5xl dark:text-gray-100"
-            >
-                Achievements
-            </h2>
-            <p
-                class="md:text-md mt-3 text-sm text-gray-500 lg:text-lg dark:text-gray-400"
-            >
-                Awards and Certificates
-            </p>
-        </div>
-
-        <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <Link
-                :href="achievementDetail(item.slug).url"
-                v-for="item in achievements"
+        <ul ref="list" class="mx-auto flex max-w-3xl flex-col gap-6 md:gap-12">
+            <li
+                v-for="(item, i) in achievements"
                 :key="item.id"
-                class="group relative overflow-hidden rounded-xl border border-black/10 bg-white/70 shadow-sm backdrop-blur-xl transition-all duration-500 hover:shadow-2xl dark:border-white/10 dark:bg-white/5"
+                data-deck-item
+                class="md:motion-safe:sticky"
+                :style="{ top: `calc(var(--nav-h) + 1.5rem + ${i * 0.75}rem)` }"
             >
-                <div class="relative h-52 overflow-hidden">
-                    <div class="h-full w-full overflow-hidden">
-                        <img
-                            v-if="item.photo"
-                            :src="getPhoto(item.photo)"
-                            :alt="item.title"
-                            class="h-full w-full object-cover transition duration-700 ease-in-out group-hover:scale-110"
-                        />
-
-                        <div
-                            v-else
-                            class="flex h-full w-full items-center justify-center bg-gray-200 py-10 dark:bg-gray-800"
-                        >
-                            <Award
-                                v-if="!item.type"
-                                class="h-30 w-30 text-gray-500"
-                            />
-
-                            <FileBadge v-else class="h-30 w-30 text-gray-500" />
-                        </div>
-                    </div>
-
+                <div data-deck-card class="relative md:h-[20rem]">
+                    <AchievementCard :item="item" variant="deck" />
                     <div
-                        class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"
-                    ></div>
-
-                    <span
-                        class="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-black backdrop-blur dark:bg-black/60 dark:text-white"
-                    >
-                        {{ item.type ? 'Certification' : 'Awards' }}
-                    </span>
+                        data-deck-overlay
+                        class="pointer-events-none absolute inset-0 rounded-3xl bg-background opacity-0"
+                        aria-hidden="true"
+                    />
                 </div>
+            </li>
+            <!-- Room for the last card to settle (sticky items can't use the list's padding) -->
+            <li
+                class="hidden h-[16vh] md:motion-safe:block"
+                aria-hidden="true"
+            />
+        </ul>
 
-                <div class="flex flex-col gap-3 p-6">
-                    <h3
-                        class="text-lg leading-snug font-semibold tracking-tight text-gray-900 dark:text-white"
-                    >
-                        {{ item.title }}
-                    </h3>
-
-                    <span
-                        class="inline-flex items-center gap-2 text-xs font-semibold text-chart-1 dark:text-chart-1"
-                    >
-                        <Building2 class="h-4 w-4" />
-                        {{ item.issuer }}
-                    </span>
-
-                    <span
-                        class="inline-flex items-center gap-2 text-xs font-medium text-chart-2 dark:text-chart-2"
-                    >
-                        <CalendarDays class="h-4 w-4" />
-                        {{ item.date_format }}
-                    </span>
-
-                    <p
-                        class="line-clamp-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300"
-                    >
-                        {{ item.description }}
-                    </p>
-                </div>
-                <div
-                    class="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100"
-                >
-                    <div
-                        class="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-transparent"
-                    ></div>
-                </div>
-            </Link>
-        </div>
-        <div class="mt-10 flex items-center justify-center">
-            <Link
-                :href="allAchievements().url"
-                class="group inline-flex items-center gap-2 rounded-full border border-black/10 bg-primary/10 px-6 py-2 text-sm font-medium text-black backdrop-blur transition-all duration-300 hover:bg-primary hover:text-white dark:border-white/10 dark:text-white"
-            >
+        <Reveal class="mt-10 flex justify-center">
+            <CtaLink :href="allAchievements().url">
                 See More Achievements
-                <span
-                    class="transition-transform duration-300 group-hover:translate-x-2"
-                >
-                    →
-                </span>
-            </Link>
-        </div>
+            </CtaLink>
+        </Reveal>
     </section>
 </template>

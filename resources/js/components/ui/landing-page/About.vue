@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Contact, QrCode } from 'lucide-vue-next';
+import IdCard from '@/components/site/IdCard.vue';
+import Reveal from '@/components/site/Reveal.vue';
+import SectionHeading from '@/components/site/SectionHeading.vue';
+import SegmentedControl from '@/components/site/SegmentedControl.vue';
+import Timeline from '@/components/site/Timeline.vue';
+import { ScrollTrigger } from '@/motion/gsap';
 import { UserAboutScript } from '@/script/landingPage/about';
-import Work from './Work.vue';
-import Education from './Education.vue';
 
 const props = defineProps<{
     personal: any;
@@ -12,253 +14,110 @@ const props = defineProps<{
     educations?: any[];
 }>();
 
-const cardRef = ref<HTMLElement | null>(null);
-
-const handleMouseMove = (e: MouseEvent) => {
-    const card = cardRef.value;
-    if (!card) return;
-
-    const rect = card.getBoundingClientRect();
-
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = ((y - centerY) / centerY) * 10;
-    const rotateY = ((x - centerX) / centerX) * -10;
-
-    card.style.transform = `
-        perspective(1000px)
-        rotateX(${rotateX}deg)
-        rotateY(${rotateY}deg)
-        scale(1)
-    `;
-};
-
-const resetCard = () => {
-    const card = cardRef.value;
-    if (!card) return;
-
-    card.style.transform = `
-        perspective(1000px)
-        rotateX(0deg)
-        rotateY(0deg)
-        scale(1)
-    `;
-};
 const {
-    aboutSection,
+    statsRef,
     avatarUrl,
     activeTab,
     tabs,
-    activeIndex,
+    workItems,
+    educationItems,
     animatedStats,
     stats,
 } = UserAboutScript({
     personal: props.personal,
-    lastRole: props.lastRole,
     works: props.works ?? [],
     educations: props.educations ?? [],
 });
+
+// The panels differ in height, so later triggers need re-measuring.
+const refreshScroll = () => ScrollTrigger.refresh();
 </script>
-<style>
-.translate-z-20 {
-    transform: translateZ(20px);
-}
-.translate-z-30 {
-    transform: translateZ(30px);
-}
-.translate-z-40 {
-    transform: translateZ(40px);
-}
-</style>
+
 <template>
-    <section
-        ref="aboutSection"
-        id="about"
-        class="relative flex flex-col items-center justify-center px-6 py-20"
-    >
+    <section id="about" class="container-page section-y">
+        <SectionHeading eyebrow="Get to know me" title="About" highlight="Me" />
+
         <div
-            class="w-full max-w-7xl rounded-xl border border-black/10 bg-white/20 p-8 shadow-xl backdrop-blur-xl md:p-12 dark:border-white/10 dark:bg-white/5 dark:shadow-none"
+            class="grid items-start gap-10 lg:grid-cols-[minmax(0,320px)_1fr] lg:gap-16"
         >
-            <div
-                class="pointer-events-none absolute -top-20 -left-20 h-60 w-60 rounded-full bg-primary/20 blur-3xl"
-            ></div>
+            <!-- ID card -->
+            <Reveal class="mx-auto w-full max-w-[320px]">
+                <IdCard
+                    name="Muammar Aufar Prasetya"
+                    :role="props.lastRole"
+                    location="Bekasi, Indonesia"
+                    :avatar="avatarUrl"
+                    :tags="personal?.role_list"
+                />
+            </Reveal>
 
-            <div class="mb-16 text-center">
-                <h2 class="text-3xl font-semibold md:text-5xl">
-                    About <span class="text-primary">Me</span>
-                </h2>
-            </div>
-
-            <div class="grid gap-10 md:grid-cols-[1fr_2fr]">
-                <div class="flex justify-center md:justify-start">
-                    <div
-                        ref="cardRef"
-                        @mousemove="handleMouseMove"
-                        @mouseleave="resetCard"
-                        class="group relative w-[280px] overflow-hidden rounded-xl border border-black/10 bg-black/5 text-center transition duration-300 ease-out will-change-transform hover:shadow-2xl dark:border-white/10 dark:bg-white/10"
-                    >
-                        <div
-                            class="flex items-center justify-start border-b border-black/10 bg-primary px-4 py-3 text-sm font-bold text-white dark:border-white/10"
-                        >
-                            <Contact class="me-3 h-5 w-5 opacity-80" />
-                            <span class="tracking-wider">ID CARD</span>
-                        </div>
-
-                        <div class="p-6 [transform-style:preserve-3d]">
-                            <div class="flex justify-center">
-                                <img
-                                    :src="avatarUrl"
-                                    alt="avatar"
-                                    class="h-24 w-24 translate-z-40 rounded-full border border-black/10 object-cover shadow-lg dark:border-white/10"
-                                />
-                            </div>
-
-                            <h2
-                                class="text-md mt-4 translate-z-30 font-semibold text-black dark:text-white"
-                            >
-                                Muammar Aufar Prasetya
-                            </h2>
-
-                            <p
-                                class="mt-1 translate-z-20 text-sm font-medium text-black/80 italic dark:text-white/80"
-                            >
-                                {{ props.lastRole }}
-                            </p>
-
-                            <div
-                                class="my-4 border-t border-black/30 dark:border-white/10"
-                            ></div>
-
-                            <div
-                                class="translate-z-20 space-y-1 text-xs text-black/80 dark:text-white/80"
-                            >
-                                <p class="font-medium">📍 Bekasi, Indonesia</p>
-                            </div>
-
-                            <div
-                                class="mt-4 flex translate-z-20 flex-wrap justify-center gap-2"
-                            >
-                                <span
-                                    v-for="(role, i) in personal?.role_list ||
-                                    []"
-                                    :key="i"
-                                    class="rounded-full border border-black/10 px-2 py-0.5 text-[10px] dark:border-white/10"
-                                >
-                                    {{ role }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div
-                            class="absolute bottom-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-primary to-transparent opacity-70"
-                        ></div>
-                    </div>
-                </div>
-
-                <div class="flex flex-col justify-start gap-10">
+            <!-- Bio + stats -->
+            <div class="flex flex-col gap-10">
+                <Reveal :delay="0.1">
                     <p
-                        class="text-md text-justify text-black md:text-lg dark:text-muted-foreground"
+                        class="text-base leading-relaxed text-pretty text-muted-foreground md:text-lg md:leading-relaxed"
                     >
                         {{ personal.about }}
                     </p>
+                </Reveal>
 
-                    <div
-                        class="flex w-full max-w-4xl flex-col items-start justify-start gap-6 text-left md:flex-row md:items-center md:justify-between md:gap-8"
-                    >
-                        <template
+                <Reveal :delay="0.2">
+                    <dl ref="statsRef" class="grid grid-cols-3 gap-3 sm:gap-4">
+                        <div
                             v-for="(item, index) in stats"
                             :key="item.title"
+                            class="flex flex-col items-center gap-1 rounded-2xl surface-glass px-2 py-5 text-center sm:py-6"
                         >
-                            <div
-                                class="flex w-full flex-1 flex-col items-start sm:text-center md:items-center md:text-center"
+                            <dt
+                                class="text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase sm:text-xs"
                             >
-                                <p
-                                    class="text-3xl font-bold text-primary sm:text-4xl md:text-4xl"
-                                >
-                                    {{ animatedStats[index] }}{{ item.suffix }}
-                                </p>
-                                <p
-                                    class="mt-2 text-base font-semibold tracking-wide text-black uppercase sm:text-lg dark:text-white"
-                                >
-                                    {{ item.title }}
-                                </p>
-                            </div>
-
-                            <div
-                                v-if="index < stats.length - 1"
-                                class="hidden h-16 w-px self-stretch bg-white/20 md:block lg:h-20"
-                            ></div>
-
-                            <div
-                                v-if="index < stats.length - 1"
-                                class="h-px w-full bg-white/10 md:hidden"
-                            ></div>
-                        </template>
-                    </div>
-                </div>
+                                {{ item.title }}
+                            </dt>
+                            <dd
+                                class="order-first text-3xl font-extrabold tracking-tight text-primary-strong tabular-nums sm:text-4xl"
+                            >
+                                {{ animatedStats[index] }}{{ item.suffix }}
+                            </dd>
+                        </div>
+                    </dl>
+                </Reveal>
             </div>
         </div>
 
-        <div class="mt-5 w-full">
-            <div
-                class="relative flex w-full overflow-hidden rounded-lg border border-black/10 shadow-md dark:border-white/10"
-            >
-                <div
-                    class="relative flex w-full rounded-lg bg-white/10 p-2 dark:bg-white/5"
-                >
-                    <div
-                        class="absolute top-2 bottom-2 left-2 z-0 rounded-lg bg-indigo-100 shadow-inner transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] dark:bg-white/10"
-                        :style="{
-                            width: `calc((100% - 0.5rem) / ${tabs.length})`,
-                            transform: `translateX(${activeIndex * 100}%)`,
-                        }"
-                    />
+        <!-- Work / Education -->
+        <div class="mt-20 md:mt-28">
+            <Reveal class="mx-auto max-w-md">
+                <SegmentedControl
+                    id="about-tabs"
+                    v-model="activeTab"
+                    :options="tabs"
+                    label="Experience"
+                />
+            </Reveal>
 
-                    <div
-                        v-for="tab in tabs"
-                        :key="tab.id"
-                        @click="activeTab = tab.id"
-                        class="relative z-10 flex flex-1 cursor-pointer flex-col items-center justify-center px-3 py-2 text-center font-semibold transition-colors duration-300"
-                        :class="
-                            activeTab === tab.id
-                                ? 'text-gray-900 dark:text-white'
-                                : 'text-black dark:text-gray-300'
-                        "
-                    >
-                        <component
-                            :is="tab.icon"
-                            class="mb-1 h-6 w-6 transition-transform duration-300"
-                            :class="activeTab === tab.id ? 'scale-110' : ''"
-                        />
-                        {{ tab.label }}
-                    </div>
-                </div>
-            </div>
-            <div class="mt-4 overflow-hidden">
+            <div class="mx-auto mt-12 max-w-5xl">
                 <Transition
-                    enter-active-class="transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                    enter-from-class="opacity-0 translate-y-6 scale-95"
-                    enter-to-class="opacity-100 translate-y-0 scale-100"
-                    leave-active-class="transition-all duration-300 ease-in"
-                    leave-from-class="opacity-100 translate-y-0 scale-100"
-                    leave-to-class="opacity-0 -translate-y-6 scale-95"
                     mode="out-in"
+                    enter-active-class="transition-opacity duration-200 ease-out-expo"
+                    enter-from-class="opacity-0"
+                    leave-active-class="transition-opacity duration-150 ease-out-expo"
+                    leave-to-class="opacity-0"
+                    @after-enter="refreshScroll"
                 >
-                    <Work
-                        v-if="activeTab === 'work'"
-                        :works="props.works"
-                        key="work"
-                    />
-
-                    <Education
-                        v-else
-                        :educations="props.educations"
-                        key="education"
-                    />
+                    <div
+                        :id="`about-tabs-panel-${activeTab}`"
+                        :key="activeTab"
+                        role="tabpanel"
+                        :aria-labelledby="`about-tabs-tab-${activeTab}`"
+                    >
+                        <Timeline
+                            :items="
+                                activeTab === 'work'
+                                    ? workItems
+                                    : educationItems
+                            "
+                        />
+                    </div>
                 </Transition>
             </div>
         </div>

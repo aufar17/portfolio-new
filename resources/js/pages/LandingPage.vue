@@ -51,9 +51,16 @@ const isContactOpen = ref(false);
 </script>
 
 <template>
-    <Head title="Portfolio" />
+    <Head>
+        <meta
+            v-if="props.personal?.desc"
+            head-key="description"
+            name="description"
+            :content="props.personal.desc"
+        />
+    </Head>
 
-    <LandingPageLayout :breadcrumbs="breadcrumbs">
+    <LandingPageLayout :breadcrumbs="breadcrumbs" :last-role="props.lastRole">
         <Hero :personal="props.personal" />
         <About
             :works="props.works"

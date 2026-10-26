@@ -1,106 +1,116 @@
-import { BriefcaseBusiness, GraduationCap } from 'lucide-vue-next';
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import {
+    BookOpen,
+    BriefcaseBusiness,
+    CircleUserRound,
+    GraduationCap,
+    Info,
+} from 'lucide-vue-next';
+import { computed, ref } from 'vue';
+import type { SegmentOption, TimelineEntry } from '@/components/site/types';
+import { storageUrl } from '@/lib/utils';
+import { gsap, ScrollTrigger } from '@/motion/gsap';
+import { useMotion } from '@/motion/useMotion';
 
 type Tab = 'work' | 'education';
 
 export function UserAboutScript({
     personal,
-    lastRole,
     works = [],
     educations = [],
 }: {
     personal: any;
-    lastRole: string;
     works?: any[];
     educations?: any[];
 }) {
-    const preview = ref<string | null>(null);
-
     const stats = [
         { value: 1, suffix: '+', title: 'Experience' },
         { value: 10, suffix: '+', title: 'Projects' },
         { value: 5, suffix: '+', title: 'Achievements' },
     ];
 
-    const avatarUrl = computed(() => {
-        if (preview.value) {
-return preview.value;
-}
-
-        return personal?.photo
-            ? `/storage/${personal.photo}`
-            : `https://ui-avatars.com/api/?name=${encodeURIComponent('Muammar Aufar')}`;
-    });
-    type Tab = 'work' | 'education';
-
-    const activeTab = ref<Tab>('work');
-    const tabs: { id: Tab; label: string; icon?: any }[] = [
-        { id: 'work', label: 'Work', icon: BriefcaseBusiness },
-        { id: 'education', label: 'Education', icon: GraduationCap },
-    ];
-    const activeIndex = computed(() =>
-        tabs.findIndex((t) => t.id === activeTab.value),
+    const avatarUrl = computed(
+        () =>
+            storageUrl(personal?.photo) ??
+            `https://ui-avatars.com/api/?name=${encodeURIComponent('Muammar Aufar')}`,
     );
 
-    const animatedStats = ref(stats.map(() => 0));
-    const aboutSection = ref<HTMLElement | null>(null);
-    let observer: IntersectionObserver | null = null;
-    const hasAnimated = ref(false);
+    const activeTab = ref<Tab>('work');
+    const tabs: SegmentOption<Tab>[] = [
+        { value: 'work', label: 'Work', icon: BriefcaseBusiness },
+        { value: 'education', label: 'Education', icon: GraduationCap },
+    ];
 
-    const animateStats = () => {
-        const duration = 1200;
+    const workItems = computed<TimelineEntry[]>(() =>
+        works.map((work) => ({
+            id: work.id,
+            title: work.company,
+            date: work.date_range,
+            meta: [
+                { icon: Info, label: work.status },
+                { icon: CircleUserRound, label: work.role },
+            ],
+            body: work.desc,
+        })),
+    );
 
-        stats.forEach((item, index) => {
-            const start = performance.now();
+    const educationItems = computed<TimelineEntry[]>(() =>
+        educations.map((education) => ({
+            id: education.id,
+            title: education.institution,
+            date: education.date_range,
+            meta: [
+                { icon: BookOpen, label: education.major },
+                { icon: GraduationCap, label: education.title },
+            ],
+            body: education.description,
+        })),
+    );
 
-            const animate = (time: number) => {
-                const progress = Math.min((time - start) / duration, 1);
-                const easeOut = 1 - Math.pow(1 - progress, 3);
-                const value = Math.floor(easeOut * item.value);
+    // Final values by default so the numbers are right without motion.
+    const finalStats = stats.map((item) => item.value);
+    const animatedStats = ref([...finalStats]);
+    const statsRef = ref<HTMLElement | null>(null);
 
-                animatedStats.value[index] = value;
-
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
-                } else {
-                    animatedStats.value[index] = item.value;
-                }
-            };
-
-            requestAnimationFrame(animate);
-        });
-    };
-
-    onMounted(() => {
-        observer = new IntersectionObserver(
-            (entries) => {
-                const entry = entries[0];
-
-                if (entry.isIntersecting && !hasAnimated.value) {
-                    hasAnimated.value = true;
-
-                    setTimeout(() => animateStats(), 400);
-                    observer?.disconnect();
-                }
-            },
-            { threshold: 0.2, rootMargin: '0px 0px -100px 0px' },
-        );
-
-        if (aboutSection.value) {
-            observer.observe(aboutSection.value);
+    useMotion(statsRef, ({ reduce }, context) => {
+        if (reduce) {
+            return;
         }
-    });
 
-    onBeforeUnmount(() => {
-        observer?.disconnect();
+        const counters = stats.map(() => ({ value: 0 }));
+        animatedStats.value = finalStats.map(() => 0);
+
+        ScrollTrigger.create({
+            trigger: statsRef.value,
+            start: 'top 85%',
+            once: true,
+            onEnter: () =>
+                context.add(() =>
+                    counters.forEach((counter, index) =>
+                        gsap.to(counter, {
+                            value: finalStats[index],
+                            duration: 1.4,
+                            onUpdate: () => {
+                                animatedStats.value[index] = Math.round(
+                                    counter.value,
+                                );
+                            },
+                        }),
+                    ),
+                ),
+        });
+
+        return () => {
+            animatedStats.value = [...finalStats];
+        };
     });
 
     return {
-        aboutSection,
+        statsRef,
         avatarUrl,
         activeTab,
         tabs,
-        activeIndex,
+        workItems,
+        educationItems,
         animatedStats,
         stats,
     };

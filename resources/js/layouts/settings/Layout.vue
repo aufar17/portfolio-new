@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { Palette, ShieldCheck, UserRound } from 'lucide-vue-next';
 import Heading from '@/components/Heading.vue';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { toUrl } from '@/lib/utils';
@@ -14,14 +14,17 @@ const sidebarNavItems: NavItem[] = [
     {
         title: 'Profile',
         href: editProfile(),
+        icon: UserRound,
     },
     {
         title: 'Security',
         href: editSecurity(),
+        icon: ShieldCheck,
     },
     {
         title: 'Appearance',
         href: editAppearance(),
+        icon: Palette,
     },
 ];
 
@@ -29,33 +32,39 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
 </script>
 
 <template>
-    <div class="px-4 py-6">
+    <div class="p-4 md:p-6 lg:p-8">
         <Heading
             title="Settings"
             description="Manage your profile and account settings"
         />
 
-        <div class="flex flex-col lg:flex-row lg:space-x-12">
-            <aside class="w-full max-w-xl lg:w-48">
+        <div class="flex flex-col lg:flex-row lg:gap-12">
+            <aside class="w-full lg:w-52">
                 <nav
-                    class="flex flex-col space-y-1 space-x-0"
+                    class="flex gap-1 overflow-x-auto lg:flex-col"
                     aria-label="Settings"
                 >
-                    <Button
+                    <Link
                         v-for="item in sidebarNavItems"
                         :key="toUrl(item.href)"
-                        variant="ghost"
-                        :class="[
-                            'w-full justify-start',
-                            { 'bg-muted': isCurrentOrParentUrl(item.href) },
-                        ]"
-                        as-child
+                        :href="item.href"
+                        class="flex shrink-0 items-center gap-2.5 rounded-md px-3.5 py-2.5 text-sm font-semibold focus-ring transition-colors"
+                        :class="
+                            isCurrentOrParentUrl(item.href)
+                                ? 'bg-primary/10 text-primary-strong'
+                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                        "
+                        :aria-current="
+                            isCurrentOrParentUrl(item.href) ? 'page' : undefined
+                        "
                     >
-                        <Link :href="item.href">
-                            <component :is="item.icon" class="h-4 w-4" />
-                            {{ item.title }}
-                        </Link>
-                    </Button>
+                        <component
+                            :is="item.icon"
+                            class="size-4"
+                            aria-hidden="true"
+                        />
+                        {{ item.title }}
+                    </Link>
                 </nav>
             </aside>
 

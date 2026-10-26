@@ -10,3 +10,8 @@ export function cn(...inputs: ClassValue[]) {
 export function toUrl(href: NonNullable<InertiaLinkProps['href']>) {
     return typeof href === 'string' ? href : href?.url;
 }
+
+/** Public URL for a file stored on the `public` disk; null when empty. */
+export function storageUrl(path?: string | null) {
+    return path ? `/storage/${path}` : null;
+}

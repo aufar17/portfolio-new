@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
-import { Pencil } from 'lucide-vue-next';
+import { Camera } from 'lucide-vue-next';
+import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
-import Button from '@/components/ui/button/Button.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
+import AdminPage from '@/components/admin/AdminPage.vue';
+import FormField from '@/components/admin/FormField.vue';
 import { personalAdmin } from '@/routes';
 import { usePersonalScript } from '@/script/admin/personal';
 import type { BreadcrumbItem } from '@/types';
@@ -15,75 +15,134 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Personal', href: personalAdmin().url },
 ];
 
-const { fileInput, preview, form, avatarUrl, handleFile, submit } =
-    usePersonalScript(props.personal);
+const { fileInput, form, avatarUrl, handleFile, submit } = usePersonalScript(
+    props.personal,
+);
 </script>
+
 <template>
-    <Head title="Personal" />
+    <AdminPage
+        title="Personal"
+        description="Profile information shown in the hero and about sections."
+        :breadcrumbs="breadcrumbs"
+    >
+        <form
+            class="grid gap-6 lg:grid-cols-[280px_1fr]"
+            @submit.prevent="submit"
+        >
+            <section
+                class="flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6 text-center shadow-soft"
+                aria-labelledby="profile-image-label"
+            >
+                <h2
+                    id="profile-image-label"
+                    class="text-sm font-semibold text-foreground"
+                >
+                    Profile Image
+                </h2>
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-4">
-            <div class="rounded-xl border bg-background p-4 shadow-sm">
-                <h2 class="m-2 text-xl font-semibold">Personal Information</h2>
-                <hr class="mt-4 mb-10" />
+                <button
+                    type="button"
+                    class="group relative size-36 overflow-hidden rounded-full border-4 border-background shadow-elevated focus-ring"
+                    aria-label="Change profile image"
+                    @click="fileInput?.click()"
+                >
+                    <img
+                        :src="avatarUrl"
+                        alt="Current profile image"
+                        class="size-full object-cover"
+                    />
+                    <span
+                        class="absolute inset-0 grid place-items-center bg-black/45 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
+                        aria-hidden="true"
+                    >
+                        <Camera class="size-7" />
+                    </span>
+                </button>
+                <p class="text-xs text-muted-foreground">
+                    Click the photo to upload a new one.
+                </p>
+                <p
+                    v-if="form.errors.photo"
+                    class="text-sm font-medium text-destructive"
+                    role="alert"
+                >
+                    {{ form.errors.photo }}
+                </p>
 
-                <form @submit.prevent="submit" class="grid grid-cols-2 gap-6">
-                    <div class="col-span-2 flex flex-col items-center gap-4">
-                        <label class="font-semibold">Profile Image</label>
+                <input
+                    ref="fileInput"
+                    type="file"
+                    accept="image/*"
+                    class="sr-only"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    @change="handleFile"
+                />
+            </section>
 
-                        <div
-                            class="relative cursor-pointer"
-                            @click="fileInput?.click()"
-                        >
-                            <img
-                                :src="avatarUrl"
-                                class="h-32 w-32 rounded-full border object-cover shadow"
-                            />
+            <section
+                class="grid gap-5 rounded-xl border border-border bg-card p-6 shadow-soft"
+            >
+                <FormField
+                    v-slot="{ id, invalid }"
+                    id="personal-role"
+                    label="Role"
+                    hint="Separate multiple roles with a comma."
+                    :error="form.errors.role"
+                    required
+                >
+                    <InputText
+                        :id="id"
+                        v-model="form.role"
+                        :invalid="invalid"
+                        required
+                    />
+                </FormField>
 
-                            <div
-                                class="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition hover:opacity-800"
-                            >
-                                <Pencil class="h-6 w-6 text-white" />
-                            </div>
-                        </div>
+                <FormField
+                    v-slot="{ id, invalid }"
+                    id="personal-desc"
+                    label="Description"
+                    :error="form.errors.desc"
+                    required
+                >
+                    <Textarea
+                        :id="id"
+                        v-model="form.desc"
+                        :invalid="invalid"
+                        rows="3"
+                        auto-resize
+                        required
+                    />
+                </FormField>
 
-                        <input
-                            ref="fileInput"
-                            type="file"
-                            accept="image/*"
-                            class="hidden"
-                            @change="handleFile"
-                        />
-                    </div>
-                    <div class="col-span-2 flex flex-col gap-2">
-                        <label class="font-semibold">Role</label>
-                        <InputText v-model="form.role" required />
-                        <small v-if="form.errors.role" class="text-red-500">
-                            {{ form.errors.role }}
-                        </small>
-                    </div>
+                <FormField
+                    v-slot="{ id, invalid }"
+                    id="personal-about"
+                    label="About"
+                    :error="form.errors.about"
+                    required
+                >
+                    <Textarea
+                        :id="id"
+                        v-model="form.about"
+                        :invalid="invalid"
+                        rows="6"
+                        auto-resize
+                        required
+                    />
+                </FormField>
 
-                    <div class="col-span-2 flex flex-col gap-2">
-                        <label class="font-semibold">Description</label>
-                        <Textarea v-model="form.desc" autoResize required />
-                    </div>
-
-                    <div class="col-span-2 flex flex-col gap-2">
-                        <label class="font-semibold">About</label>
-                        <Textarea v-model="form.about" autoResize required />
-                    </div>
-
-                    <div class="col-span-2 flex justify-end gap-3">
-                        <Button
-                            type="submit"
-                            :disabled="form.processing"
-                            class="font-bold text-white"
-                        >
-                            {{ form.processing ? 'Saving...' : 'Save' }}
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </AppLayout>
+                <div class="flex justify-end">
+                    <Button
+                        type="submit"
+                        label="Save changes"
+                        icon="pi pi-check"
+                        :loading="form.processing"
+                    />
+                </div>
+            </section>
+        </form>
+    </AdminPage>
 </template>

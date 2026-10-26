@@ -1,19 +1,14 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
-import Button from 'primevue/button';
+import Checkbox from 'primevue/checkbox';
 import Column from 'primevue/column';
 import DatePicker from 'primevue/datepicker';
-import Dialog from 'primevue/dialog';
-import FileUpload from 'primevue/fileupload';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
 import InputText from 'primevue/inputtext';
+import AdminPage from '@/components/admin/AdminPage.vue';
 import DialogForm from '@/components/admin/DialogForm.vue';
-import { useSkillScript } from '@/script/admin/skill';
-import RadioButton from 'primevue/radiobutton';
+import FormField from '@/components/admin/FormField.vue';
+import RowActions from '@/components/admin/RowActions.vue';
 import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
-import { educationsAdmin, skillsAdmin } from '@/routes';
+import { educationsAdmin } from '@/routes';
 import { useEducationScript } from '@/script/admin/educations';
 import type { BreadcrumbItem } from '@/types';
 
@@ -25,214 +20,175 @@ const props = defineProps<{
     educations: any[];
 }>();
 
+const yearOf = (value?: string | null) =>
+    value ? new Date(value).getFullYear() : null;
+
 const {
     visible,
     mode,
-    isDelete,
-    isPresent,
     form,
     globalFields,
+    isPresent,
     openCreate,
     openEdit,
-    openDelete,
-    closeDialogForm,
-    closeDialogDelete,
+    closeForm,
     submit,
-    deleteEducation,
+    confirmDelete,
 } = useEducationScript(props.educations);
 </script>
 
 <template>
-    <Head />
-
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-4">
-            <div class="rounded-xl border bg-background p-4 shadow-sm">
-                <h2
-                    class="m-2 text-xl font-semibold text-primary dark:text-white"
-                >
-                    Skills Data
-                </h2>
-                <BasedDataTable
-                    :value="educations || []"
-                    :totalRecords="educations?.length || 0"
-                    :globalFilterFields="globalFields"
-                >
-                    <template #header="{ filters }">
-                        <div class="flex justify-between gap-4">
-                            <Button
-                                label="New Education"
-                                raised
-                                icon="pi pi-plus"
-                                size="small"
-                                @click="openCreate"
-                            />
-
-                            <IconField class="w-72">
-                                <InputIcon>
-                                    <i class="pi pi-search" />
-                                </InputIcon>
-                                <InputText
-                                    v-model="filters.global.value"
-                                    placeholder="Search"
-                                    class="p-inputtext-sm"
-                                />
-                            </IconField>
-                        </div>
-                    </template>
-
-                    <Column header="No." sortable>
-                        <template #body="{ index }">
-                            {{ index + 1 }}
-                        </template>
-                    </Column>
-                    <Column field="institution" header="Institution" sortable />
-                    <Column field="major" header="Major" sortable />
-                    <Column field="title" header="Title" sortable />
-                    <Column field="start" header="Start" sortable />
-                    <Column field="end" header="End" sortable />
-
-                    <Column header="Action">
-                        <template #body="{ data }">
-                            <div class="flex">
-                                <Button
-                                    severity="warn"
-                                    icon="pi pi-pen-to-square"
-                                    raised
-                                    size="small"
-                                    class="mr-2"
-                                    @click="openEdit(data)"
-                                />
-                                <Button
-                                    severity="danger"
-                                    raised
-                                    icon="pi pi-trash"
-                                    size="small"
-                                    class="mr-2"
-                                    @click="openDelete(data)"
-                                />
-                            </div>
-                        </template>
-                    </Column>
-                </BasedDataTable>
-            </div>
-        </div>
+    <AdminPage
+        title="Educations"
+        description="Manage your education history."
+        :breadcrumbs="breadcrumbs"
+    >
+        <BasedDataTable
+            :value="educations || []"
+            :total-records="educations?.length || 0"
+            :global-filter-fields="globalFields"
+            create-label="New Education"
+            search-placeholder="Search educations…"
+            min-width="52rem"
+            @create="openCreate"
+        >
+            <Column field="institution" header="Institution" sortable>
+                <template #body="{ data }">
+                    <span class="font-semibold text-foreground">{{
+                        data.institution
+                    }}</span>
+                </template>
+            </Column>
+            <Column field="major" header="Major" sortable />
+            <Column field="title" header="Title" sortable />
+            <Column field="start" header="Start" sortable>
+                <template #body="{ data }">
+                    <span class="tabular-nums">{{
+                        yearOf(data.start) ?? '-'
+                    }}</span>
+                </template>
+            </Column>
+            <Column field="end" header="End" sortable>
+                <template #body="{ data }">
+                    <span class="tabular-nums">{{
+                        yearOf(data.end) ?? 'Present'
+                    }}</span>
+                </template>
+            </Column>
+            <Column header="Action" frozen align-frozen="right">
+                <template #body="{ data }">
+                    <RowActions
+                        :name="data.institution"
+                        @edit="openEdit(data)"
+                        @delete="confirmDelete(data)"
+                    />
+                </template>
+            </Column>
+        </BasedDataTable>
 
         <DialogForm
-            maximizable
-            width="40rem"
             v-model:visible="visible"
             :title="mode === 'create' ? 'New Education' : 'Edit Education'"
+            :processing="form.processing"
+            @submit="submit"
+            @cancel="closeForm"
         >
-            <form
-                @submit.prevent="submit"
-                class="grid grid-cols-2 gap-6 md:grid-cols-2"
+            <FormField
+                v-slot="{ id, invalid }"
+                id="education-institution"
+                label="Institution"
+                :error="form.errors.institution"
+                required
             >
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Institution</label>
-                    <InputText
-                        v-model="form.institution"
-                        size="small"
-                        placeholder="Institution"
-                        required
-                    />
-                    <small v-if="form.errors.institution" class="text-red-500">
-                        {{ form.errors.institution }}
-                    </small>
-                </div>
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Major</label>
-                    <InputText
-                        v-model="form.major"
-                        size="small"
-                        placeholder="Major"
-                        required
-                    />
-                    <small v-if="form.errors.major" class="text-red-500">
-                        {{ form.errors.major }}
-                    </small>
-                </div>
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Title</label>
-                    <InputText
-                        v-model="form.title"
-                        size="small"
-                        placeholder="Title"
-                        required
-                    />
-                    <small v-if="form.errors.title" class="text-red-500">
-                        {{ form.errors.title }}
-                    </small>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <label>Start</label>
-                    <DatePicker
-                        v-model="form.start"
-                        showIcon
-                        size="small"
-                        placeholder="Pick a start year"
-                        :view="'year'"
-                        :yearNavigator="true"
-                        :monthNavigator="false"
-                        dateFormat="yy"
-                    />
-                </div>
+                <InputText
+                    :id="id"
+                    v-model="form.institution"
+                    :invalid="invalid"
+                    placeholder="Institution"
+                    required
+                />
+            </FormField>
 
-                <div class="flex flex-col gap-2">
-                    <label>End</label>
-                    <DatePicker
-                        v-model="form.end"
-                        :disabled="isPresent"
-                        showIcon
-                        size="small"
-                        placeholder="Pick month & year"
-                        :view="'year'"
-                        :yearNavigator="true"
-                        :monthNavigator="false"
-                        dateFormat="yy"
-                    />
+            <FormField
+                v-slot="{ id, invalid }"
+                id="education-major"
+                label="Major"
+                :error="form.errors.major"
+                :full="false"
+                required
+            >
+                <InputText
+                    :id="id"
+                    v-model="form.major"
+                    :invalid="invalid"
+                    placeholder="Major"
+                    required
+                />
+            </FormField>
 
-                    <label class="mt-2 flex items-center gap-2 text-sm">
-                        <input type="checkbox" v-model="isPresent" />
+            <FormField
+                v-slot="{ id, invalid }"
+                id="education-title"
+                label="Title"
+                :error="form.errors.title"
+                :full="false"
+                required
+            >
+                <InputText
+                    :id="id"
+                    v-model="form.title"
+                    :invalid="invalid"
+                    placeholder="Title"
+                    required
+                />
+            </FormField>
+
+            <FormField
+                v-slot="{ id, invalid }"
+                id="education-start"
+                label="Start"
+                :error="form.errors.start"
+                :full="false"
+            >
+                <DatePicker
+                    v-model="form.start"
+                    :input-id="id"
+                    :invalid="invalid"
+                    show-icon
+                    view="year"
+                    date-format="yy"
+                    placeholder="Pick a start year"
+                />
+            </FormField>
+
+            <FormField
+                v-slot="{ id, invalid }"
+                id="education-end"
+                label="End"
+                :error="form.errors.end"
+                :full="false"
+            >
+                <DatePicker
+                    v-model="form.end"
+                    :input-id="id"
+                    :invalid="invalid"
+                    :disabled="isPresent"
+                    show-icon
+                    view="year"
+                    date-format="yy"
+                    placeholder="Pick an end year"
+                />
+                <div class="flex items-center gap-2">
+                    <Checkbox
+                        v-model="isPresent"
+                        input-id="education-present"
+                        binary
+                    />
+                    <label for="education-present" class="text-sm">
                         Present
                     </label>
                 </div>
-
-                <div class="flex justify-end gap-3 md:col-span-2">
-                    <Button
-                        label="Cancel"
-                        severity="secondary"
-                        @click="closeDialogForm"
-                    />
-                    <Button
-                        type="submit"
-                        label="Save"
-                        severity="success"
-                        :loading="form.processing"
-                        :disabled="form.processing"
-                        class="!font-bold"
-                    />
-                </div>
-            </form>
+            </FormField>
         </DialogForm>
-        <Dialog v-model:visible="isDelete" header="Delete Education" modal>
-            <p>Are you sure you want to delete this education?</p>
-
-            <template #footer>
-                <Button
-                    label="Cancel"
-                    severity="secondary"
-                    @click="closeDialogDelete"
-                />
-                <Button
-                    icon="pi pi-trash"
-                    :loading="form.processing"
-                    :disabled="form.processing"
-                    label="Delete"
-                    severity="danger"
-                    @click="deleteEducation"
-                />
-            </template>
-        </Dialog>
-    </AppLayout>
+    </AdminPage>
 </template>

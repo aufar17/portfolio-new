@@ -1,101 +1,139 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import logo from '@/assets/img/logo.png';
+import { shouldShowSplash, useSplash } from '@/composables/useSplash';
+import { gsap } from '@/motion/gsap';
+import { endSplash, expectSplash, registerSplash } from '@/motion/intro';
+import { getLenis } from '@/motion/lenis';
+import { useMotion } from '@/motion/useMotion';
 
-const hasShown = sessionStorage.getItem('splash-shown');
-const isVisible = ref(!hasShown);
+const { finishSplash } = useSplash();
+const isVisible = ref(shouldShowSplash());
 
-const progress = ref(0);
-const emit = defineEmits(['done']);
+const root = ref<HTMLElement | null>(null);
+const mark = ref<HTMLElement | null>(null);
+const title = ref<HTMLElement | null>(null);
+const track = ref<HTMLElement | null>(null);
+const bar = ref<HTMLElement | null>(null);
+
+if (isVisible.value) {
+    expectSplash();
+}
+
+const done = () => {
+    isVisible.value = false;
+    document.documentElement.style.overflow = '';
+    getLenis()?.start();
+    finishSplash();
+    endSplash();
+};
+
+/** Centre of the hero robot, where the closing circle lands. */
+const introPoint = () => {
+    const rect = document
+        .querySelector('[data-intro-target]')
+        ?.getBoundingClientRect();
+
+    return rect
+        ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+        : { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+};
 
 onMounted(() => {
-    if (!hasShown) {
-        const interval = setInterval(() => {
-            progress.value += 3;
-
-            if (progress.value >= 100) {
-                clearInterval(interval);
-
-                setTimeout(() => {
-                    isVisible.value = false;
-                    sessionStorage.setItem('splash-shown', 'true');
-                    emit('done');
-                }, 300);
-            }
-        }, 40);
+    if (!isVisible.value) {
+        finishSplash();
+        endSplash();
     }
 });
+
+useMotion(root, () => {
+    document.documentElement.style.overflow = 'hidden';
+    getLenis()?.stop();
+
+    const radius = Math.hypot(window.innerWidth, window.innerHeight);
+    let point = { x: 0, y: 0 };
+
+    const timeline = gsap.timeline();
+
+    timeline
+        .from(mark.value, { opacity: 0, scale: 0.7, duration: 0.6 })
+        .from(title.value, { opacity: 0, y: 12, duration: 0.6 }, 0.15)
+        .from(bar.value, { scaleX: 0, duration: 1 }, 0.1)
+        .addLabel('exit', 1.2)
+        .to(
+            [mark.value, title.value, track.value],
+            { opacity: 0, y: -12, duration: 0.35, stagger: 0.04 },
+            'exit',
+        )
+        .call(
+            () => {
+                point = introPoint();
+            },
+            [],
+            'exit+=0.1',
+        )
+        .fromTo(
+            root.value,
+            {
+                clipPath: () =>
+                    `circle(${radius}px at ${point.x}px ${point.y}px)`,
+            },
+            {
+                clipPath: () => `circle(0px at ${point.x}px ${point.y}px)`,
+                duration: 0.8,
+                immediateRender: false,
+            },
+            'exit+=0.1',
+        )
+        .addLabel('reveal', 'exit+=0.45')
+        .call(done, [], 'exit+=0.9');
+
+    registerSplash(timeline);
+});
 </script>
-<style scoped>
-@keyframes loadingBar {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(200%);
-    }
-}
 
-.animate-loading-bar {
-    animation: loadingBar 1.2s ease-in-out infinite;
-}
-</style>
 <template>
-    <transition name="fade">
+    <div
+        v-if="isVisible"
+        ref="root"
+        class="fixed inset-0 z-[9999] grid place-items-center overflow-hidden bg-background px-4"
+        role="status"
+        aria-label="Loading portfolio"
+    >
         <div
-            v-if="isVisible"
-            class="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-neutral-900 to-black px-4 text-white"
-        >
-            <!-- Blur background -->
+            class="pointer-events-none absolute size-[24rem] -translate-x-24 -translate-y-16 rounded-full bg-primary/25 blur-[100px]"
+            aria-hidden="true"
+        />
+        <div
+            class="pointer-events-none absolute size-[24rem] translate-x-24 translate-y-16 rounded-full bg-brand-red/20 blur-[100px]"
+            aria-hidden="true"
+        />
+
+        <div class="relative flex flex-col items-center text-center">
             <div
-                class="bg-primary-500/30 absolute h-56 w-56 rounded-full blur-[100px] sm:h-64 sm:w-64 sm:blur-[110px] md:h-80 md:w-80 md:blur-[120px]"
-            ></div>
+                ref="mark"
+                class="grid size-24 place-items-center rounded-full surface-glass sm:size-28"
+            >
+                <img :src="logo" alt="" class="h-14 w-auto sm:h-16" />
+            </div>
+
+            <p
+                ref="title"
+                class="mt-6 text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
+            >
+                Aufar's Portfolio
+            </p>
 
             <div
-                class="absolute h-56 w-56 rounded-full bg-blue-500/20 blur-[110px] sm:h-64 sm:w-64 sm:blur-[120px] md:h-80 md:w-80 md:blur-[140px]"
-            ></div>
-
-            <!-- Content -->
-            <div class="relative z-10 flex flex-col items-center text-center">
-                <!-- Logo -->
+                ref="track"
+                class="mt-6 h-1 w-40 overflow-hidden rounded-full bg-muted sm:w-48"
+                aria-hidden="true"
+            >
                 <div
-                    class="animate-fade-up relative flex h-20 w-20 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-lg backdrop-blur-xl sm:h-24 sm:w-24 md:h-32 md:w-32"
-                >
-                    <img
-                        :src="logo"
-                        alt="logo"
-                        class="h-12 w-auto object-contain sm:h-14 md:h-20"
-                    />
-                </div>
-
-                <!-- Title -->
-                <h1
-                    class="animate-fade-up mt-4 bg-gradient-to-r from-white to-white/60 bg-clip-text text-xl font-bold tracking-tight text-transparent sm:mt-5 sm:text-2xl md:mt-6 md:text-5xl"
-                >
-                    Aufar's Portfolio
-                </h1>
-
-                <!-- Loading -->
-                <div class="mx-auto mt-6 w-32 sm:mt-7 sm:w-40 md:mt-8 md:w-52">
-                    <p
-                        class="mb-1 text-center text-[10px] tracking-widest text-white/50 sm:mb-2 sm:text-[11px]"
-                    >
-                        Loading...
-                    </p>
-
-                    <div
-                        class="relative h-[2px] w-full overflow-hidden rounded-full bg-white/10 sm:h-[3px]"
-                    >
-                        <div
-                            class="animate-loading-bar h-full w-1/2 rounded-full bg-white"
-                        ></div>
-
-                        <div
-                            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-40 blur-sm"
-                        ></div>
-                    </div>
-                </div>
+                    ref="bar"
+                    class="h-full origin-left rounded-full bg-primary"
+                />
             </div>
         </div>
-    </transition>
+    </div>
 </template>

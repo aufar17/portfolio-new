@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
-import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DatePicker from 'primevue/datepicker';
-import Dialog from 'primevue/dialog';
-import FileUpload from 'primevue/fileupload';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
 import InputText from 'primevue/inputtext';
 import RadioButton from 'primevue/radiobutton';
+import Tag from 'primevue/tag';
 import Textarea from 'primevue/textarea';
 import ToggleSwitch from 'primevue/toggleswitch';
+import AdminPage from '@/components/admin/AdminPage.vue';
 import DialogForm from '@/components/admin/DialogForm.vue';
+import FormField from '@/components/admin/FormField.vue';
+import ImagePreviewDialog from '@/components/admin/ImagePreviewDialog.vue';
+import ImageUploadField from '@/components/admin/ImageUploadField.vue';
+import RowActions from '@/components/admin/RowActions.vue';
 import BasedDataTable from '@/components/ui/table/BasedDataTable.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
+import { storageUrl } from '@/lib/utils';
 import { awardsAdmin } from '@/routes';
 import { useAwardScript } from '@/script/admin/awards';
 import type { BreadcrumbItem } from '@/types';
@@ -26,291 +26,238 @@ const props = defineProps<{
     awards: any[];
 }>();
 
+const typeOptions = [
+    { label: 'Award', value: false },
+    { label: 'Certification', value: true },
+];
+
 const {
     visible,
-    photoModalVisible,
     mode,
-    selectedPhoto,
-    isDelete,
+    selected,
     form,
     globalFields,
-    handleFile,
+    photoModalVisible,
+    selectedPhoto,
+    openPhotoModal,
     openCreate,
     openEdit,
-    openDelete,
-    openPhotoModal,
-    closeDialogForm,
-    closeDialogDelete,
+    closeForm,
     submit,
-    deleteAward,
+    confirmDelete,
+    handleFile,
     toggleStatus,
 } = useAwardScript(props.awards);
 </script>
 
 <template>
-    <Head />
-
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-4">
-            <div class="rounded-xl border bg-background p-4 shadow-sm">
-                <h2
-                    class="m-2 text-xl font-semibold text-primary dark:text-white"
-                >
-                    Awards Data
-                </h2>
-                <BasedDataTable
-                    :value="awards || []"
-                    :totalRecords="awards?.length || 0"
-                    :globalFilterFields="globalFields"
-                >
-                    <template #header="{ filters }">
-                        <div class="flex justify-between gap-4">
-                            <Button
-                                label="New Award"
-                                raised
-                                icon="pi pi-plus"
-                                size="small"
-                                @click="openCreate"
-                            />
-
-                            <IconField class="w-72">
-                                <InputIcon>
-                                    <i class="pi pi-search" />
-                                </InputIcon>
-                                <InputText
-                                    v-model="filters.global.value"
-                                    placeholder="Search"
-                                    class="p-inputtext-sm"
-                                />
-                            </IconField>
-                        </div>
-                    </template>
-
-                    <Column header="No." sortable>
-                        <template #body="{ index }">
-                            {{ index + 1 }}
-                        </template>
-                    </Column>
-                    <Column field="title" header="Title" sortable>
-                        <template> </template
-                    ></Column>
-                    <Column field="type" header="Type" sortable>
-                        <template #body="{ data }">
-                            <span
-                                class="rounded-full bg-black px-2 py-1 text-xs font-semibold text-white dark:bg-white dark:text-black"
-                                >{{ data.type ? 'Certs' : 'Awards' }}</span
-                            >
-                        </template>
-                    </Column>
-                    <Column field="description" header="Description" sortable>
-                    </Column>
-                    <Column field="issuer" header="Issuer" sortable> </Column>
-
-                    <Column field="date_format" header="Date" sortable>
-                    </Column>
-                    <Column field="photo" header="Photo" sortable>
-                        <template #body="{ data }">
-                            <Button
-                                @click="openPhotoModal(data.photo)"
-                                label="Photo"
-                                icon="pi pi-eye"
-                                size="small" /></template
-                    ></Column>
-                    <Column field="status" header="Status">
-                        <template #body="{ data }">
-                            <ToggleSwitch
-                                :modelValue="data.status"
-                                @update:modelValue="
-                                    (val) => toggleStatus(data, val)
-                                "
-                            />
-                        </template>
-                    </Column>
-                    <Column header="Action">
-                        <template #body="{ data }">
-                            <div class="flex">
-                                <Button
-                                    severity="warn"
-                                    icon="pi pi-pen-to-square"
-                                    raised
-                                    size="small"
-                                    class="mr-2"
-                                    @click="openEdit(data)"
-                                />
-                                <Button
-                                    severity="danger"
-                                    raised
-                                    icon="pi pi-trash"
-                                    size="small"
-                                    class="mr-2"
-                                    @click="openDelete(data)"
-                                />
-                            </div>
-                        </template>
-                    </Column>
-                </BasedDataTable>
-            </div>
-        </div>
+    <AdminPage
+        title="Awards"
+        description="Manage awards and certifications."
+        :breadcrumbs="breadcrumbs"
+    >
+        <BasedDataTable
+            :value="awards || []"
+            :total-records="awards?.length || 0"
+            :global-filter-fields="globalFields"
+            create-label="New Award"
+            search-placeholder="Search awards…"
+            min-width="64rem"
+            @create="openCreate"
+        >
+            <Column field="title" header="Title" sortable>
+                <template #body="{ data }">
+                    <span class="font-semibold text-foreground">{{
+                        data.title
+                    }}</span>
+                </template>
+            </Column>
+            <Column field="type" header="Type" sortable>
+                <template #body="{ data }">
+                    <Tag
+                        :value="data.type ? 'Certs' : 'Awards'"
+                        :severity="data.type ? 'info' : 'secondary'"
+                        rounded
+                    />
+                </template>
+            </Column>
+            <Column field="description" header="Description" sortable>
+                <template #body="{ data }">
+                    <p class="line-clamp-2 max-w-xs text-muted-foreground">
+                        {{ data.description }}
+                    </p>
+                </template>
+            </Column>
+            <Column field="issuer" header="Issuer" sortable />
+            <Column field="date_format" header="Date" sortable />
+            <Column header="Photo">
+                <template #body="{ data }">
+                    <button
+                        type="button"
+                        class="grid size-12 place-items-center overflow-hidden rounded-lg border border-border bg-muted focus-ring"
+                        :aria-label="`View photo of ${data.title}`"
+                        @click="openPhotoModal(data.photo)"
+                    >
+                        <img
+                            v-if="data.photo"
+                            :src="storageUrl(data.photo)!"
+                            alt=""
+                            class="size-full object-cover"
+                        />
+                        <i
+                            v-else
+                            class="pi pi-image text-muted-foreground"
+                            aria-hidden="true"
+                        />
+                    </button>
+                </template>
+            </Column>
+            <Column field="status" header="Status">
+                <template #body="{ data }">
+                    <ToggleSwitch
+                        :model-value="data.status"
+                        :aria-label="`Publish ${data.title}`"
+                        @update:model-value="(val) => toggleStatus(data, val)"
+                    />
+                </template>
+            </Column>
+            <Column header="Action" frozen align-frozen="right">
+                <template #body="{ data }">
+                    <RowActions
+                        :name="data.title"
+                        @edit="openEdit(data)"
+                        @delete="confirmDelete(data)"
+                    />
+                </template>
+            </Column>
+        </BasedDataTable>
 
         <DialogForm
-            maximizable
-            width="40rem"
             v-model:visible="visible"
             :title="mode === 'create' ? 'New Award' : 'Edit Award'"
+            :processing="form.processing"
+            @submit="submit"
+            @cancel="closeForm"
         >
-            <form
-                @submit.prevent="submit"
-                class="grid grid-cols-2 gap-6 md:grid-cols-2"
+            <FormField
+                v-slot="{ id, invalid }"
+                id="award-title"
+                label="Title"
+                :error="form.errors.title"
+                required
             >
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Title</label>
-                    <InputText
-                        v-model="form.title"
-                        size="small"
-                        placeholder="Title"
-                        required
-                    />
-                    <small v-if="form.errors.title" class="text-red-500">
-                        {{ form.errors.title }}
-                    </small>
-                </div>
-                <div class="col-span-2 flex flex-col gap-3">
-                    <label class="font-semibold">Type</label>
-                    <div class="flex items-center gap-6">
-                        <div
-                            v-for="(option, i) in [
-                                { label: 'Award', value: false },
-                                { label: 'Certification', value: true },
-                            ]"
-                            :key="i"
-                            class="flex items-center gap-2"
+                <InputText
+                    :id="id"
+                    v-model="form.title"
+                    :invalid="invalid"
+                    placeholder="Title"
+                    required
+                />
+            </FormField>
+
+            <fieldset class="flex flex-col gap-2 md:col-span-2">
+                <legend class="mb-2 text-sm font-semibold text-foreground">
+                    Type
+                    <span class="text-destructive" aria-hidden="true">*</span>
+                </legend>
+                <div class="flex flex-wrap items-center gap-6">
+                    <div
+                        v-for="option in typeOptions"
+                        :key="option.label"
+                        class="flex items-center gap-2"
+                    >
+                        <RadioButton
+                            v-model="form.type"
+                            :input-id="`award-type-${option.value}`"
+                            name="type"
+                            :value="option.value"
+                            :invalid="!!form.errors.type"
+                        />
+                        <label
+                            :for="`award-type-${option.value}`"
+                            class="text-sm"
                         >
-                            <RadioButton
-                                v-model="form.type"
-                                :inputId="'type' + option.value"
-                                name="type"
-                                :value="option.value"
-                            />
-                            <label :for="'type' + option.value">
-                                {{ option.label }}
-                            </label>
-                        </div>
+                            {{ option.label }}
+                        </label>
                     </div>
-                    <small v-if="form.errors.type" class="text-red-500">
-                        {{ form.errors.type }}
-                    </small>
                 </div>
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Description</label>
-                    <Textarea
-                        v-model="form.description"
-                        size="small"
-                        rows="2"
-                        placeholder="Description"
-                        required
-                    />
-                    <small v-if="form.errors.description" class="text-red-500">
-                        {{ form.errors.description }}
-                    </small>
-                </div>
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Issuer</label>
-                    <InputText
-                        v-model="form.issuer"
-                        size="small"
-                        placeholder="Issuer"
-                        required
-                    />
-                    <small v-if="form.errors.issuer" class="text-red-500">
-                        {{ form.errors.issuer }}
-                    </small>
-                </div>
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Date</label>
-                    <DatePicker
-                        v-model="form.date"
-                        showIcon
-                        size="small"
-                        placeholder="Date"
-                        required
-                    />
-                    <small v-if="form.errors.date" class="text-red-500">
-                        {{ form.errors.date }}
-                    </small>
-                </div>
+                <p
+                    v-if="form.errors.type"
+                    class="text-sm font-medium text-destructive"
+                    role="alert"
+                >
+                    {{ form.errors.type }}
+                </p>
+            </fieldset>
 
-                <div class="col-span-2 flex flex-col gap-2">
-                    <label class="font-semibold">Photo</label>
-                    <FileUpload
-                        mode="advanced"
-                        accept="image/*"
-                        :maxFileSize="1000000"
-                        chooseLabel="Upload Image"
-                        cancelLabel="Cancel"
-                        cancelIcon="pi pi-times"
-                        @select="handleFile"
-                        :customUpload="true"
-                        :auto="false"
-                    />
-                    <small v-if="form.errors.photo" class="text-red-500">
-                        {{ form.errors.photo }}
-                    </small>
-                </div>
-
-                <div class="flex justify-end gap-3 md:col-span-2">
-                    <Button
-                        label="Cancel"
-                        severity="secondary"
-                        @click="closeDialogForm"
-                    />
-                    <Button
-                        type="submit"
-                        label="Save"
-                        severity="success"
-                        :loading="form.processing"
-                        :disabled="form.processing"
-                        class="!font-bold"
-                    />
-                </div>
-            </form>
-        </DialogForm>
-        <Dialog v-model:visible="isDelete" header="Delete Award" modal>
-            <p>Are you sure you want to delete this award?</p>
-
-            <template #footer>
-                <Button
-                    label="Cancel"
-                    severity="secondary"
-                    @click="closeDialogDelete"
+            <FormField
+                v-slot="{ id, invalid }"
+                id="award-description"
+                label="Description"
+                :error="form.errors.description"
+                required
+            >
+                <Textarea
+                    :id="id"
+                    v-model="form.description"
+                    :invalid="invalid"
+                    rows="3"
+                    auto-resize
+                    placeholder="Description"
+                    required
                 />
-                <Button
-                    icon="pi pi-trash"
-                    :loading="form.processing"
-                    :disabled="form.processing"
-                    label="Delete"
-                    severity="danger"
-                    @click="deleteAward"
+            </FormField>
+
+            <FormField
+                v-slot="{ id, invalid }"
+                id="award-issuer"
+                label="Issuer"
+                :error="form.errors.issuer"
+                :full="false"
+                required
+            >
+                <InputText
+                    :id="id"
+                    v-model="form.issuer"
+                    :invalid="invalid"
+                    placeholder="Issuer"
+                    required
                 />
-            </template>
-        </Dialog>
-        <Dialog
-            v-model:visible="photoModalVisible"
-            modal
-            :closable="true"
-            header="Image"
-            contentClass="p-0 bg-transparent shadow-none"
-            :pt="{
-                mask: { class: 'bg-black/80 backdrop-blur-sm' },
-            }"
-        >
-            <img
-                v-if="selectedPhoto"
-                :src="`/storage/${selectedPhoto}`"
-                alt="image"
-                class="block max-h-[70vh] max-w-[70vw] rounded-lg object-contain shadow-2xl"
+            </FormField>
+
+            <FormField
+                v-slot="{ id, invalid }"
+                id="award-date"
+                label="Date"
+                :error="form.errors.date"
+                :full="false"
+                required
+            >
+                <DatePicker
+                    v-model="form.date"
+                    :input-id="id"
+                    :invalid="invalid"
+                    show-icon
+                    placeholder="Date"
+                    required
+                />
+            </FormField>
+
+            <ImageUploadField
+                id="award-photo"
+                label="Photo"
+                :current-src="
+                    mode === 'edit' ? storageUrl(selected?.photo) : null
+                "
+                :error="form.errors.photo"
+                @select="handleFile"
             />
+        </DialogForm>
 
-            <span v-else class="text-white">No image</span>
-        </Dialog>
-    </AppLayout>
+        <ImagePreviewDialog
+            v-model:visible="photoModalVisible"
+            :src="selectedPhoto"
+            title="Award photo"
+        />
+    </AdminPage>
 </template>

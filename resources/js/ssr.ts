@@ -5,14 +5,15 @@ import type { DefineComponent } from 'vue';
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Portfolio';
+const appName = 'Muammar Aufar Prasetya';
 
 createServer(
     (page) =>
         createInertiaApp({
             page,
             render: renderToString,
-            title: (title) => (title ? `${title} - ${appName}` : appName),
+            title: (title) =>
+                title ? `${title} · ${appName}` : `${appName} | Portfolio`,
             resolve: (name) =>
                 resolvePageComponent(
                     `./pages/${name}.vue`,

@@ -1,133 +1,57 @@
-import { useForm } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
+import { useCrudResource } from '@/composables/useCrudResource';
 
-export function useWorkScript(works: any) {
-    const route = window.route;
+const toDateString = (value: Date | string | null) =>
+    value ? new Date(value).toISOString().split('T')[0] : null;
 
-    const visible = ref(false);
-    const mode = ref<'create' | 'edit'>('create');
-    const selectedData = ref<any>(null);
-    const isDelete = ref(false);
+export function useWorkScript(works: any[]) {
     const isPresent = ref(false);
 
-    const excluded = ['id', 'created_at', 'updated_at'];
-
-    const globalFields = computed(() => {
-        if (!works.length) {
-            return [];
-        }
-
-        return Object.keys(works[0]).filter(
-            (key) =>
-                typeof works[0][key] !== 'object' && !excluded.includes(key),
-        );
-    });
-
-    const form = useForm({
-        company: '',
-        role: '',
-        status: '',
-        desc: '',
-        start: null as Date | null,
-        end: null as Date | null,
+    const crud = useCrudResource({
+        entity: 'Work',
+        items: () => works,
+        routes: {
+            create: 'create-work',
+            update: 'update-work',
+            delete: 'delete-work',
+        },
+        initial: {
+            company: '',
+            role: '',
+            status: '',
+            desc: '',
+            start: null as Date | null,
+            end: null as Date | null,
+        },
+        fill: (data) => ({
+            company: data.company,
+            role: data.role,
+            status: data.status,
+            desc: data.desc,
+            start: data.start ? new Date(data.start) : null,
+            end: data.end ? new Date(data.end) : null,
+        }),
+        transform: (data) => ({
+            ...data,
+            start: toDateString(data.start),
+            end: toDateString(data.end),
+        }),
     });
 
     const openCreate = () => {
-        mode.value = 'create';
-        selectedData.value = null;
-        form.reset();
-        visible.value = true;
-    };
-
-    const openEdit = (data: any) => {
-        mode.value = 'edit';
-        selectedData.value = data;
-
-        form.company = data.company;
-        form.role = data.role;
-        form.status = data.status;
-        form.desc = data.desc;
-        form.start = data.start ? new Date(data.start) : null;
-        form.end = data.end ? new Date(data.end) : null;
-
-        visible.value = true;
-    };
-
-    const openDelete = (data: any) => {
-        selectedData.value = data;
-        isDelete.value = true;
-    };
-
-    const closeDialogForm = () => {
-        visible.value = false;
-        form.reset();
-        form.clearErrors();
-    };
-
-    const closeDialogDelete = () => {
-        isDelete.value = false;
-        form.reset();
-        form.clearErrors();
-    };
-
-    const submit = () => {
-        form.transform((data) => ({
-            ...data,
-            start: data.start
-                ? new Date(data.start).toISOString().split('T')[0]
-                : null,
-            end: data.end
-                ? new Date(data.end).toISOString().split('T')[0]
-                : null,
-        }));
-
-        if (mode.value === 'create') {
-            form.post(route('create-work'), {
-                forceFormData: true,
-                onSuccess: closeDialogForm,
-            });
-        } else {
-            if (!selectedData.value?.id) {
-                return;
-            }
-
-            form.put(route('update-work', selectedData.value.id), {
-                forceFormData: true,
-                onSuccess: closeDialogForm,
-            });
-        }
-    };
-
-    const deleteWork = () => {
-        if (!selectedData.value?.id) {
-            return;
-        }
-
-        form.delete(route('delete-work', selectedData.value.id), {
-            onSuccess: closeDialogDelete,
-        });
+        isPresent.value = false;
+        crud.openCreate();
     };
 
     watch(isPresent, (val) => {
         if (val) {
-            form.end = null;
+            crud.form.end = null;
         }
     });
 
     return {
-        visible,
-        mode,
-        selectedData,
-        isDelete,
-        isPresent,
-        globalFields,
-        form,
+        ...crud,
         openCreate,
-        openEdit,
-        openDelete,
-        closeDialogForm,
-        closeDialogDelete,
-        submit,
-        deleteWork,
+        isPresent,
     };
 }
