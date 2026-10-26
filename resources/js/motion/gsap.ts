@@ -1,5 +1,6 @@
 import { gsap } from 'gsap';
 import { CustomEase } from 'gsap/CustomEase';
+import { Draggable } from 'gsap/Draggable';
 import { Flip } from 'gsap/Flip';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
@@ -10,7 +11,7 @@ import { SplitText } from 'gsap/SplitText';
  * once, and so the admin bundle never pulls GSAP in.
  */
 if (typeof window !== 'undefined') {
-    gsap.registerPlugin(ScrollTrigger, SplitText, Flip, CustomEase);
+    gsap.registerPlugin(ScrollTrigger, SplitText, Flip, CustomEase, Draggable);
 
     // The one brand easing, same curve as the CSS `--ease-out-expo` token.
     CustomEase.create('brand', '0.22, 1, 0.36, 1');
@@ -55,4 +56,4 @@ export function releaseTransforms(targets: gsap.TweenTarget) {
     });
 }
 
-export { CustomEase, Flip, gsap, ScrollTrigger, SplitText };
+export { CustomEase, Draggable, Flip, gsap, ScrollTrigger, SplitText };

@@ -11,7 +11,7 @@ import { projectDetail } from '@/routes';
 const props = withDefaults(
     defineProps<{
         project: any;
-        variant?: 'stack' | 'card';
+        variant?: 'deck' | 'card';
     }>(),
     {
         variant: 'card',
@@ -35,28 +35,40 @@ useTilt(computed(() => (link.value?.$el as HTMLElement | undefined) ?? null));
 </script>
 
 <template>
-    <!-- Stack card: wide, opaque so stacked cards don't show through -->
+    <!-- Deck card: upright below lg, image beside the text from lg; opaque so
+         stacked cards don't show through. Native link/image dragging is off
+         so the deck can drag the card. -->
     <Link
         ref="link"
-        v-if="variant === 'stack'"
+        v-if="variant === 'deck'"
         :href="projectDetail(project.slug).url"
         view-transition
+        draggable="false"
         @before="shareMedia"
-        class="group relative grid h-full overflow-hidden rounded-3xl border border-surface-border bg-card shadow-elevated focus-ring md:grid-cols-[1.15fr_1fr]"
+        class="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-surface-border bg-card shadow-elevated focus-ring lg:grid lg:min-h-[24rem] lg:grid-cols-[1fr_1.1fr]"
     >
         <div
             ref="mediaBox"
-            class="relative aspect-[16/10] overflow-hidden bg-muted md:aspect-auto"
+            class="relative aspect-[16/9] shrink-0 overflow-hidden bg-muted lg:aspect-auto"
         >
-            <div v-if="image" data-media class="size-full">
+            <!-- Absolute from lg so the text, not the image, sets the height -->
+            <div
+                v-if="image"
+                data-media
+                class="size-full lg:absolute lg:inset-0"
+            >
                 <img
                     :src="image"
                     :alt="project.title"
                     loading="lazy"
+                    draggable="false"
                     class="size-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-105"
                 />
             </div>
-            <div v-else class="grid size-full place-items-center">
+            <div
+                v-else
+                class="grid size-full place-items-center lg:absolute lg:inset-0"
+            >
                 <MonitorCog
                     class="size-16 text-muted-foreground/60"
                     aria-hidden="true"
@@ -64,7 +76,7 @@ useTilt(computed(() => (link.value?.$el as HTMLElement | undefined) ?? null));
             </div>
         </div>
 
-        <div class="flex flex-col p-6 sm:p-8 md:p-10">
+        <div class="flex flex-1 flex-col p-6 sm:p-7">
             <p
                 v-if="project.date_range"
                 class="text-xs font-semibold tracking-wider text-brand-red-strong uppercase"

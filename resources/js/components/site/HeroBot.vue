@@ -1,45 +1,179 @@
 <script setup lang="ts">
-import { ref, useId } from 'vue';
-import { gsap } from '@/motion/gsap';
+import { onBeforeUnmount, ref } from 'vue';
+import { gsap, prefersReducedMotion } from '@/motion/gsap';
 import { useMotion } from '@/motion/useMotion';
+import type { BotGesture } from '@/script/landingPage/botDialog';
 
 /**
- * Hero mascot: a small hovering robot drawn in SVG, coloured only through
- * theme tokens. It floats and blinks on its own, follows the cursor with its
- * eyes, squints when hovered and hops + waves when clicked. Decorative, so
- * hidden from assistive tech. The hero drives its entrance via `prepare()`
- * and `enter()`.
+ * Hero mascot "Abot": a robot whose frame is the capital "A" of the logo,
+ * drawn in SVG and coloured only through theme tokens. The counter of the A
+ * is its visor, the crossbar its shoulders (arms hang from the ends) and the
+ * legs of the A are its legs. Like the logo, the left leg is a circuit panel
+ * and the right one a solid slab.
+ *
+ * It stands, breathes and blinks on its own, follows the cursor with its eyes
+ * and squints when hovered. It is the button that opens its introduction
+ * dialog (the hero handles the click); while the dialog runs the hero drives
+ * `speak()`, `gesture()` and `react()`. The entrance is driven via
+ * `prepare()` and `enter()`. Gestures are skipped under reduced motion.
  */
-const glowId = `herobot-glow-${useId()}`;
+defineProps<{
+    expanded: boolean;
+    controls: string;
+}>();
 
-const root = ref<HTMLElement | null>(null);
-const hop = ref<SVGGElement | null>(null);
-const float = ref<SVGGElement | null>(null);
-const head = ref<SVGGElement | null>(null);
+// Pivots in viewBox units, so rotations stay put whatever the rendered size.
+const SHOULDER_LEFT = '32 161';
+const SHOULDER_RIGHT = '188 161';
+const FEET = '110 212';
+
+const root = ref<HTMLButtonElement | null>(null);
+const body = ref<SVGGElement | null>(null);
+const visor = ref<SVGGElement | null>(null);
 const eyes = ref<SVGGElement | null>(null);
 const eyeLeft = ref<SVGRectElement | null>(null);
 const eyeRight = ref<SVGRectElement | null>(null);
-const arm = ref<SVGGElement | null>(null);
+const armLeft = ref<SVGGElement | null>(null);
+const armRight = ref<SVGGElement | null>(null);
+const antenna = ref<SVGGElement | null>(null);
 const halo = ref<SVGCircleElement | null>(null);
-const thruster = ref<SVGEllipseElement | null>(null);
 const shadow = ref<SVGEllipseElement | null>(null);
 
 const wave = () =>
     gsap
         .timeline()
-        .to(arm.value, {
-            rotation: -150,
-            transformOrigin: '50% 12%',
+        .to(armRight.value, {
+            rotation: -110,
+            svgOrigin: SHOULDER_RIGHT,
             duration: 0.35,
         })
-        .to(arm.value, {
-            rotation: -118,
+        .to(armRight.value, {
+            rotation: -80,
             duration: 0.18,
             repeat: 3,
             yoyo: true,
             ease: 'sine.inOut',
         })
-        .to(arm.value, { rotation: 0, duration: 0.45 });
+        .to(armRight.value, { rotation: 0, duration: 0.45 });
+
+const hop = () =>
+    gsap
+        .timeline()
+        .to(body.value, { y: -18, duration: 0.25 })
+        .to(body.value, { y: 0, duration: 0.5 })
+        .to(shadow.value, { scaleX: 0.7, svgOrigin: FEET, duration: 0.25 }, 0)
+        .to(shadow.value, { scaleX: 1, duration: 0.5 }, 0.25);
+
+const nod = () =>
+    gsap.timeline().to(visor.value, {
+        y: 4,
+        duration: 0.16,
+        repeat: 3,
+        yoyo: true,
+        ease: 'sine.inOut',
+    });
+
+/** Left arm towards the hero CTA: beside the robot from lg, below it otherwise. */
+const point = () => {
+    const angle = window.matchMedia('(min-width: 1024px)').matches ? 30 : -35;
+    const jab = angle > 0 ? 8 : -8;
+
+    return gsap
+        .timeline()
+        .to(armLeft.value, {
+            rotation: angle,
+            svgOrigin: SHOULDER_LEFT,
+            duration: 0.35,
+        })
+        .to(armLeft.value, {
+            rotation: angle + jab,
+            duration: 0.15,
+            repeat: 3,
+            yoyo: true,
+            ease: 'sine.inOut',
+        })
+        .to(armLeft.value, { rotation: 0, duration: 0.45 }, '+=0.6');
+};
+
+const dizzy = () =>
+    gsap
+        .timeline()
+        .fromTo(
+            body.value,
+            { rotation: -6, svgOrigin: FEET },
+            {
+                rotation: 6,
+                duration: 0.09,
+                repeat: 5,
+                yoyo: true,
+                ease: 'sine.inOut',
+            },
+        )
+        .to(body.value, { rotation: 0, duration: 0.2 })
+        .to(
+            eyes.value,
+            {
+                rotation: 360,
+                transformOrigin: '50% 50%',
+                duration: 0.8,
+                ease: 'none',
+            },
+            0,
+        )
+        .set(eyes.value, { rotation: 0 });
+
+const gestures: Record<BotGesture, () => gsap.core.Timeline> = {
+    wave,
+    hop,
+    nod,
+    point,
+};
+
+let current: gsap.core.Timeline | undefined;
+let talk: gsap.core.Tween | undefined;
+
+/** A new gesture first snaps the previous one to its (resting) end. */
+const play = (make: () => gsap.core.Timeline) => {
+    if (prefersReducedMotion()) {
+        return;
+    }
+
+    current?.progress(1).kill();
+    current = make();
+};
+
+const gesture = (name: BotGesture) => play(gestures[name]);
+
+/** Reaction to being clicked many times in a row. */
+const react = () => play(dizzy);
+
+/** The visor pulses while the dialog is typing. */
+const speak = (on: boolean) => {
+    talk?.kill();
+    talk = undefined;
+
+    if (prefersReducedMotion()) {
+        return;
+    }
+
+    talk = on
+        ? gsap.to(visor.value, {
+              scale: 1.05,
+              transformOrigin: '50% 60%',
+              duration: 0.12,
+              yoyo: true,
+              repeat: -1,
+              ease: 'sine.inOut',
+          })
+        : gsap.to(visor.value, { scale: 1, duration: 0.15 });
+};
+
+const focus = () => root.value?.focus({ preventScroll: true });
+
+onBeforeUnmount(() => {
+    current?.kill();
+    talk?.kill();
+});
 
 /** Hide before the intro plays (runs inside the hero's motion context). */
 const prepare = () => {
@@ -53,21 +187,21 @@ const enter = (timeline: gsap.core.Timeline, position: number) => {
         .add(wave(), position + 0.45);
 };
 
-defineExpose({ prepare, enter });
+defineExpose({ prepare, enter, gesture, react, speak, focus });
 
 useMotion(root, ({ reduce, desktop }) => {
     if (reduce) {
         return;
     }
 
-    const idle = { duration: 2.2, ease: 'sine.inOut', yoyo: true, repeat: -1 };
+    const idle = { duration: 2.4, ease: 'sine.inOut', yoyo: true, repeat: -1 };
 
-    gsap.to(float.value, { y: -7, ...idle });
-    gsap.to([thruster.value, shadow.value], {
-        scaleX: 0.72,
-        opacity: 0.5,
-        transformOrigin: '50% 50%',
+    gsap.to(body.value, { scaleY: 1.015, svgOrigin: FEET, ...idle });
+    gsap.to(antenna.value, {
+        rotation: 4,
+        svgOrigin: '110 26',
         ...idle,
+        duration: 1.8,
     });
     gsap.fromTo(
         halo.value,
@@ -99,10 +233,11 @@ useMotion(root, ({ reduce, desktop }) => {
         return () => blinkCall.kill();
     }
 
-    gsap.set(head.value, { transformOrigin: '50% 100%' });
     const eyesX = gsap.quickTo(eyes.value, 'x', { duration: 0.4 });
     const eyesY = gsap.quickTo(eyes.value, 'y', { duration: 0.4 });
-    const tilt = gsap.quickTo(head.value, 'rotation', { duration: 0.6 });
+    const visorX = gsap.quickTo(visor.value, 'x', { duration: 0.6 });
+    gsap.set(root.value, { transformOrigin: '50% 100%' });
+    const lean = gsap.quickTo(root.value, 'rotation', { duration: 0.6 });
 
     const onPointerMove = (event: PointerEvent) => {
         const rect = root.value!.getBoundingClientRect();
@@ -119,9 +254,10 @@ useMotion(root, ({ reduce, desktop }) => {
                 (window.innerHeight / 2),
         );
 
-        eyesX(dx * 6);
-        eyesY(dy * 4);
-        tilt(dx * 6);
+        eyesX(dx * 4);
+        eyesY(dy * 3);
+        visorX(dx * 1.5);
+        lean(dx * 3);
     };
 
     const squint = (amount: number) =>
@@ -134,220 +270,242 @@ useMotion(root, ({ reduce, desktop }) => {
 
     const onEnter = () => squint(0.45);
     const onLeave = () => squint(1);
-    const onClick = () => {
-        gsap.timeline()
-            .to(hop.value, { y: -18, duration: 0.25 })
-            .to(hop.value, { y: 0, duration: 0.5 });
-        wave();
-    };
 
     const el = root.value!;
     window.addEventListener('pointermove', onPointerMove, { passive: true });
     el.addEventListener('pointerenter', onEnter);
     el.addEventListener('pointerleave', onLeave);
-    el.addEventListener('click', onClick);
 
     return () => {
         blinkCall.kill();
         window.removeEventListener('pointermove', onPointerMove);
         el.removeEventListener('pointerenter', onEnter);
         el.removeEventListener('pointerleave', onLeave);
-        el.removeEventListener('click', onClick);
     };
 });
 </script>
 
 <template>
-    <div
+    <button
         ref="root"
-        data-intro-target
-        class="select-none [@media(pointer:fine)]:cursor-pointer"
-        aria-hidden="true"
+        type="button"
+        class="cursor-pointer touch-manipulation rounded-3xl select-none focus-ring"
+        aria-label="Talk to Abot"
+        :aria-expanded="expanded"
+        :aria-controls="expanded ? controls : undefined"
     >
         <svg
-            viewBox="0 0 160 196"
-            class="h-28 w-auto overflow-visible drop-shadow-[0_14px_24px_color-mix(in_oklab,var(--primary)_22%,transparent)] sm:h-32 md:h-36"
+            aria-hidden="true"
+            viewBox="0 -12 220 240"
+            class="block h-28 w-auto overflow-visible drop-shadow-[0_14px_24px_color-mix(in_oklab,var(--primary)_22%,transparent)] sm:h-32 md:h-36 lg:h-72 xl:h-80"
         >
-            <defs>
-                <filter
-                    :id="glowId"
-                    x="-50%"
-                    y="-200%"
-                    width="200%"
-                    height="500%"
-                >
-                    <feGaussianBlur stdDeviation="4" />
-                </filter>
-            </defs>
-
             <ellipse
                 ref="shadow"
-                cx="80"
-                cy="192"
-                rx="30"
-                ry="4"
+                cx="110"
+                cy="216"
+                rx="92"
+                ry="5"
                 class="fill-foreground"
                 fill-opacity="0.1"
             />
 
-            <g ref="hop">
-                <g ref="float">
-                    <ellipse
-                        ref="thruster"
-                        cx="80"
-                        cy="180"
-                        rx="16"
-                        ry="5"
+            <g ref="body">
+                <!-- Antenna on the apex of the A -->
+                <g ref="antenna">
+                    <rect
+                        x="108"
+                        y="0"
+                        width="4"
+                        height="28"
+                        rx="2"
                         class="fill-primary"
-                        fill-opacity="0.6"
-                        :filter="`url(#${glowId})`"
+                    />
+                    <circle
+                        ref="halo"
+                        cx="110"
+                        cy="-2"
+                        r="6"
+                        class="fill-brand-red"
+                    />
+                    <circle cx="110" cy="-2" r="6" class="fill-brand-red" />
+                </g>
+
+                <!-- Left leg of the A: circuit panel (the logo's PCB side) -->
+                <path
+                    d="M98 40 L110 62 L39 204 L16 204 Z"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                    class="fill-card stroke-border"
+                />
+                <g
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="fill-none stroke-primary max-sm:hidden"
+                >
+                    <path d="M96 72 L80 104" />
+                    <path d="M84 84 L70 112" />
+                    <path d="M77 120 L66 142" />
+                </g>
+                <g class="fill-primary max-sm:hidden">
+                    <circle cx="80" cy="104" r="3" />
+                    <circle cx="70" cy="112" r="3" />
+                    <circle cx="66" cy="142" r="3" />
+                </g>
+
+                <!-- Right leg of the A, running over the apex: solid slab -->
+                <path
+                    d="M98 40 L100 36 Q110 16 120 36 L204 204 L181 204 L110 62 Z"
+                    stroke-linejoin="round"
+                    class="fill-primary"
+                />
+                <path
+                    d="M120 44 L190 186"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-opacity="0.25"
+                    class="fill-none stroke-primary-foreground"
+                />
+
+                <!-- The counter of the A is the visor -->
+                <g ref="visor">
+                    <path
+                        d="M110 78 L80 140 L140 140 Z"
+                        stroke-width="10"
+                        stroke-linejoin="round"
+                        class="fill-primary stroke-primary"
+                    />
+                    <path
+                        d="M95 104 Q99 95 106 92"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-opacity="0.5"
+                        class="fill-none stroke-primary-foreground"
                     />
 
-                    <!-- Arms sit behind the body -->
-                    <rect
-                        x="30"
-                        y="128"
-                        width="14"
-                        height="32"
-                        rx="7"
-                        class="fill-primary"
-                    />
-                    <g ref="arm">
+                    <g ref="eyes">
                         <rect
+                            ref="eyeLeft"
+                            x="94"
+                            y="114"
+                            width="10"
+                            height="16"
+                            rx="5"
+                            class="fill-primary-foreground"
+                        />
+                        <rect
+                            ref="eyeRight"
                             x="116"
-                            y="128"
-                            width="14"
-                            height="32"
-                            rx="7"
-                            class="fill-primary"
+                            y="114"
+                            width="10"
+                            height="16"
+                            rx="5"
+                            class="fill-primary-foreground"
                         />
                     </g>
 
-                    <rect
-                        x="44"
-                        y="122"
-                        width="72"
-                        height="50"
-                        rx="22"
-                        stroke-width="2"
-                        class="fill-card stroke-border"
-                    />
-                    <circle cx="80" cy="145" r="8" class="fill-primary" />
                     <circle
-                        cx="80"
-                        cy="145"
-                        r="3"
-                        class="fill-primary-foreground"
+                        cx="88"
+                        cy="138"
+                        r="4"
+                        class="fill-brand-red"
+                        fill-opacity="0.65"
                     />
-
-                    <rect
-                        x="70"
-                        y="114"
-                        width="20"
-                        height="10"
-                        rx="4"
-                        class="fill-primary"
-                        fill-opacity="0.6"
+                    <circle
+                        cx="132"
+                        cy="138"
+                        r="4"
+                        class="fill-brand-red"
+                        fill-opacity="0.65"
                     />
+                </g>
 
-                    <g ref="head">
+                <!-- Arms hang from the ends of the crossbar -->
+                <g ref="armLeft">
+                    <g transform="rotate(50 32 161)">
                         <rect
-                            x="78"
-                            y="18"
-                            width="4"
-                            height="22"
-                            rx="2"
+                            x="26"
+                            y="160"
+                            width="12"
+                            height="30"
+                            rx="6"
                             class="fill-primary"
                         />
                         <circle
-                            ref="halo"
-                            cx="80"
-                            cy="14"
-                            r="7"
-                            class="fill-brand-red"
-                        />
-                        <circle cx="80" cy="14" r="7" class="fill-brand-red" />
-
-                        <rect
-                            x="18"
-                            y="60"
-                            width="14"
-                            height="30"
-                            rx="7"
-                            class="fill-primary"
-                        />
-                        <rect
-                            x="128"
-                            y="60"
-                            width="14"
-                            height="30"
-                            rx="7"
-                            class="fill-primary"
-                        />
-
-                        <rect
-                            x="26"
-                            y="36"
-                            width="108"
-                            height="82"
-                            rx="32"
+                            cx="32"
+                            cy="193"
+                            r="6.5"
                             stroke-width="2"
                             class="fill-card stroke-border"
                         />
+                    </g>
+                </g>
+                <g ref="armRight">
+                    <g transform="rotate(-50 188 161)">
                         <rect
-                            x="38"
-                            y="50"
-                            width="84"
-                            height="52"
-                            rx="22"
+                            x="182"
+                            y="160"
+                            width="12"
+                            height="30"
+                            rx="6"
                             class="fill-primary"
                         />
-                        <path
-                            d="M50 66 Q55 58 66 56"
-                            stroke-width="3"
-                            stroke-linecap="round"
-                            stroke-opacity="0.5"
-                            class="fill-none stroke-primary-foreground"
-                        />
-
-                        <g ref="eyes">
-                            <rect
-                                ref="eyeLeft"
-                                x="58"
-                                y="66"
-                                width="12"
-                                height="20"
-                                rx="6"
-                                class="fill-primary-foreground"
-                            />
-                            <rect
-                                ref="eyeRight"
-                                x="90"
-                                y="66"
-                                width="12"
-                                height="20"
-                                rx="6"
-                                class="fill-primary-foreground"
-                            />
-                        </g>
-
                         <circle
-                            cx="52"
-                            cy="94"
-                            r="4.5"
-                            class="fill-brand-red"
-                            fill-opacity="0.65"
-                        />
-                        <circle
-                            cx="108"
-                            cy="94"
-                            r="4.5"
-                            class="fill-brand-red"
-                            fill-opacity="0.65"
+                            cx="188"
+                            cy="193"
+                            r="6.5"
+                            stroke-width="2"
+                            class="fill-card stroke-border"
                         />
                     </g>
                 </g>
+
+                <!-- Crossbar of the A: shoulder panel -->
+                <rect
+                    x="22"
+                    y="148"
+                    width="176"
+                    height="26"
+                    rx="13"
+                    stroke-width="2"
+                    class="fill-card stroke-border"
+                />
+                <circle cx="32" cy="161" r="4" class="fill-primary" />
+                <circle cx="188" cy="161" r="4" class="fill-primary" />
+                <circle cx="98" cy="161" r="3.5" class="fill-primary" />
+                <circle cx="110" cy="161" r="3.5" class="fill-brand-red" />
+                <circle
+                    cx="122"
+                    cy="161"
+                    r="3.5"
+                    class="fill-primary"
+                    fill-opacity="0.45"
+                />
+
+                <!-- Hexagon knee joint, from the logo -->
+                <path
+                    d="M37 182 L43.1 185.5 L43.1 192.5 L37 196 L30.9 192.5 L30.9 185.5 Z"
+                    class="fill-primary"
+                />
+
+                <!-- Feet under the legs of the A -->
+                <rect
+                    x="8"
+                    y="202"
+                    width="40"
+                    height="11"
+                    rx="5.5"
+                    class="fill-primary"
+                />
+                <rect
+                    x="172"
+                    y="202"
+                    width="40"
+                    height="11"
+                    rx="5.5"
+                    class="fill-primary"
+                />
             </g>
         </svg>
-    </div>
+    </button>
 </template>

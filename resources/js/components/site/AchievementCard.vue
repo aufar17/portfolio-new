@@ -41,28 +41,39 @@ useTilt(computed(() => (link.value?.$el as HTMLElement | undefined) ?? null));
 </script>
 
 <template>
-    <!-- Deck card: compact and opaque, stacked like cards on a table -->
+    <!-- Deck card: compact and opaque, stacked like cards on a table. Native
+         link/image dragging is off so the deck can drag the card. -->
     <Link
         ref="link"
         v-if="variant === 'deck'"
         :href="achievementsDetail(item.slug).url"
         view-transition
+        draggable="false"
         @before="shareMedia"
-        class="group relative grid h-full overflow-hidden rounded-3xl border border-surface-border bg-card shadow-elevated focus-ring sm:grid-cols-[2fr_3fr]"
+        class="group relative grid h-full overflow-hidden rounded-3xl border border-surface-border bg-card shadow-elevated focus-ring sm:min-h-[20rem] sm:grid-cols-[2fr_3fr]"
     >
         <div
             ref="mediaBox"
             class="relative aspect-[16/10] overflow-hidden bg-muted sm:aspect-auto"
         >
-            <div v-if="image" data-media class="size-full">
+            <!-- Absolute from sm so the text, not the image, sets the height -->
+            <div
+                v-if="image"
+                data-media
+                class="size-full sm:absolute sm:inset-0"
+            >
                 <img
                     :src="image"
                     :alt="item.title"
                     loading="lazy"
+                    draggable="false"
                     class="size-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-105"
                 />
             </div>
-            <div v-else class="grid size-full place-items-center">
+            <div
+                v-else
+                class="grid size-full place-items-center sm:absolute sm:inset-0"
+            >
                 <FileBadge
                     v-if="item.type"
                     class="size-14 text-muted-foreground/60"

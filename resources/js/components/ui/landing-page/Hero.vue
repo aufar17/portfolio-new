@@ -1,19 +1,64 @@
 <script setup lang="ts">
 import { ArrowRight, ChevronDown, Medal } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import BotDialog from '@/components/site/BotDialog.vue';
 import HeroBot from '@/components/site/HeroBot.vue';
-import { gsap, releaseTransforms } from '@/motion/gsap';
+import { gsap, releaseTransforms, ScrollTrigger } from '@/motion/gsap';
 import { discardHeroIntro, playHeroIntro } from '@/motion/intro';
 import { splitLines, whenFontsReady } from '@/motion/split';
 import { useMagnetic } from '@/motion/useMagnetic';
 import { useMotion } from '@/motion/useMotion';
-import { UserHeroScript } from '@/script/landingPage/hero';
+import { BOT_REACTION, buildDialogPages } from '@/script/landingPage/botDialog';
+import { HERO_NAME, UserHeroScript } from '@/script/landingPage/hero';
 
 const props = defineProps<{
     personal: any;
+    lastRole?: string | null;
 }>();
 
 const { roles } = UserHeroScript(props.personal);
+
+const dialogPages = computed(() =>
+    buildDialogPages(HERO_NAME, props.personal, props.lastRole),
+);
+const dialogOpen = ref(false);
+const dialog = ref<InstanceType<typeof BotDialog> | null>(null);
+
+// Four clicks within this window make the robot dizzy instead of advancing.
+const RAPID_CLICKS = 4;
+const RAPID_WINDOW_MS = 1200;
+const RAPID_LOCK_MS = 1000;
+let clickTimes: number[] = [];
+let lockedUntil = 0;
+
+const onBotClick = () => {
+    const now = performance.now();
+
+    if (now < lockedUntil) {
+        return;
+    }
+
+    clickTimes = [...clickTimes, now].filter(
+        (time) => now - time <= RAPID_WINDOW_MS,
+    );
+
+    if (dialogOpen.value && clickTimes.length >= RAPID_CLICKS) {
+        clickTimes = [];
+        lockedUntil = now + RAPID_LOCK_MS;
+        bot.value?.react();
+        dialog.value?.interrupt(BOT_REACTION);
+
+        return;
+    }
+
+    dialog.value?.advance();
+};
+
+const onDialogClosed = (hadFocus: boolean) => {
+    if (hadFocus) {
+        bot.value?.focus();
+    }
+};
 
 const roleIconColors = [
     'text-primary-strong',
@@ -39,6 +84,14 @@ useMagnetic(primaryCta);
 let introPlayed = false;
 
 useMotion(section, ({ reduce, desktop }, context) => {
+    // The dialog belongs to the hero: close it once the hero is mostly gone.
+    ScrollTrigger.create({
+        trigger: section.value,
+        start: 'top top',
+        end: 'bottom 25%',
+        onLeave: () => dialog.value?.close(),
+    });
+
     if (reduce) {
         return;
     }
@@ -58,8 +111,8 @@ useMotion(section, ({ reduce, desktop }, context) => {
             scrollTrigger: scrub,
         });
         gsap.to(botWrap.value, {
-            y: -140,
-            rotation: -6,
+            y: -80,
+            rotation: -4,
             ease: 'none',
             scrollTrigger: scrub,
         });
@@ -125,16 +178,14 @@ useMotion(section, ({ reduce, desktop }, context) => {
 </script>
 
 <template>
+    <!-- Stacked and centred below lg (robot on top), two columns from lg:
+         text left, robot right. Text comes first in the DOM for reading order. -->
     <section
         id="home"
         ref="section"
-        class="relative container-page flex min-h-[100svh] flex-col items-center justify-center pt-28 pb-20 text-center"
+        class="relative container-page grid min-h-[100svh] content-center items-center gap-y-3 pt-24 pb-20 text-center sm:gap-y-4 sm:pt-28 lg:grid-cols-[1.15fr_0.85fr] lg:gap-x-12 lg:text-left"
     >
-        <div ref="botWrap" class="mb-3 sm:mb-4">
-            <HeroBot ref="bot" />
-        </div>
-
-        <div ref="content" class="flex flex-col items-center">
+        <div ref="content" class="flex flex-col items-center lg:items-start">
             <h1 class="max-w-5xl font-bold text-foreground">
                 <span
                     ref="greeting"
@@ -143,14 +194,14 @@ useMotion(section, ({ reduce, desktop }, context) => {
                     Hi, I'm
                 </span>
                 <span ref="name" class="mt-2 block text-display text-primary">
-                    Muammar Aufar Prasetya
+                    {{ HERO_NAME }}
                 </span>
             </h1>
 
             <ul
                 v-if="roles.length"
                 ref="roleList"
-                class="mt-8 flex flex-wrap justify-center gap-2 sm:gap-3"
+                class="mt-8 flex flex-wrap justify-center gap-2 sm:gap-3 lg:justify-start"
                 aria-label="Roles"
             >
                 <li
@@ -178,7 +229,7 @@ useMotion(section, ({ reduce, desktop }, context) => {
 
             <div
                 ref="ctas"
-                class="mt-10 flex flex-row items-center justify-center gap-3"
+                class="mt-10 flex flex-row items-center justify-center gap-3 lg:justify-start"
             >
                 <a
                     ref="primaryCta"
@@ -202,6 +253,30 @@ useMotion(section, ({ reduce, desktop }, context) => {
                     Achievement
                 </a>
             </div>
+        </div>
+
+        <!-- The splash's closing circle lands on this box. It is never
+             transformed during the intro, unlike the robot inside it. -->
+        <div
+            ref="botWrap"
+            data-intro-target
+            class="relative order-first flex justify-center lg:order-none"
+        >
+            <HeroBot
+                ref="bot"
+                :expanded="dialogOpen"
+                controls="abot-dialog"
+                @click="onBotClick"
+            />
+            <BotDialog
+                id="abot-dialog"
+                ref="dialog"
+                v-model:open="dialogOpen"
+                :pages="dialogPages"
+                @page="bot?.gesture($event)"
+                @speaking="bot?.speak($event)"
+                @closed="onDialogClosed"
+            />
         </div>
 
         <a
