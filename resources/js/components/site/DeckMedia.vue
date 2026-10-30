@@ -8,7 +8,9 @@ import { shareElement } from '@/motion/transition';
  * pointer users, but stays out of the tab order and the accessibility tree:
  * the panel next to it carries the real link. The image sits in a
  * `[data-parallax]` layer inside the `[data-media]` box (the element shared
- * with the detail hero); `[data-dim]` darkens cards further back.
+ * with the detail hero); `[data-dim]` darkens cards further back and
+ * `[data-fold-shadow]` is the shadow a turning page casts on it (flat: a
+ * gradient here costs a long GPU raster on the first turn).
  */
 const props = defineProps<{
     href: string;
@@ -52,6 +54,10 @@ const shareMedia = () => shareElement(media.value, props.transitionName);
         <div
             data-dim
             class="pointer-events-none absolute inset-0 bg-background opacity-0"
+        />
+        <div
+            data-fold-shadow
+            class="pointer-events-none absolute inset-0 bg-[color-mix(in_oklab,var(--foreground)_18%,transparent)] opacity-0"
         />
     </Link>
 </template>

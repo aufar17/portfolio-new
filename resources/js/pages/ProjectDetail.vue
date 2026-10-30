@@ -64,7 +64,7 @@ const props = defineProps<{
                     :href="project.link"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="group flex h-12 items-center justify-center gap-2 rounded-lg bg-foreground px-5 text-sm font-semibold text-background focus-ring transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:shadow-elevated"
+                    class="group flex h-12 items-center justify-center gap-2 rounded-lg bg-foreground px-5 text-sm font-semibold text-background focus-ring transition-shadow duration-300 ease-out-expo hover:shadow-elevated"
                 >
                     <Github class="size-5" aria-hidden="true" />
                     Github

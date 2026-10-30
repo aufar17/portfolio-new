@@ -4,7 +4,7 @@ import logo from '@/assets/img/logo.png';
 import { shouldShowSplash, useSplash } from '@/composables/useSplash';
 import { gsap } from '@/motion/gsap';
 import { endSplash, expectSplash, registerSplash } from '@/motion/intro';
-import { getLenis } from '@/motion/lenis';
+import { getLenis, landOnHash } from '@/motion/lenis';
 import { useMotion } from '@/motion/useMotion';
 
 const { finishSplash } = useSplash();
@@ -24,6 +24,8 @@ const done = () => {
     isVisible.value = false;
     document.documentElement.style.overflow = '';
     getLenis()?.start();
+    // A `/#section` link waited for the page to unlock.
+    landOnHash();
     finishSplash();
     endSplash();
 };

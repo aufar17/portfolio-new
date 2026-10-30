@@ -105,6 +105,31 @@ const onAnchorClick = (event: MouseEvent) => {
 };
 
 /**
+ * Arriving on `/#section`: land on the anchor ourselves. The browser's own
+ * jump never happens while the splash keeps the page locked (the splash
+ * calls this when it is done), and right after an Inertia visit Lenis may
+ * still hold the previous page's height and would clamp the jump to it.
+ */
+export function landOnHash() {
+    const el = location.hash
+        ? document.getElementById(decodeURIComponent(location.hash.slice(1)))
+        : null;
+
+    if (!el || lenis?.isStopped) {
+        return;
+    }
+
+    if (lenis) {
+        lenis.resize();
+        lenis.scrollTo(el, { immediate: true, force: true });
+    } else {
+        el.scrollIntoView();
+    }
+
+    ScrollTrigger.update();
+}
+
+/**
  * Inertia has already reset (or is about to restore) the native scroll
  * position: stop any running inertia so Lenis starts in sync, then let
  * ScrollTrigger measure the new page once it has rendered.
@@ -114,7 +139,12 @@ const onNavigate = () => {
         lenis.scrollTo(0, { immediate: true, force: true });
     }
 
-    nextTick(() => requestAnimationFrame(() => ScrollTrigger.refresh()));
+    nextTick(() =>
+        requestAnimationFrame(() => {
+            ScrollTrigger.refresh();
+            landOnHash();
+        }),
+    );
 };
 
 export function acquireLenis() {

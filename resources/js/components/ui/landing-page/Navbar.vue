@@ -9,6 +9,8 @@ import {
 import { FolderGit, House, Medal, Menu, User, X } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import logo from '@/assets/img/logo.png';
+import MusicToggle from '@/components/site/MusicToggle.vue';
+import SoundToggle from '@/components/site/SoundToggle.vue';
 import ThemeToggle from '@/components/site/ThemeToggle.vue';
 import { gsap, prefersReducedMotion, ScrollTrigger } from '@/motion/gsap';
 import { useMotion } from '@/motion/useMotion';
@@ -258,6 +260,9 @@ useEventListener('resize', () => {
             </div>
 
             <div class="flex items-center gap-1">
+                <!-- Abot (and so its voice) only lives on the landing page -->
+                <SoundToggle v-if="isLandingPage" />
+                <MusicToggle />
                 <ThemeToggle />
 
                 <button

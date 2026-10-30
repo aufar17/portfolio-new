@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { ArrowRight, ChevronDown, Medal } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, inject, nextTick, ref, watch } from 'vue';
 import BotDialog from '@/components/site/BotDialog.vue';
 import HeroBot from '@/components/site/HeroBot.vue';
 import { gsap, releaseTransforms, ScrollTrigger } from '@/motion/gsap';
 import { discardHeroIntro, playHeroIntro } from '@/motion/intro';
 import { splitLines, whenFontsReady } from '@/motion/split';
-import { useMagnetic } from '@/motion/useMagnetic';
 import { useMotion } from '@/motion/useMotion';
+import { ABOT_STATE } from '@/script/landingPage/abotState';
+import { botClickHandler } from '@/script/landingPage/botClicks';
 import { BOT_REACTION, buildDialogPages } from '@/script/landingPage/botDialog';
 import { HERO_NAME, UserHeroScript } from '@/script/landingPage/hero';
+import { useLocalHour } from '@/script/landingPage/localHour';
 
 const props = defineProps<{
     personal: any;
@@ -18,41 +20,51 @@ const props = defineProps<{
 
 const { roles } = UserHeroScript(props.personal);
 
+// Opens with a greeting for the visitor's local hour, read when opening.
+const { hour, read: readHour } = useLocalHour();
 const dialogPages = computed(() =>
-    buildDialogPages(HERO_NAME, props.personal, props.lastRole),
+    buildDialogPages(HERO_NAME, props.personal, props.lastRole, hour.value),
 );
 const dialogOpen = ref(false);
 const dialog = ref<InstanceType<typeof BotDialog> | null>(null);
 
-// Four clicks within this window make the robot dizzy instead of advancing.
-const RAPID_CLICKS = 4;
-const RAPID_WINDOW_MS = 1200;
-const RAPID_LOCK_MS = 1000;
-let clickTimes: number[] = [];
-let lockedUntil = 0;
-
-const onBotClick = () => {
-    const now = performance.now();
-
-    if (now < lockedUntil) {
-        return;
+// The mini Abot keeps quiet while this dialog is open.
+const abot = inject(ABOT_STATE, null);
+watch(dialogOpen, (open) => {
+    if (abot) {
+        abot.heroDialogOpen = open;
     }
+});
 
-    clickTimes = [...clickTimes, now].filter(
-        (time) => now - time <= RAPID_WINDOW_MS,
-    );
+// Abot flies to the corner as the hero scrolls away (MiniBot.vue): the hero
+// robot hides and its dialog closes meanwhile, and it hops on its return.
+const away = computed(() => !!abot?.heroAway);
+watch(away, (gone, was) => {
+    if (gone) {
+        dialog.value?.close();
+    } else if (was) {
+        bot.value?.gesture('hop');
+    }
+});
 
-    if (dialogOpen.value && clickTimes.length >= RAPID_CLICKS) {
-        clickTimes = [];
-        lockedUntil = now + RAPID_LOCK_MS;
+const onBotClick = botClickHandler({
+    isOpen: () => dialogOpen.value,
+    advance: () => {
+        if (dialogOpen.value) {
+            dialog.value?.advance();
+
+            return;
+        }
+
+        // A fresh hour, and its pages passed down, before the first page.
+        readHour();
+        nextTick(() => dialog.value?.advance());
+    },
+    react: () => {
         bot.value?.react();
         dialog.value?.interrupt(BOT_REACTION);
-
-        return;
-    }
-
-    dialog.value?.advance();
-};
+    },
+});
 
 const onDialogClosed = (hadFocus: boolean) => {
     if (hadFocus) {
@@ -76,9 +88,6 @@ const roleList = ref<HTMLElement | null>(null);
 const desc = ref<HTMLElement | null>(null);
 const ctas = ref<HTMLElement | null>(null);
 const hint = ref<HTMLElement | null>(null);
-const primaryCta = ref<HTMLElement | null>(null);
-
-useMagnetic(primaryCta);
 
 // The intro plays once; a later breakpoint change only rebuilds the parallax.
 let introPlayed = false;
@@ -231,8 +240,8 @@ useMotion(section, ({ reduce, desktop }, context) => {
                 ref="ctas"
                 class="mt-10 flex flex-row items-center justify-center gap-3 lg:justify-start"
             >
+                <!-- Buttons stay put on hover; only colour and their icons move -->
                 <a
-                    ref="primaryCta"
                     href="#project"
                     class="group inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold whitespace-nowrap text-primary-foreground shadow-glow focus-ring transition-[filter] duration-300 ease-out-expo hover:brightness-110 sm:h-12 sm:px-7 sm:text-base"
                 >
@@ -244,7 +253,7 @@ useMotion(section, ({ reduce, desktop }, context) => {
                 </a>
                 <a
                     href="#achievement"
-                    class="group inline-flex h-11 items-center justify-center gap-2 rounded-full surface-glass px-5 text-sm font-semibold whitespace-nowrap text-foreground focus-ring transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:text-brand-red-strong sm:h-12 sm:px-7 sm:text-base"
+                    class="group inline-flex h-11 items-center justify-center gap-2 rounded-full surface-glass px-5 text-sm font-semibold whitespace-nowrap text-foreground focus-ring transition-colors duration-300 ease-out-expo hover:text-brand-red-strong sm:h-12 sm:px-7 sm:text-base"
                 >
                     <Medal
                         class="size-4 transition-transform duration-300 group-hover:rotate-12"
@@ -264,6 +273,7 @@ useMotion(section, ({ reduce, desktop }, context) => {
         >
             <HeroBot
                 ref="bot"
+                :class="away && 'invisible'"
                 :expanded="dialogOpen"
                 controls="abot-dialog"
                 @click="onBotClick"

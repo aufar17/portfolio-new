@@ -1,6 +1,8 @@
 import type { Ref } from 'vue';
 import { watch } from 'vue';
 import { Draggable, gsap } from './gsap';
+import type { PageFlip } from './pageFlip';
+import { createPageFlip } from './pageFlip';
 import { revealMedia } from './reveal';
 import { splitLines, whenFontsReady } from './split';
 import { useMotion } from './useMotion';
@@ -31,27 +33,16 @@ const SLOTS: Record<Mode, Slot[]> = {
     ],
 };
 
-/** Length of the curtain move, in seconds. */
+/** Length of a page turn, in seconds. */
 const MOVE: Record<Exclude<Mode, 'reduce'>, number> = {
-    desktop: 0.9,
-    mobile: 0.6,
+    desktop: 0.95,
+    mobile: 0.7,
 };
 
-/** Image zoom inside its card: the headroom the parallax moves in (4%). */
-const IMAGE_SCALE = 1.08;
-/** Image travel inside a card, in % of its height. */
-const PARALLAX = { leaving: -6, arriving: 4 };
-/** Clip margin beyond the card, in px, so its shadow isn't cut off. */
-const CLIP_PAD = 48;
-
-/** Drag further than this share of the card width (or flick) to move on. */
-const DRAG_THRESHOLD = 0.25;
+/** A drag across this share of the card width turns the page all the way. */
+const DRAG_SPAN = 0.9;
+/** Let go past half a turn (or flick) and the page carries on over. */
 const FLICK_SPEED = 600; // px/s
-
-const open = `inset(${-CLIP_PAD}px ${-CLIP_PAD}px ${-CLIP_PAD}px ${-CLIP_PAD}px)`;
-/** Clip collapsed onto the card's top edge. */
-const closed = (card: HTMLElement) =>
-    `inset(${-CLIP_PAD}px ${-CLIP_PAD}px ${card.offsetHeight + CLIP_PAD}px ${-CLIP_PAD}px)`;
 
 type ShowcaseRefs = {
     /** Wraps stack and panel; motion is scoped to it. */
@@ -62,22 +53,31 @@ type ShowcaseRefs = {
     panel: Readonly<Ref<HTMLElement | null>>;
 };
 
+/** A built move: its timeline, and how to tidy up if it is called off. */
+type Move = { timeline: gsap.core.Timeline; undo: () => void };
+
 /**
  * Image stack + info panel where one item is active at a time. `active` is
  * its index; change it from anywhere (buttons, keyboard, drag) and both sides
  * move together on one timeline.
  *
- * Forward, the front card's curtain lifts (clip from the bottom edge up)
- * while its image drifts up more slowly inside, and the next card comes to
- * the front. Backward, the incoming card's curtain falls over the stack.
- * In the panel, the old lines slide out of their masks and the new ones in,
- * upwards going forward and downwards going back.
+ * Moving on peels the front card off (motion/pageFlip.ts): its bottom-left
+ * corner lifts and folds back, and the fold sweeps to the top-right corner,
+ * uncovering the next card, which catches the shadow of the fold. Going back
+ * folds the previous card back down over the stack the other way. In the panel,
+ * the old lines slide out of their masks and the new ones in, upwards going
+ * forward and downwards going back.
  *
- * Cards hold `[data-parallax]` (the image layer) and `[data-dim]` (an
- * overlay darkening cards further back). Info blocks animate `[data-lines]`
- * (split into masked lines) and `[data-meta]` (faded). The DOM is never
- * reordered: stacking is `zIndex` + transforms. Reduced motion swaps
- * instantly.
+ * Dragging the front card pulls the corner with the finger: rightwards (the
+ * way the fold travels) peels it forward, leftwards brings the previous one
+ * back. Let go past half way
+ * (or flick) and it completes, otherwise it falls back.
+ *
+ * Cards hold `[data-dim]` (an overlay darkening cards further back) and
+ * `[data-fold-shadow]` (the fold's shadow). Info blocks animate
+ * `[data-lines]` (split into masked lines) and `[data-meta]` (faded). The
+ * DOM is never reordered: stacking is `zIndex` + transforms. Reduced motion
+ * swaps instantly.
  */
 export function useShowcase(
     { root, stack, panel }: ShowcaseRefs,
@@ -85,11 +85,21 @@ export function useShowcase(
 ) {
     let mode: Mode = 'reduce';
     let order: number[] = [];
-    let timeline: gsap.core.Timeline | undefined;
+    let move: Move | undefined;
     let entrance: gsap.core.Timeline | undefined;
     let draggables: Draggable[] = [];
+    let flip: PageFlip | undefined;
     let hint: Direction | undefined;
     let suppressClickUntil = 0;
+    /** A page being pulled by a finger, not yet committed. */
+    let drag:
+        | {
+              direction: Direction;
+              to: number;
+              move: Move;
+              release?: gsap.core.Tween;
+          }
+        | undefined;
 
     const cards = () =>
         stack.value
@@ -136,19 +146,18 @@ export function useShowcase(
                 x: 0,
                 zIndex: els.length - position,
                 transformOrigin: '50% 0%',
-                clearProps: 'clipPath',
             });
             gsap.set(layer(card, 'dim'), { opacity: slot(position).dim });
-            gsap.set(layer(card, 'parallax'), {
-                xPercent: 0,
-                yPercent: 0,
-                scale: mode === 'reduce' ? 1 : IMAGE_SCALE,
-            });
+            gsap.set(layer(card, 'fold-shadow'), { opacity: 0 });
         });
+        flip?.hide();
         syncDraggables();
     };
 
-    /** Old info lines leave, new ones come in, on the shared timeline. */
+    /**
+     * Old info lines leave, new ones come in, on the shared timeline.
+     * Returns how to undo it if the move is called off half way.
+     */
     const swapText = (
         tl: gsap.core.Timeline,
         from: number,
@@ -160,7 +169,7 @@ export function useShowcase(
         const after = els[to];
 
         if (!before || !after || before === after) {
-            return;
+            return () => {};
         }
 
         const sign = direction === 'forward' ? 1 : -1;
@@ -175,8 +184,17 @@ export function useShowcase(
         const metaBefore = before.querySelectorAll('[data-meta]');
         const metaAfter = after.querySelectorAll('[data-meta]');
 
-        // Vue hides the old block right away; keep it on screen while it leaves.
-        gsap.set(before, { visibility: 'visible' });
+        const tidy = () => {
+            splits.forEach((split) => split.revert());
+            gsap.set([...metaBefore, ...metaAfter], {
+                clearProps: 'opacity,transform',
+            });
+            gsap.set([before, after], { clearProps: 'visibility' });
+        };
+
+        // Vue swaps which block shows once `active` changes (straight away,
+        // or only at the end of a drag): keep both on screen meanwhile.
+        gsap.set([before, after], { visibility: 'visible' });
 
         tl.to(
             linesOf(before),
@@ -201,18 +219,23 @@ export function useShowcase(
                 { opacity: 1, y: 0, duration: 0.5, stagger: 0.05 },
                 0.4,
             )
-            .call(() => {
-                splits.forEach((split) => split.revert());
-                gsap.set([...metaBefore, ...metaAfter], {
-                    clearProps: 'opacity,transform',
-                });
-                gsap.set(before, { clearProps: 'visibility' });
-            });
+            .call(tidy);
+
+        return tidy;
     };
 
-    const transition = (to: number, direction: Direction) => {
+    /**
+     * Builds the move to `to`: plays it at once, or with `scrub` leaves it
+     * paused (linear) for a finger to drive.
+     */
+    const build = (
+        to: number,
+        direction: Direction,
+        scrub = false,
+    ): Move | undefined => {
         entrance?.progress(1);
-        timeline?.progress(1).kill();
+        move?.timeline.progress(1).kill();
+        move = undefined;
 
         const els = cards();
         const n = els.length;
@@ -230,19 +253,33 @@ export function useShowcase(
             stack.value.focus({ preventScroll: true });
         }
 
-        if (mode === 'reduce') {
+        if (mode === 'reduce' || !flip) {
             place();
 
-            return;
+            return undefined;
         }
 
+        const page = flip;
         const duration = MOVE[mode];
-        const moving = direction === 'forward' ? from[0] : order[0];
+        const ease = scrub ? 'none' : 'power2.inOut';
+        const forward = direction === 'forward';
+        const moving = forward ? from[0] : order[0];
+        // Forward the page uncovers the new front card; back, it covers the
+        // old one. Either way that card catches the fold's shadow.
+        const shaded = layer(els[forward ? order[0] : from[0]], 'fold-shadow');
 
-        draggables.forEach((draggable) => draggable.disable());
-        timeline = gsap.timeline({
-            defaults: { duration },
-            onComplete: syncDraggables,
+        if (!scrub) {
+            draggables.forEach((draggable) => draggable.disable());
+        }
+
+        const timeline = gsap.timeline({
+            paused: scrub,
+            defaults: scrub ? { duration, ease } : { duration },
+            onComplete: () => {
+                page.hide();
+                gsap.set(shaded, { opacity: 0 });
+                syncDraggables();
+            },
         });
 
         els.forEach((card, i) => {
@@ -258,63 +295,74 @@ export function useShowcase(
             }
 
             gsap.set(card, { zIndex: n - position });
-            timeline!
+            timeline
                 .to(card, { ...pose(position), x: 0 }, 0)
                 .to(layer(card, 'dim'), { opacity: slot(position).dim }, 0);
-
-            // The card stepping up to the front settles its image as it comes.
-            if (position === 0) {
-                timeline!.fromTo(
-                    layer(card, 'parallax'),
-                    { yPercent: PARALLAX.arriving },
-                    { yPercent: 0 },
-                    0,
-                );
-            }
         });
 
         const card = els[moving];
-        const image = layer(card, 'parallax');
         const position = order.indexOf(moving);
+        const turn = { progress: forward ? 0 : 1 };
+        const onUpdate = () => {
+            page.turn(turn.progress);
+            gsap.set(shaded, {
+                opacity: Math.sin(Math.PI * turn.progress),
+            });
+        };
 
-        if (direction === 'forward') {
-            // The curtain lifts off the front card, then it rejoins at the back.
-            // Explicit from/to: reading a set clip back gives the browser's
-            // shorthand (`inset(-48px)`), which tweens skewed.
-            gsap.set(card, { zIndex: n + 1 });
+        if (forward) {
+            // The page copy takes the front card's place and turns away; the
+            // card itself rejoins the stack at the back, out of sight.
+            page.load(card);
+            gsap.set(card, { autoAlpha: 0 });
             timeline
-                .fromTo(card, { clipPath: open }, { clipPath: closed(card) }, 0)
-                .to(image, { yPercent: PARALLAX.leaving, xPercent: 0 }, 0)
+                .to(turn, { progress: 1, ease, onUpdate }, 0)
                 .set(card, {
                     ...pose(position),
                     x: 0,
                     autoAlpha: 0,
                     zIndex: n - position,
-                    clearProps: 'clipPath',
                 })
                 .set(layer(card, 'dim'), { opacity: slot(position).dim })
-                .set(image, { yPercent: 0 })
                 .to(card, {
                     autoAlpha: pose(position).autoAlpha,
                     duration: 0.3,
                 });
         } else {
-            // The incoming card's curtain falls over the front of the stack.
-            gsap.set(card, { ...pose(0), x: 0, zIndex: n + 1 });
+            // The previous page comes back over the stack, then becomes the
+            // front card again.
+            gsap.set(card, { ...pose(0), x: 0, zIndex: n + 1, autoAlpha: 0 });
             gsap.set(layer(card, 'dim'), { opacity: 0 });
+            page.load(card);
+            page.turn(1);
             timeline
-                .fromTo(card, { clipPath: closed(card) }, { clipPath: open }, 0)
-                .fromTo(image, { yPercent: PARALLAX.leaving }, { yPercent: 0 }, 0)
-                .set(card, { zIndex: n, clearProps: 'clipPath' });
+                .to(turn, { progress: 0, ease, onUpdate }, 0)
+                .set(card, { autoAlpha: 1, zIndex: n });
         }
 
-        swapText(timeline, from[0], to, direction);
+        const undoText = swapText(timeline, from[0], to, direction);
+
+        move = {
+            timeline,
+            undo: () => {
+                undoText();
+                page.hide();
+                gsap.set(shaded, { opacity: 0 });
+            },
+        };
+
+        return move;
+    };
+
+    const transition = (to: number, direction: Direction) => {
+        build(to, direction);
     };
 
     watch(active, (to) => {
         const n = cards().length;
         const current = order[0];
 
+        // Also the end of a drag: the move already put `to` in front.
         if (n < 2 || current === undefined || to === current) {
             hint = undefined;
 
@@ -322,8 +370,7 @@ export function useShowcase(
         }
 
         const distance = (to - current + n) % n;
-        const direction =
-            hint ?? (distance <= n / 2 ? 'forward' : 'backward');
+        const direction = hint ?? (distance <= n / 2 ? 'forward' : 'backward');
 
         transition(to, direction);
         hint = undefined;
@@ -331,6 +378,9 @@ export function useShowcase(
 
     const go = (to: number, direction: Direction) => {
         const n = cards().length;
+
+        // A page still held (or let go) mid-pull is settled first.
+        settle();
 
         if (n < 2) {
             return;
@@ -343,10 +393,45 @@ export function useShowcase(
     const next = () => go(active.value + 1, 'forward');
     const prev = () => go(active.value - 1, 'backward');
 
+    /** Calls a pulled page off: back to how it was before the drag. */
+    const dropDrag = () => {
+        if (!drag) {
+            return;
+        }
+
+        drag.release?.kill();
+        drag.move.timeline.progress(0).kill();
+        drag.move.undo();
+        drag = undefined;
+        move = undefined;
+        place();
+    };
+
+    /** Lets a pulled page complete its turn and makes it the active one. */
+    const commitDrag = () => {
+        if (!drag) {
+            return;
+        }
+
+        const { direction, to } = drag;
+        drag.release?.kill();
+        drag.move.timeline.progress(1);
+        drag = undefined;
+        hint = direction;
+        active.value = to;
+    };
+
     /** Finishes any running move, e.g. before a page transition starts. */
     const settle = () => {
+        // A page let go on its way over completes; any other is called off.
+        if (drag?.release?.vars.progress === 1) {
+            commitDrag();
+        } else {
+            dropDrag();
+        }
+
         entrance?.progress(1);
-        timeline?.progress(1);
+        move?.timeline.progress(1);
     };
 
     const onKeydown = (event: KeyboardEvent) => {
@@ -360,6 +445,7 @@ export function useShowcase(
 
         if (event.key in keys) {
             event.preventDefault();
+            settle();
             keys[event.key]();
         }
     };
@@ -377,63 +463,128 @@ export function useShowcase(
 
         const els = cards();
         let stopFonts = () => {};
+
+        if (!reduce && els.length > 1 && stack.value) {
+            flip = createPageFlip(stack.value, {
+                shading: true,
+            });
+        }
+
         place();
 
         if (els.length > 1) {
             let samples: { x: number; t: number }[] = [];
+            const turnLength = () => MOVE[mode as Exclude<Mode, 'reduce'>];
 
-            draggables = Draggable.create(els, {
-                type: 'x',
-                zIndexBoost: false,
-                minimumMovement: 6,
-                onPress() {
-                    settle();
-                    samples = [];
-                },
-                onDrag(this: Draggable) {
-                    const card = this.target as HTMLElement;
+            const pull = (card: HTMLElement, dx: number) => {
+                const direction: Direction = dx > 0 ? 'forward' : 'backward';
 
-                    // The image lags behind the finger a little.
-                    if (mode !== 'reduce') {
-                        gsap.set(layer(card, 'parallax'), {
-                            xPercent: gsap.utils.clamp(
-                                -4,
-                                4,
-                                (-this.x / card.offsetWidth) * 8,
-                            ),
-                        });
-                    }
+                if (drag && drag.direction !== direction) {
+                    dropDrag();
+                }
 
-                    samples = [
-                        ...samples,
-                        { x: this.x, t: performance.now() },
-                    ].slice(-6);
-                },
-                onDragEnd(this: Draggable) {
-                    suppressClickUntil = performance.now() + 300;
+                if (!drag && Math.abs(dx) > 2) {
+                    const n = els.length;
+                    const step = direction === 'forward' ? 1 : -1;
+                    const to = (active.value + step + n) % n;
+                    const built = build(to, direction, true);
 
-                    const first = samples[0];
-                    const last = samples[samples.length - 1];
-                    const speed =
-                        first && last && last.t > first.t
-                            ? ((last.x - first.x) / (last.t - first.t)) * 1000
-                            : 0;
-                    const card = this.target as HTMLElement;
-                    const far =
-                        Math.abs(this.x) > card.offsetWidth * DRAG_THRESHOLD;
+                    drag = built ? { direction, to, move: built } : undefined;
+                }
 
-                    // Either way is forward, like taking the top card off.
-                    if (far || Math.abs(speed) > FLICK_SPEED) {
-                        go(active.value + 1, 'forward');
+                // The finger drives the turn itself; the timeline runs on a
+                // little past it (the card rejoining the stack, text).
+                drag?.move.timeline.time(
+                    turnLength() *
+                        gsap.utils.clamp(
+                            0,
+                            1,
+                            Math.abs(dx) / (card.offsetWidth * DRAG_SPAN),
+                        ),
+                );
+            };
 
-                        return;
-                    }
+            // The card itself never moves: an invisible proxy follows the
+            // finger and the page turn follows the proxy.
+            draggables = els.map(
+                (card) =>
+                    Draggable.create(document.createElement('div'), {
+                        trigger: card,
+                        type: 'x',
+                        minimumMovement: 6,
+                        onPress(this: Draggable) {
+                            settle();
+                            samples = [];
+                            gsap.set(this.target, { x: 0 });
+                            this.update();
+                        },
+                        onDrag(this: Draggable) {
+                            if (mode !== 'reduce') {
+                                pull(card, this.x);
+                            }
 
-                    const back = { duration: mode === 'reduce' ? 0 : 0.3 };
-                    gsap.to(card, { x: 0, ...back });
-                    gsap.to(layer(card, 'parallax'), { xPercent: 0, ...back });
-                },
-            });
+                            samples = [
+                                ...samples,
+                                { x: this.x, t: performance.now() },
+                            ].slice(-6);
+                        },
+                        // On release rather than drag end: a touch drag can
+                        // end without the latter firing, which would leave
+                        // the pulled page hanging.
+                        onRelease(this: Draggable) {
+                            // A plain tap (no pull) goes through as a click.
+                            if (!drag && Math.abs(this.x) < 6) {
+                                return;
+                            }
+
+                            suppressClickUntil = performance.now() + 300;
+
+                            const first = samples[0];
+                            const last = samples[samples.length - 1];
+                            const speed =
+                                first && last && last.t > first.t
+                                    ? ((last.x - first.x) /
+                                          (last.t - first.t)) *
+                                      1000
+                                    : 0;
+
+                            if (mode === 'reduce') {
+                                const far =
+                                    Math.abs(this.x) >
+                                    card.offsetWidth * DRAG_SPAN * 0.5;
+
+                                if (far || Math.abs(speed) > FLICK_SPEED) {
+                                    go(
+                                        active.value + (this.x > 0 ? 1 : -1),
+                                        this.x > 0 ? 'forward' : 'backward',
+                                    );
+                                }
+
+                                return;
+                            }
+
+                            if (!drag) {
+                                return;
+                            }
+
+                            const timeline = drag.move.timeline;
+                            const turned = timeline.time() / turnLength();
+                            const flick =
+                                drag.direction === 'forward'
+                                    ? speed > FLICK_SPEED
+                                    : speed < -FLICK_SPEED;
+                            const complete = turned > 0.5 || flick;
+                            const left = complete ? 1 - turned : turned;
+
+                            drag.release = gsap.to(timeline, {
+                                progress: complete ? 1 : 0,
+                                duration: Math.max(0.2, turnLength() * left),
+                                ease: 'power2.out',
+                                onComplete: complete ? commitDrag : dropDrag,
+                            });
+                        },
+                    })[0],
+            );
             syncDraggables();
         }
 
@@ -485,10 +636,13 @@ export function useShowcase(
                             entrance = undefined;
                         },
                     })
-                    .from(splits.flatMap((split) => split.lines), {
-                        yPercent: 105,
-                        stagger: 0.05,
-                    })
+                    .from(
+                        splits.flatMap((split) => split.lines),
+                        {
+                            yPercent: 105,
+                            stagger: 0.05,
+                        },
+                    )
                     .from(
                         [
                             ...block.querySelectorAll('[data-meta]'),
@@ -510,10 +664,15 @@ export function useShowcase(
 
         return () => {
             stopFonts();
-            timeline?.kill();
+            drag?.release?.kill();
+            drag = undefined;
+            move?.timeline.kill();
+            move = undefined;
             entrance = undefined;
             draggables.forEach((draggable) => draggable.kill());
             draggables = [];
+            flip?.destroy();
+            flip = undefined;
         };
     });
 

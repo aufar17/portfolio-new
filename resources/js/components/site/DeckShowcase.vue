@@ -68,8 +68,10 @@ watch(active, (index) => {
 </script>
 
 <template>
+    <!-- data-abot-quiet: the mini Abot keeps its bubble away while in use -->
     <div
         ref="root"
+        data-abot-quiet
         class="grid items-center gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14"
     >
         <div ref="panel" class="order-last flex flex-col gap-8 lg:order-none">

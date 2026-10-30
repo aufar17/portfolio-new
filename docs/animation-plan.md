@@ -1,6 +1,6 @@
 # Rencana Refactor Animasi (Motion) — Portfolio
 
-Status: tahap 1–8 **selesai**. **Revisi R1–R8 (§4) selesai** (2026-10-26). **Revisi 2 (R9–R14, §5) selesai** (2026-10-26).
+Status: tahap 1–8 **selesai**. **Revisi R1–R8 (§4) selesai** (2026-10-26). **Revisi 2 (R9–R14, §5) selesai** (2026-10-26). **Revisi 3 (R15–R20, §6) selesai** (2026-10-27): R15 selesai. R16 dikerjakan lalu **dicabut atas permintaan user**: semua transisi antar-section dihapus dari landing. R17–R20 selesai. Delapan file transisi yang tak terpakai menunggu keputusan hapus/simpan (lihat R16).
 Branch kerja: `adjustment-design`.
 
 ---
@@ -48,7 +48,7 @@ Diambil (kualitas, bukan bentuk):
 | Referensi                                                                             | Portfolio ini                                                                                                                                 |
 | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | Penomoran section `NN / 06`, caption gaya editorial (`Fig. 02 — …`)                   | Tetap eyebrow merah + heading dengan highlight biru yang sudah ada. Tanpa penomoran.                                                          |
-| Maskot "Tejo" (huruf logo "a" putih yang terbang + speech bubble), tombol WhatsApp    | Robot visor milik sendiri yang tinggal di hero, tanpa speech bubble; ContactBubble + modal kontak kita (_direvisi R2/R3, lihat Keputusan #1_)  |
+| Maskot "Tejo" (huruf logo "a" putih yang terbang + speech bubble), tombol WhatsApp    | Robot visor milik sendiri yang tinggal di hero, tanpa speech bubble; ContactBubble + modal kontak kita (_direvisi R2/R3 dan R18, lihat Keputusan #1_) |
 | Carousel project yang di-drag (`01 / 12`)                                             | **Stack layering vertikal** (sticky card bertumpuk), bukan carousel (_direvisi R4/R5, lihat Keputusan #4_)                                     |
 | Susunan section About → Selected work → Experience → Hire me → Contact                | Tetap Hero → About (ID card, stats, timeline) → Projects (+ Skills) → Achievements → Footer                                                   |
 | Palet, font, footer, efek langit/laut/wordmark tenggelam, curved wipe, horizontal pin | Palet biru `--primary` + brand red, Poppins, footer & ID card & timeline zigzag & floating sparks yang sudah direstore. Tanpa horizontal pin. |
@@ -213,19 +213,25 @@ Temuan di luar lingkup (belum diubah):
    - _Sebelum revisi:_ robot kepala-kartu dengan visor, melayang di atas glow thruster, bukan bentuk logo/huruf.
    - _Setelah revisi:_ siluet robot **adalah huruf "A" kapital dari logo** (`resources/js/assets/img/logo.png`): segitiga dalam A = visor bermata LED, palang A = panel bahu dengan lengan yang bisa digerakkan, kaki A = kaki bertelapak (berdiri, tidak melayang). Desktop di kolom kanan hero, mobile di atas teks dan lebih kecil. Splash tetap menutup dengan `clip-path: circle()` ke titik robot di posisi barunya.
    - _Revisi 2 (R10):_ siluet tetap A, tetapi **semua sudut membulat** dengan radius dan tebal stroke yang konsisten (robot/mainan ramah, bukan huruf kaku). Path bentuk A disimpan **satu kali** di `components/site/abotShape.ts` dan dipakai semua tempat yang menggambar A.
+   - _Revisi 3 (R15):_ bentuk **chibi/mainan**: lebih pendek & lebar, kaki tebal sedikit menggembung, puncak A jadi kubah kepala, visor kapsul, palang jadi sabuk membulat, telapak bulat. Siluet tetap terbaca A. Varian dipilih user dari `docs/abot-variants.html` (diisi setelah dipilih). Geometri tetap satu sumber (`abotShape.ts`, kini juga titik pivot); SVG dipisah ke `AbotFigure.vue` supaya Abot mini (R18) memakai bentuk yang sama.
    - Nama robot: **Abot**.
-   - Interaksi: robot = `<button>`; klik/tap/Enter membuka **panel dialog HUD** (bukan speech bubble) berisi perkenalan dari data Personal, teks diketik + kursor kedip, beberapa halaman, menutup sendiri; robot "bicara" (visor berdenyut), gestur per halaman, reaksi klik beruntun, mata ikut kursor. Reduce → robot statis, teks langsung utuh.
-   - Beda dari Tejo (andikadevs): Tejo = huruf "a" kecil putih **flat** dengan dua mata, terbang keliling halaman, menyapa lewat speech bubble kartun. Robot kita = **A kapital sebagai rangka mekanis** (visor, panel, lengan, kaki, kedalaman lewat panel & stroke), palet biru-merah token, **tetap di hero**, berbicara lewat panel HUD yang terpisah dari tubuhnya (tanpa ekor gelembung).
+   - _Revisi setelah R20 (2026-10-27, permintaan user):_ dialog **bukan lagi panel HUD** melainkan **bubble chat** (sudut sangat bulat, ekor membulat yang menunjuk ke Abot), **tanpa pagination**: kalimat diketik → jeda baca → "…" → kalimat berikutnya, menutup sendiri setelah kalimat terakhir; klik Abot mempercepat. Bubble kecil Abot mini ikut bentuk yang sama. Ini menggantikan "tanpa speech bubble" di bawah.
+   - Interaksi: robot = `<button>`; klik/tap/Enter membuka **panel dialog HUD** (bukan speech bubble) berisi perkenalan dari data Personal, teks diketik + kursor kedip, beberapa halaman, menutup sendiri; robot "bicara" (visor berdenyut), gestur per halaman, reaksi klik beruntun, mata ikut kursor. Reduce → robot statis, teks langsung utuh. _R19:_ halaman pertama = sapaan sesuai jam lokal perangkat (Keputusan #13).
+   - _Revisi 3 (R18):_ di luar hero muncul **Abot mini** di pojok kanan bawah, tepat di atas ContactBubble, yang sesekali menampilkan bubble HUD kecil (Keputusan #12). Klik membuka dialog lengkap di pojok itu.
+   - Beda dari Tejo (andikadevs): Tejo = huruf "a" kecil putih **flat** dengan dua mata, terbang keliling halaman, menyapa lewat speech bubble kartun. Robot kita = **A kapital sebagai rangka mekanis** (visor, panel, lengan, kaki, kedalaman lewat panel & stroke), palet biru-merah token, berbicara lewat panel HUD yang terpisah dari tubuhnya (tanpa ekor gelembung). Robot besar tinggal di hero. ~~Di luar hero hanya versi mini yang muncul di tempat (pop)~~ → **direvisi user setelah R18 (2026-10-27)**: saat robot hero hampir keluar layar, Abot **terbang sekali** (melengkung, mengecil, ±0.9 detik) ke pojok kanan bawah dan mendarat di atas ContactBubble; kembali ke hero → terbang balik. Robot hero disembunyikan selama Abot di pojok, jadi selalu hanya ada satu Abot. Pembeda dari Tejo kini tinggal: bentuk (A kapital rangka mekanis vs huruf "a" flat), tidak mengikuti scroll (sekali terbang, bukan menempel ke posisi gulir), dan bicara lewat panel HUD tanpa ekor.
 2. **Skills** (direvisi R7): ~~marquee dua baris~~ → kembali ke **tab Hard/Soft** (`SegmentedControl`) dengan grid tile (hard) dan pill (soft) seperti sebelum Tahap 3; animasi ganti tab stagger singkat. Posisi tetap di bawah Projects. `SkillMarquee.vue` dihapus hanya setelah ditanyakan.
 3. **Nama hero**: typewriter diganti SplitText per kata dengan mask per line (lebih ringkas ~0.8s vs ~2s, konsisten dengan heading section). Kepribadian/"fun" dipindah ke robot (R3: termasuk efek ketik di panel dialog, bukan di nama).
-4. **Projects & Achievements di landing** (direvisi R4/R5, **direvisi lagi R11/R12**): ~~sticky stack/deck mengikuti scroll~~ → ~~deck kartu interaktif + panel daftar judul; Projects dilempar, Achievements dicerminkan & dibalik 3D~~ → **satu komponen showcase yang sama untuk keduanya**: panel info project/achievement **aktif** di KIRI (judul, deskripsi, Previous/Next, ringkasan data, link detail), **tumpukan gambar saja** di KANAN, tidak dicerminkan. Satu preset animasi transisi (opsi A "tirai terangkat + parallax", dipilih user) yang sadar arah, teks panel berganti tersinkron. Preset `toss`/`flip`, punggung kartu, varian `deck` kartu, dan daftar judul dihapus. Tanpa pin/scroll-hijack/sticky, tanpa counter `01 / 12` (progres = bar kecil). Tetap beda dari referensi: tumpukan kartu, bukan carousel horizontal geser. Halaman All Projects/All Achievements tetap grid + Flip.
-5. **Easing**: semua entrance/interaksi memakai `brand`. Pengecualian yang disengaja: loop kontinu (napas/idle robot dan visor "bicara" `sine.inOut`), efek ketik `none` (laju karakter konstan), ~~partikel semprotan~~ (dihapus R13), **tumpahan cat R13** yang tidak di-tween (bentuk digambar dari progres scrub dengan kurva gravitasi: jatuh dipercepat `power2.in`, lelehan lebih cepat dari tepi utama), dan transisi halaman R14 yang memetakan progres scrub lewat **`power2.inOut`** per fase tutup/buka (rencana awal `brand`; kurva expo-out itu membuat layar tertutup ±35% rentang scroll, sedangkan `inOut` hanya di tengah). ~~marquee `none`~~ (marquee dihapus di R7).
+4. **Projects & Achievements di landing** (direvisi R4/R5, **direvisi lagi R11/R12**): ~~sticky stack/deck mengikuti scroll~~ → ~~deck kartu interaktif + panel daftar judul; Projects dilempar, Achievements dicerminkan & dibalik 3D~~ → **satu komponen showcase yang sama untuk keduanya**: panel info project/achievement **aktif** di KIRI (judul, deskripsi, Previous/Next, ringkasan data, link detail), **tumpukan gambar saja** di KANAN, tidak dicerminkan. Satu preset animasi transisi (opsi A "tirai terangkat + parallax", dipilih user) yang sadar arah, teks panel berganti tersinkron. Preset `toss`/`flip`, punggung kartu, varian `deck` kartu, dan daftar judul dihapus. Tanpa pin/scroll-hijack/sticky, tanpa counter `01 / 12` (progres = bar kecil). Tetap beda dari referensi: tumpukan kartu, bukan carousel horizontal geser. Halaman All Projects/All Achievements tetap grid + Flip. **Direvisi R17**: ~~tirai terangkat~~ → **lipatan halaman buku**. Kartu depan terangkat dari tepi bebasnya dan berputar di engsel (punggung buku), melengkung lewat strip vertikal bertingkat (`motion/pageFlip.ts`). Maju dan mundur berputar berlawanan arah. Drag kini **mengikuti arah**: tarik ke kiri = maju, ke kanan = mundur, dan halaman mengikuti jari (sebelumnya drag ke arah mana pun = maju). Projects & Achievements tetap identik. **Direvisi lagi (2026-10-27)**: ~~lipatan buku di engsel kiri~~ → **lipatan sudut**: pojok kiri bawah terangkat dan dilipat balik, garis lipat menyapu diagonal ke pojok kanan atas (mundur = kebalikannya); drag dibalik menjadi **tarik ke kanan = maju, ke kiri = mundur**, supaya lipatan mengikuti jari.
+5. **Easing**: semua entrance/interaksi memakai `brand`. Pengecualian yang disengaja: loop kontinu (napas/idle robot dan visor "bicara" `sine.inOut`), efek ketik `none` (laju karakter konstan), ~~partikel semprotan~~ (dihapus R13), **tumpahan cat R13** yang tidak di-tween (bentuk digambar dari progres scrub dengan kurva gravitasi: jatuh dipercepat `power2.in`, lelehan lebih cepat dari tepi utama), dan transisi halaman R14 yang memetakan progres scrub lewat **`power2.inOut`** per fase tutup/buka (rencana awal `brand`; kurva expo-out itu membuat layar tertutup ±35% rentang scroll, sedangkan `inOut` hanya di tengah). ~~marquee `none`~~ (marquee dihapus di R7). _Revisi 3:_ lipatan halaman R17 memakai **`power2.inOut`** saat diputar oleh tombol/keyboard (kertas berakselerasi lalu mendarat, seperti halaman sungguhan), dan progres **linear (`none`)** saat digerakkan jari; pop Abot mini R18 tetap `brand`, dua langkah (lewat 1.06 lalu kembali ke 1), tanpa ease `back`.
 6. **Package manager**: `node_modules` lokal dikelola pnpm; `pnpm-lock.yaml` baru belum di-commit (menunggu keputusan).
 7. **Breakpoint layout 2 kolom** (baru, R1/R4/R5; user memilih `md` bila tanpa risiko): hero, Projects, dan Achievements jadi 2 kolom mulai **`lg`** (1024px). Di 768–1023px tetap bertumpuk (robot ukuran sedang di atas teks; deck di atas baris kontrol ringkas). `md` dinilai berisiko: di 768px kolom teks hero hanya ±375px sehingga nama `text-display` (±48px di lebar itu) pecah jadi 3 baris dan hero melebihi satu layar, sedangkan kolom panel deck ±280px terlalu sempit untuk daftar judul + tombol. Mengecilkan nama khusus di `md` akan mengubah skala tipografi, jadi tidak dipilih. Kondisi motion `desktop` (≥768px) tidak berubah.
-8. **Transisi section** (baru, R6/R8, **direvisi R13/R14**): ~~Hero → About = semprotan pilok~~ → **tumpahan cat** `--primary` di `<canvas>` (mengalir dari atas dengan tepi cair bergelombang + lelehan, menutup layar, lalu surut/terkuras ke bawah memperlihatkan About), scrub tanpa pin, warna token dibaca saat runtime dan ulang saat tema berganti. ~~Batas lain: tetesan cat, sapuan roller, stensil "A", percikan (R8)~~ → **transisi "membuka halaman baru"** dengan lembar `--primary` (lipatan `--primary-strong`) dalam empat jenis yang disetujui: lipat sudut, bilah diagonal, iris dari pojok, balik halaman, satu jenis **acak per batas, tetap selama satu sesi** (Keputusan #11), lebih pendek dari Hero → About. Reduce: Hero → About divider statis, batas lain tanpa transisi.
+8. **Transisi section** (baru, R6/R8, **direvisi R13/R14**): ~~Hero → About = semprotan pilok~~ → **tumpahan cat** `--primary` di `<canvas>` (mengalir dari atas dengan tepi cair bergelombang + lelehan, menutup layar, lalu surut/terkuras ke bawah memperlihatkan About), scrub tanpa pin, warna token dibaca saat runtime dan ulang saat tema berganti. ~~Batas lain: tetesan cat, sapuan roller, stensil "A", percikan (R8)~~ → **transisi "membuka halaman baru"** dengan lembar `--primary` (lipatan `--primary-strong`) dalam empat jenis yang disetujui: lipat sudut, bilah diagonal, iris dari pojok, balik halaman, satu jenis **acak per batas, tetap selama satu sesi** (Keputusan #11), lebih pendek dari Hero → About. Reduce: Hero → About divider statis, batas lain tanpa transisi. **Direvisi R16 ("tahan lalu tukar")**: section berikutnya tidak pernah terlihat sebelum layar tertutup penuh, dan section sebelumnya tidak terlihat lagi setelahnya, ke dua arah scroll. Batas bertransisi kini tinggal tiga: Hero → About (tumpahan cat), About → Projects, dan Projects → Achievements (lembar acak). Projects → Skills dan Achievements → Footer tanpa transisi (disetujui user). Caranya: section lama di-**pin tanpa spacing** selama overlay menutup, section baru di-clip tak terlihat. Tepat saat tertutup penuh keduanya ditukar. Section baru lalu **scroll alami** selama overlay membuka (implementasi R16; rencana awal mem-pin-nya, tetapi itu menggeser semua trigger di dalamnya). Panjang fase buka dibatasi supaya konten sesudahnya belum terlihat. Achievements diberi tinggi minimal satu layar (mode motion saja). Link anchor yang melintasi batas memakai **lompatan tertutup** (bukan glide) dan mendarat di scroll-margin section, dengan overlay disisihkan. Reduce: tanpa pin/overlay, **semua batas** memakai divider statis. Rincian di §6 R16. **Dicabut (2026-10-26, permintaan user setelah R16, "terlalu maksa"): semua transisi antar-section dihapus dari landing**: tumpahan cat Hero → About, lembar halaman acak, dan divider reduce. Batas section kembali biasa (tanpa pin/overlay). File transisi tidak lagi dipakai dan menunggu keputusan hapus.
 9. **Plugin GSAP `Draggable`** (baru, R4): dipakai untuk drag/swipe deck (sejak R11/R12 oleh `motion/useShowcase.ts`); didaftarkan di `motion/gsap.ts` sehingga tetap hanya ada di chunk public.
 10. **Navbar glass** (baru, R9): di top tetap transparan seperti sekarang; setelah scroll, pill navbar memakai kaca **tidak terlalu bening** dari turunan token (`color-mix` `--background` **85%**, border turunan `--border`, bayangan turunan `--foreground`/`--background` per tema) + `backdrop-filter: blur(20px) saturate(1.6)`. Nilai literal lama `--glass-nav-bg`/`--glass-nav-border` diganti turunan token. `view-transition-name: site-header` ada di `<nav>`, bukan `<header>`: elemen bernama view transition adalah _backdrop root_ dan akan mematikan blur anaknya.
-11. **Pilihan acak per sesi** (baru, R14): jenis transisi tiap batas diundi sekali per sesi dan disimpan di `sessionStorage` (dengan versi kunci), batas bersebelahan tidak boleh sama. Diundi di `onMounted` (bukan saat render) sehingga markup sama di server/klien; `sessionStorage` diakses dalam `try/catch` (mode privat → undian di memori, tetap konsisten selama halaman hidup).
+11. **Pilihan acak per sesi** (baru, R14): jenis transisi tiap batas diundi sekali per sesi dan disimpan di `sessionStorage` (dengan versi kunci), batas bersebelahan tidak boleh sama. _R16:_ tinggal 2 batas (About → Projects, Projects → Achievements), kunci `…:v2`. Diundi di `onMounted` (bukan saat render) sehingga markup sama di server/klien; `sessionStorage` diakses dalam `try/catch` (mode privat → undian di memori, tetap konsisten selama halaman hidup).
+12. **Bubble Abot mini** (baru, R18): jadwal (**disetujui** 2026-10-26): pertama setelah **8 detik kumulatif** di luar hero, lalu tiap **±40 detik** (35–45 detik acak), tampil **6 detik** (timer dijeda saat hover/fokus), **maksimal 4 kali per sesi**. Ditutup lewat X = tidak muncul lagi di sesi itu. Hitungan disimpan di `sessionStorage` berversi (`try/catch`, pola Keputusan #11). Bubble ditunda selama: ContactModal terbuka, dialog besar/dialog mini terbuka, ada interaksi dengan deck/tab/form (fokus di dalam atau pointer dalam 4 detik terakhir), tab tidak aktif. Isinya bergiliran dari halaman dialog yang sama: sapaan R19 dulu, halaman "menunjuk ke projects" dilewati. Bukan live region.
+13. **Sapaan jam lokal** (baru, R19): `new Date().getHours()` dibaca di klien setelah mount dan dibaca ulang tiap dialog dibuka / bubble tampil, bukan di level modul, jadi markup SSR tidak bergantung jam. Sebelum mount, dialog tanpa halaman sapaan. Pembagian jam & kalimat di §6 R19.
+14. **Suara Abot** (baru, R20, permintaan user): bunyi "robot" khas disintesis dengan Web Audio (oscillator + envelope, tanpa file audio, tanpa dependency). Bunyi hanya muncul di dialog yang **dibuka pengguna** (hero atau mini), karena browser memblokir audio tanpa gestur. Bubble periodik tetap senyap. ~~Ada tombol bisu di header HUD~~ → tombol bisu kini di **navbar, di samping toggle dark mode** (hanya di landing), pilihannya disimpan di `localStorage` (`try/catch`). Rincian di §6 R20 dan "Revisi setelah R20".
 
 ---
 
@@ -752,3 +758,443 @@ Catatan hasil:
   - **Undian**: 6 sesi baru memberi 6 urutan berbeda, semua valid tanpa jenis yang sama bersebelahan, sama setelah reload, dan nilai rusak di storage diundi ulang dengan valid.
   - Navigasi landing ↔ All Projects 3× bolak-balik: overlay dibuat & dibersihkan (4 lembar + 1 kanvas tumpahan di landing, 0 di listing), jenis tetap.
   - Sapuan seluruh halaman: tanpa elemen di opacity 0, tanpa error console. Jeda frame tunggal masih muncul acak (artefak headless; mesin juga sedang berbeban), perlu dicek di perangkat nyata.
+
+---
+
+## 6. Revisi 3
+
+Dikerjakan **satu tahap tiap "lanjut"**, urut R15 → R20 (R20 = suara Abot, ditambahkan user saat menjawab pertanyaan #5). R15 lebih dulu karena memisahkan SVG Abot ke `AbotFigure.vue` yang dipakai R18. (R16 dicabut setelah dikerjakan; R18 tidak lagi bergantung padanya.) R19 terakhir: sapaan ditambahkan ke `buildDialogPages`, jadi dialog besar, dialog mini, dan bubble (yang mengambil teks dari fungsi yang sama) ikut mendapatkannya sekaligus. Penutup tiap tahap **sama dengan §2**: `npm run lint`, `npm run types:check`, `npm run build`; cek `git diff --stat` tidak menyentuh `app/ routes/ database/ config/ .env` dan `git diff resources/css/app.css` tidak mengubah `--primary`/`--primary-foreground`; centang tahap di dokumen ini; **JANGAN `git add`, `git commit`, atau `git push`**; ringkasan + usulan pesan commit; berhenti.
+
+Semua aturan §4/§5 tetap berlaku: data tidak berubah (hanya prop yang sudah dikirim controller), `--primary`/`--primary-foreground` & Poppins dikunci, **tidak ada warna literal baru** (class token, `color-mix(in oklab, var(--…) N%, transparent)`, canvas membaca token lewat `motion/paintColors.ts`), GSAP/Lenis hanya lewat `motion/gsap.ts`/`motion/lenis.ts` di kode public, semua animasi lewat `useMotion` (matchMedia `desktop`/`mobile`/`reduce`), reduce tanpa konten tertinggal di `opacity: 0`. File yang jadi tidak terpakai dihapus di tahapnya setelah dicek `grep` (disetujui, §5 pertanyaan #4).
+
+### Benturan dengan rencana/keputusan lama & penyelesaiannya
+
+| Revisi                        | Bertentangan dengan                                                                   | Penyelesaian                                                                                                                                                                                    |
+| ----------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R15 bentuk chibi              | R2/R10: siluet = A kapital logo dengan proporsi huruf                                  | Keputusan #1 direvisi. Tetap terbaca A: kubah = puncak, celah kaki = lubang A, sabuk = palang. Proporsi dipilih user dari 3 varian.                                                              |
+| R15 `docs/abot-variants.html` | "Tidak ada warna literal baru"                                                         | File pratinjau statis di `docs/`, tidak di-import dan tidak di-build. Nilai token light & dark **disalin apa adanya** dari `app.css` ke variabel CSS file itu. Kode aplikasi tetap tanpa literal. |
+| R16 pin                       | Keputusan #8 & R6/R13/R14: "scrub tanpa pin"                                           | Keputusan #8 direvisi. Pin hanya di batas section dan hanya selama transisi. Pin vertikal; "tanpa horizontal pin" di §0 tetap berlaku.                                                         |
+| R16 divider statis            | R14 reduce: batas lain "tidak merender apa pun"                                        | Reduce kini menampilkan divider statis di **semua** batas.                                                                                                                                     |
+| R16 jumlah batas              | R14: empat batas bertransisi (termasuk Projects → Skills dan Achievements → Footer)    | Disetujui (pertanyaan #1–#2): Projects → Skills dan Achievements → Footer tanpa transisi. Undian R14 untuk 2 batas, kunci `…:v2`.                                                              |
+| R16 tinggi minimal scene      | Spacing section yang ada                                                               | Hanya Achievements, hanya di mode motion (`motion-safe:`); reduce & tanpa JS tetap seperti sekarang.                                                                                           |
+| R20 suara                     | Belum ada audio di situs; kebijakan autoplay browser                                    | Suara disintesis Web Audio (tanpa file), hanya setelah gestur pengguna (membuka dialog), bisa dibisukan; bubble periodik tetap senyap.                                                         |
+| R17 lipatan buku              | Keputusan #4: opsi A "tirai terangkat" (dipilih user di R11); drag ke mana pun = maju   | Keputusan #4 direvisi. Tirai diganti; arah drag kini bermakna (kiri maju, kanan mundur).                                                                                                       |
+| R17 rotasi 3D                 | R12 menghapus preset `flip` (`useDeck.ts`)                                             | Bukan preset lama (kartu utuh berbalik memperlihatkan punggung). Ini lembar yang melengkung dari engsel, dibuat dari strip bertingkat di modul baru `motion/pageFlip.ts`.                      |
+| R18 Abot di luar hero         | Keputusan #1 & §0: robot "tetap di hero" sebagai pembeda dari Tejo                      | ~~Pop di tempat~~ → **terbang sekali** hero → pojok (diminta user setelah R18, setelah diingatkan bahwa ini melawan aturan R18 sendiri). Pembeda yang tersisa di Keputusan #1.                  |
+| R18 bubble periodik           | Keputusan #1: "tanpa speech bubble"                                                     | Bubble bergaya panel HUD yang sama (bracket sudut, tanpa ekor gelembung), terpisah dari tubuh robot.                                                                                           |
+| R19 jam lokal                 | Markup SSR harus deterministik                                                          | Jam dibaca di `onMounted` / saat dibuka, tidak saat render (Keputusan #13).                                                                                                                    |
+
+### Pertanyaan terbuka — sudah dijawab (2026-10-26)
+
+1. **R16 — batas Achievements → Footer.** Aturan "tidak bocor" tidak bisa dipenuhi secara geometris di batas terakhir, karena footer lebih pendek dari layar. → **(A) disetujui**: batas ini **tanpa transisi**. Footer muncul alami setelah Achievements, dan Achievements diberi tinggi minimal satu layar (mode motion) supaya footer tidak mengintip selama transisi yang masuk ke Achievements.
+2. **R16 — tinggi minimal scene / batas Projects → Skills.** → **Skills tetap ada, batas Projects → Skills tanpa transisi.** Blok Projects (judul + showcase) dan Skills menjadi **satu scene** `#project`. Hasilnya tinggal tiga batas bertransisi: Hero → About (tumpahan cat), About → Projects, dan Projects → Achievements (lembar R14, diundi dari 2 batas, kunci storage `…:v2`). `min-h-svh` hanya untuk Achievements.
+3. **R16 — anchor yang melintasi batas** → **lompatan tertutup** disetujui.
+4. **R17 — engsel** → selalu di **tepi kiri** (punggung buku) disetujui, termasuk halaman yang sempat melintasi panel info di `lg`.
+5. **R18 — klik Abot mini** → membuka `BotDialog` lengkap di pojok, disetujui. **Tambahan dari user:** Abot punya **suara robot khas**. Dikerjakan sebagai tahap tersendiri **R20** (Keputusan #14), setelah kedua dialog dan sapaan R19 ada.
+6. **R18 — mobile di dasar halaman** → Abot mini disembunyikan di bawah `md` selama footer terlihat, disetujui.
+7. **R19 — kalimat sapaan** → **disetujui** sesuai tabel R19.
+8. **R18 — jadwal bubble** → **disetujui** (Keputusan #12).
+
+### [x] R15 — Abot: bentuk lebih membulat (chibi)
+
+**Langkah 1 (lalu BERHENTI menunggu pilihan):** `docs/abot-variants.html`, HTML statis yang bisa dibuka langsung di browser:
+
+- `:root` berisi nilai token **light** dan `.dark` nilai token **dark**, disalin apa adanya dari `resources/css/app.css` (`--primary`, `--primary-strong`, `--primary-foreground`, `--brand-red`, `--card`, `--border`, `--foreground`, `--background`). Ada class kecil yang meniru utility Tailwind (`.fill-primary { fill: var(--primary) }`, `.stroke-border`, …), sehingga markup SVG varian yang dipilih bisa dipindah ke Vue nyaris tanpa diubah.
+- 3 varian siluet, masing-masing di **3 ukuran**: kecil **56px** (ukuran Abot mini R18), sedang **144px** (`md:h-36`, tablet), besar **320px** (`xl:h-80`). Masing-masing tampil di panel light dan dark berdampingan. Tiap varian diberi keterangan singkat dan proporsi lebar : tinggi.
+- Semua varian memakai tata bahasa yang sama: kubah kepala = puncak A dengan antena + halo, visor kapsul berisi dua mata LED, sabuk membulat = palang A dengan lampu `brand-red` dan lengan di ujungnya, kaki kiri panel sirkuit `fill-card stroke-border` + kaki kanan solid `fill-primary` (ciri logo, disederhanakan di ukuran kecil), telapak bulat, bayangan lantai. Usulan karakter tiap varian:
+  - **V1 "Gumdrop"**: kaki tebal dengan tepi luar **cembung** (menggembung seperti permen jeli), celah kaki berbentuk lengkung pintu pendek, kubah kepala besar menyatu dengan kaki, visor kapsul horizontal. Proporsi ±1.1 : 1.
+  - **V2 "Lonceng"**: siluet montok seperti lonceng/tenda. Kubah melebar ke "rok" tebal, kaki sangat pendek dengan celah sempit, visor lebar seperti kacamata ski tepat di atas sabuk, telapak oval besar mencuat ke samping. Paling "mainan". Proporsi ±1.2 : 1.
+  - **V3 "Langkah"**: kubah kepala sedikit terpisah (lekuk leher tipis di bawah kubah), kaki tebal sedikit mengangkang dengan lekuk lutut ke dalam, visor kapsul mengikuti lengkung kubah, telapak bulat besar seperti sepatu bot. Paling jelas terbaca sebagai A. Proporsi ±1 : 1.
+
+**Setelah varian dipilih** (rencana teknis):
+
+- **`components/site/abotShape.ts`** ditulis ulang: siluet berupa path kubik yang ditulis tangan (konstanta string, bukan poligon), dengan nama ekspor yang sama sejauh masih relevan (`A_SILHOUETTE`, `A_SPLIT_LEFT/RIGHT`, `A_VISOR`, `A_CROSSBAR`/sabuk, `A_KNEE` bila tetap ada). `roundedPath` tetap dipakai untuk bagian poligon kecil (lutut) atau dihapus bila tak terpakai. **Titik pivot pindah ke file ini** (`SHOULDER_LEFT`, `SHOULDER_RIGHT`, `FEET`, `ANTENNA_BASE`, `VIEWBOX`) dan disesuaikan ke sendi baru, sehingga semua `svgOrigin` tetap tepat di ukuran apa pun.
+- **`components/site/AbotFigure.vue`** (baru): SVG Abot saja, tanpa gerak dan tanpa `<button>`. Prop `detail: 'full' | 'mini'` (mini menyembunyikan jalur sirkuit, lutut, dan kilap). Elemen bagian tubuh (`body`, `visor`, `eyes`, `eyeLeft/Right`, `armLeft/Right`, `antenna`, `halo`, `shadow`) diekspos lewat `defineExpose`. Id clip kaki tetap dari `useId`.
+- **`HeroBot.vue`** memakai `AbotFigure`. Logika R2–R3 tidak diubah: `prepare`/`enter`, idle, kedip, mata ikut kursor, squint, `gesture()`, `react()`, `speak()`, `focus()`, `aria-*`. Yang berubah hanya sumber ref dan konstanta pivot. Kelas ukuran disesuaikan dengan proporsi baru (lebar naik kalau varian lebih lebar dari tinggi) supaya kolom hero dan `BotDialog` tetap pas.
+- `data-intro-target` tetap di wrapper `Hero.vue` → titik `clip-path: circle()` splash otomatis mengikuti kotak robot baru.
+- Panel `BotDialog` di `lg` (di atas robot) dan mobile (di bawah robot) dicek ulang terhadap tinggi robot yang baru.
+- `docs/abot-variants.html` tetap disimpan di `docs/` sebagai arsip keputusan (bukan kode, tidak ikut build).
+
+File: `docs/abot-variants.html` (baru), `components/site/abotShape.ts`, `components/site/AbotFigure.vue` (baru), `components/site/HeroBot.vue`, `components/ui/landing-page/Hero.vue` (ukuran/posisi bila perlu).
+
+Verifikasi: siluet terbaca A di `h-28`, `md:h-36`, `xl:h-80` dan di 56px (mini), light & dark; wave/hop/nod/point/pusing berputar di pivot yang benar; mata ikut kursor tetap di dalam visor kapsul; titik akhir circle splash = pusat robot (< 1px) di 1280/768/375; dialog jalan (ketik, Next/Close, Esc, tutup otomatis); reduce statis tanpa elemen hero di opacity 0.
+
+Risiko:
+
+- Terlalu bulat → terbaca seperti tetesan/hantu, bukan A. Itu sebabnya celah kaki (lubang A) dan sabuk (palang) dibuat tegas di ketiga varian, dan dicek di 56px.
+- Mata yang bergeser ±4/±3 bisa keluar dari visor kapsul yang lebih pipih → batas gerak mata diturunkan dari ukuran visor baru.
+- Lengan di ujung sabuk yang lebih pendek bisa menabrak kaki yang menggembung saat `wave`/`point` → sudut istirahat lengan disesuaikan, `overflow-visible` tetap.
+- Klip dua warna kaki pada kaki yang melengkung: garis sambungan harus tetap di dalam celah (pelajaran R10 soal takik di fillet).
+
+Catatan hasil:
+
+- **Pilihan user**: **V2 "Lonceng"**, dengan kepala yang **benar-benar melengkung**. Kubah kini setengah lingkaran sungguhan (busur `A66`, pusat 120,100), bukan lengkung tenda. Badan lalu melebar ke "rok" tebal dengan kaki pendek dan celah sempit. `docs/abot-variants.html` diperbarui ke versi terpilih dan ditandai "dipilih".
+- **`abotShape.ts`**: siluet ditulis tangan sebagai path (busur + kubik), dengan viewBox `0 -6 240 222` (lebih lebar dari tinggi). Isinya:
+  - garis sambungan dua warna (dari kiri puncak kubah ke puncak celah);
+  - kilap, visor kapsul, sabuk, telapak oval, dan lutut heksagon (masih memakai `roundedPath`);
+  - **pivot**: `SHOULDER_LEFT 40 129`, `SHOULDER_RIGHT 200 129`, `FEET 120 200`, `ANTENNA_BASE 120 34`.
+
+  Konstanta lama `A_RADIUS`/`A_RADIUS_INNER` dihapus karena tidak dipakai lagi.
+- **`AbotFigure.vue`** (baru): SVG saja, prop `detail: 'full' | 'mini'` (mini tanpa sirkuit, lutut, kilap, pipi). Bagian yang bergerak diekspos lewat `defineExpose`. Visor diberi tepi `stroke-card` 5px supaya tetap terbaca di atas sisi biru.
+- **`HeroBot.vue`**: SVG inline diganti `AbotFigure`. Ref bagian tubuh menjadi `computed` dari instance figure, jadi seluruh logika R2–R3 (intro, idle, kedip, mata ikut kursor, squint, gestur, pusing, bicara) **tidak diubah**. Pivot diambil dari `abotShape.ts`.
+- **Ukuran**: proporsi baru lebih lebar, jadi tinggi desktop diturunkan supaya luas visual setara: `h-28 sm:h-32 md:h-36 lg:h-64 xl:h-72` (sebelumnya `lg:h-72 xl:h-80`). `Hero.vue` tidak perlu diubah.
+- **Hasil uji di build** (skrip CDP; 1280 light/dark, 768 light, 375 mobile dark, 1280 reduce):
+  - Titik akhir `circle()` splash = pusat robot (selisih < 0.5px) di semua lebar.
+  - Lambaian berputar di ujung sabuk, lompat mengangkat badan dari bayangan, dan pusing berputar di kaki dengan mata berputar.
+  - Dialog terbuka di atas robot (`lg`) dan di bawahnya (mobile/tablet), dengan teks halaman pertama.
+  - Hero 375×667 setinggi 717px (sama dengan sebelumnya).
+  - Tidak ada elemen hero di opacity 0 (termasuk reduce), dan tanpa error console.
+- **Catatan**: di dark mode sisi kiri (`--card` + `stroke-border`) masih tipis kontrasnya terhadap latar, sama seperti robot sebelumnya. Tidak diubah karena belum diminta; bisa dipertegas lewat garis tepi turunan token bila diinginkan.
+
+### [x] R16 — Transisi section: section berikutnya tidak boleh bocor (dicabut)
+
+Masalah sekarang: transisi Hero → About (pour) dan batas R14 berjalan **tanpa pin**, dengan rentang mulai saat batas di 80% (pour) atau `end − 0.45` layar (lembar). Jadi ekor section lama dan kepala section baru selalu terlihat bersamaan di sekitar batas sebelum dan sesudah overlay menutup.
+
+**Teknik yang dipilih: "tahan lalu tukar"** (kombinasi pin + sembunyikan). Pada tiap batas, scene lama **S** dan scene baru **T** bersebelahan, sehingga konten harus berpindah ±satu layar di antara "bawah S di dasar layar" dan "atas T di atas layar". Perpindahan itu dibuat tak terlihat:
+
+1. **Fase tutup** `[a, b)`: dari `a` = bawah S tepat di dasar viewport, sampai `b` = atas T di `top + offset`, dengan `offset` = `scroll-margin-top` (`--nav-h` + 1.5rem, sama dengan titik mendarat anchor). Panjangnya intrinsik ±(1 layar − offset), **tidak menambah tinggi halaman**.
+   - S di-pin dengan ScrollTrigger `pin: S, pinSpacing: false`: S diam, kontennya tetap utuh di layar.
+   - T di-clip tak terlihat (`clip-path: inset(0 0 100% 0)`, bukan `visibility`, supaya tetap bisa difokus).
+   - Overlay menutup dan sudah penuh di ±90% fase. Sisa 10% adalah toleransi.
+2. **Tukar** di `b`, saat layar tertutup penuh: pin S lepas lalu S disembunyikan (`clip-path`), dan clip T dilepas.
+3. **Fase buka** `[b, c)`: T di-pin di `top top+=offset` dengan `pinSpacing: true` sepanjang `D` (desktop 40vh, mobile 30vh; Hero → About 60vh / 40vh), sehingga T diam saat overlay membuka. Spacing ini satu-satunya tambahan tinggi halaman (±0.4 layar per batas).
+4. Setelah `c`: scroll normal, dan clip S dilepas (S sudah di atas viewport).
+
+Semua status adalah fungsi dari posisi scroll (scrub, ScrollTrigger), jadi **scroll mundur otomatis simetris**. Dari `c` ke `b` overlay menutup di atas T yang diam. Di `b` keduanya ditukar kembali. Dari `b` ke `a` overlay membuka di atas S yang diam, sementara T sudah tersembunyi lagi. Section sebelumnya tidak pernah bocor saat kembali.
+
+Pemetaan overlay: timeline jenis R14 (tutup 0 → 0.45, penuh 0.45–0.55, buka 0.55 → 1) dipetakan ke **fase tutup → 0…0.5** dan **fase buka → 0.5…1**, sehingga titik tukar `b` selalu jatuh di jendela tertutup penuh, dengan cadangan 5% di tiap sisi. Pour Hero → About dipetakan sama: tuang 0 → 0.5, tahan, lalu surut 0.56 → 1.
+
+Rincian:
+
+- **`motion/sceneSwap.ts`** (baru, logika tanpa Vue): `createSceneSwap({ from, to, overlay: (p) => void, open, mobile })` membuat dua ScrollTrigger (fase tutup dan fase buka) dan mengelola clip/pin. Ia juga mendaftarkan **titik aman** batas ke registri kecil: `anchorFor(el)` → posisi scroll `c` untuk T, dan `a` untuk S. Dipakai oleh `PourTransition.vue` dan `PageTransition.vue`, sehingga keduanya hanya menyediakan fungsi gambar/timeline overlay.
+- **Scene** ditandai `data-scene` di markup. Komponen batas mencari scene sebelum dan sesudah penandanya di urutan dokumen. Scene: Hero, About, Projects (judul + showcase + Skills, satu scene), Achievements. Achievements diberi `motion-safe:min-h-svh` dengan isi di tengah vertikal, supaya footer tidak terlihat di bawahnya selama fase buka. Projects + Skills dicek lebih tinggi dari layar di 1280×800 dan 375×640; kalau ternyata tidak, scene itu diberi aturan yang sama.
+- **Batas yang dihapus** (pertanyaan #1–#2): `PageTransition :boundary="1"` di `Projects.vue` (Projects → Skills) dan `:boundary="3"` di `LandingPage.vue` (Achievements → Footer) dilepas. `PageTransition :boundary="2"` menjadi `:boundary="1"`. `motion/sectionTransitions.ts`: `BOUNDARY_COUNT = 2`, kunci `portfolio:section-transitions:v2`, dan komentar urutan batas diperbarui. Spacing `mt-20 md:mt-24` yang semula milik penanda Projects → Skills dipindah ke blok Skills supaya jarak visual tetap sama.
+- **Anchor/navigasi**:
+  - `motion/lenis.ts`: `scrollToTarget`/handler `#hash` menyelesaikan target lewat `anchorFor()`, sehingga mendarat di `c` (overlay terbuka penuh, T diam di bawah navbar). Kalau perjalanannya melintasi ≥ 1 batas, dipakai **lompatan tertutup** (pertanyaan #3); kalau tidak, tetap glide.
+  - `/#project` dari halaman lain (Tahap 8) memakai jalur yang sama setelah `ScrollTrigger.refresh()`.
+  - Scroll hint hero (`href="#about"`) ikut jalur ini.
+- **Fokus keyboard**: `focusin` di scene yang sedang di-clip (T saat fase tutup, S saat fase buka) → lompatan tertutup ke titik aman scene itu. Elemen fokus tidak pernah berada di bagian yang tak terlihat.
+- **Dialog hero** (`Hero.vue`): sekarang tertutup saat bawah hero melewati 25% atas, padahal hero kini diam di-pin. Diganti menjadi tertutup saat fase tutup Hero → About melewati ±15%.
+- **Mobile**: mekanisme sama (itulah yang menjamin tidak bocor), versi ringan: `D` lebih pendek, overlay versi mobile yang sudah ada (pour lebih sedikit lelehan, lembar tanpa 3D/bayangan). Pin memakai `anticipatePin: 1`, tinggi scene memakai `svh`, dan `ScrollTrigger.config({ ignoreMobileResize: true })` supaya bilah URL tidak memicu refresh.
+- **Reduce**: tidak ada ScrollTrigger pin/clip, tidak ada overlay, tidak ada `min-h` (`motion-safe:`). Hero → About tetap divider statis R13. `PageTransition.vue` kini merender **divider statis** di reduce (sebelumnya kosong): garis rambut gradasi `color-mix(--primary 45%, transparent)` dengan kapsul kecil `bg-primary` di tengah, `aria-hidden`.
+
+File: `motion/sceneSwap.ts` (baru), `components/site/PourTransition.vue`, `components/site/PageTransition.vue`, `motion/pageTransitions.ts` (bila pemetaan fase butuh penyesuaian), `motion/sectionTransitions.ts` (2 batas, kunci `v2`), `motion/lenis.ts` (resolusi anchor + lompatan tertutup), `pages/LandingPage.vue`, `components/ui/landing-page/Hero.vue`, `About.vue`, `Projects.vue` (`data-scene`, penanda Projects → Skills dilepas), `Achievements.vue` (`data-scene`, `min-h`).
+
+Verifikasi (skrip CDP, 1280 light/dark, 375 mobile, 1280 reduce):
+
+- Di setiap posisi scroll pada tiap batas (sampel tiap 2% rentang, maju dan mundur), piksel konten T **tidak pernah terlihat** sebelum cakupan overlay 100%, dan S tidak terlihat sesudahnya. Diuji dengan menyembunyikan overlay lalu membaca `getBoundingClientRect` + status clip.
+- Overlay tertutup penuh di sekitar `b`.
+- Anchor dari navbar dan dari halaman lain mendarat dengan overlay tersembunyi dan konten terlihat.
+- Tab dari elemen terakhir S → fokus terlihat di T.
+- `ScrollTrigger.getAll()` stabil setelah 3× navigasi; sapuan seluruh halaman tanpa elemen di opacity 0 dan tanpa error console.
+- Reduce: tanpa pin/overlay, divider tampil di semua batas.
+
+Risiko:
+
+- **Lebih banyak scroll "diam"**: S diam ±1 layar dan T diam ±0.4 layar di tiap batas. Ini konsekuensi langsung dari aturan tidak bocor. Kalau terasa berat, `D` diperkecil; fase tutup tidak bisa diperpendek tanpa memperlihatkan T.
+- ScrollTrigger lain di dalam scene yang di-pin (rail Timeline, entrance showcase, parallax hero) → pin `pinSpacing: false` tidak menggeser layout. Trigger yang rentangnya beririsan dengan fase pin diberi `pinnedContainer`. Pin dibuat berurutan dari atas (`refreshPriority`) supaya spacer fase buka dihitung dengan benar.
+- Pin dengan `position: fixed` di dalam leluhur yang di-transform akan rusak → scene adalah anak langsung konten (tanpa transform leluhur); dicek.
+- `clip-path` pada section besar memicu repaint satu kali saat tukar, bukan per frame.
+- iOS Safari: lompatan kecil saat pin mulai di scroll native → `anticipatePin`; perlu dicek di perangkat nyata.
+- Splash/intro hero tidak terpengaruh: fase tutup Hero → About baru bergerak setelah scroll pertama.
+
+**Dicabut (2026-10-26).** Setelah melihat hasilnya user menilai transisi antar-section "terlalu maksa" dan meminta semuanya dihapus dulu. Yang dilakukan:
+- `PourTransition` dan kedua `PageTransition` dilepas dari `LandingPage.vue`, penanda `data-scene` dan `min-h` Achievements dihapus, dan dialog hero kembali tertutup di `bottom 25%`.
+- `lenis.ts` dikembalikan ke versi sebelum R16, **kecuali dua perbaikan bug** yang ditemukan saat uji R16 (berlaku tanpa transisi): `landOnHash()` (buka langsung `/#section` kini mendarat, juga setelah splash) dan `lenis.resize()` sebelum lompat setelah navigasi Inertia.
+- Jarak blok Skills tetap `mt-36 md:mt-44` (sama secara visual dengan sebelumnya: margin penanda + margin Skills).
+- `PourTransition.vue`, `PageTransition.vue`, dan `sectionTransitions.ts` dikembalikan ke versi HEAD. Bersama `pageTransitions.ts`, `liquidPour.ts`, `paintColors.ts`, `canvas.ts`, dan `sceneSwap.ts` (baru, belum di-commit), file-file itu kini **tidak diimpor kode aktif** dan menunggu keputusan user (hapus atau simpan untuk nanti).
+- Uji setelah pencabutan: buka langsung `/#project` mendarat 98px dan Inertia → `/#achievement` 94px (mobile), tanpa overlay/pin. Setelah digulir habis tidak ada elemen di opacity 0.
+
+Catatan hasil (implementasi sebelum dicabut, untuk referensi):
+
+- **`motion/sceneSwap.ts`** (baru): `createSceneSwap({ marker, overlay, shut, open, render, onActive, onRefresh })`. Scene S/T dicari dari `[data-scene]` sebelum/sesudah penanda. Isinya dua ScrollTrigger:
+  - `hold`: pin S tanpa spacing dari `a` ke `b`, dan mengukur `a`, `b`, `c` tiap refresh;
+  - `range`: dari `a` sampai `b + 1 layar`, menghitung progres overlay dan clip kedua scene.
+
+  Clip dikelola lewat registri "alasan per batas", karena About dan Projects masing-masing menjadi T di satu batas dan S di batas berikutnya. Modul ini juga mengekspor `sceneAnchor`, `crossesScene`, `settleJump`, dan `pastFirstScene` (yang terakhir untuk Abot mini R18).
+- **Penyimpangan dari rencana**:
+  1. **Fase buka tanpa pin.** Pin dengan spacing di T akan menggeser semua ScrollTrigger di dalamnya (reveal, rail Timeline, entrance showcase) sejauh spacing itu. T kini scroll alami selama overlay membuka. Panjangnya `min(open × tinggi layar, ruang)`, dengan "ruang" = jarak sebelum konten sesudah T (scene berikutnya atau footer) mulai terlihat. Untuk Achievements → footer di 1280×800, ruang itu ±272px. Halaman tidak bertambah panjang.
+  2. **S tetap di-clip sampai satu layar setelah `b`.** GSAP melepas pin tanpa spacing dengan menggeser elemen sejauh durasi tahan (`translate(0, 702px)`), jadi S masih menumpang di atas T sampai tergulir habis. Ini tertangkap di uji pertama (hero terlihat bersama About setelah fase buka).
+  3. **Anchor mendarat di `b`, bukan `c`.** Di `c` T sudah tergulir sejauh fase buka, sehingga judul section terpotong (−174px pada uji pertama). Kini `sceneAnchor` → `b` (T tepat di bawah navbar), dan `settleJump` **menyisihkan overlay** batas itu selama pembaca masih di antara `b` dan `c`. Kalau pembaca menggulir naik melewati `b`, overlay muncul lagi dengan fade 0.25s. `b` dibulatkan ke bawah dan lompatan ke atas, dengan toleransi 2px, supaya refresh tidak memunculkan overlay sendiri.
+  4. **`refreshPriority`/`pinnedContainer` tidak diperlukan**, karena tidak ada pin berspacing. `ignoreMobileResize` tidak ditambahkan; perlu dicek di perangkat nyata.
+- **Navigasi** (`motion/lenis.ts`): anchor dan `scrollToTarget` memakai `landingFor` (`sceneAnchor`, atau scroll-margin biasa). Bila jalurnya melintasi rentang batas, dipakai `coveredJump`: lapisan `bg-background` `z-[45]` (di bawah navbar) 0.15s → lompat instan → 0.25s. Selain itu tetap glide. Fokus yang masuk ke scene ter-clip memakai lompatan yang sama.
+- **Bug yang tertangkap & diperbaiki saat uji**:
+  - Buka langsung `/#section` tidak pernah mendarat (y tetap 0), karena splash mengunci scroll (`overflow: hidden` + `lenis.stop()`). Kemungkinan sudah ada sebelum R16; Tahap 8 hanya menguji navigasi Inertia. Kini `landOnHash()` dipanggil setelah refresh navigasi dan saat splash selesai (`SplashScreen.vue`).
+  - Navigasi Inertia dari All Projects ke `/#achievement` berhenti di 950px, karena Lenis masih memakai tinggi halaman lama. `setScroll` kini memanggil `lenis.resize()` dulu.
+- **Markup**: `data-scene` di Hero/About/Projects/Achievements. Achievements `motion-safe:flex motion-safe:min-h-svh motion-safe:flex-col motion-safe:justify-center`. Penanda Projects → Skills dan Achievements → Footer dilepas, undian 2 batas dengan kunci `v2`, dan blok Skills `mt-36 md:mt-44` (jarak sama seperti sebelumnya). Dialog hero tertutup di `bottom 85%` (motion) / `bottom 25%` (reduce). `PageTransition` reduce merender divider garis rambut + kapsul `bg-primary`.
+- **Hasil uji di build** (skrip CDP; 1280 light/dark, 375 mobile light/dark, 1280 reduce; jenis acak dan dipaksa `turn,iris`):
+  - Sapuan seluruh halaman tiap 4% tinggi layar, turun lalu naik: **0 posisi** dengan dua scene terlihat bersamaan.
+  - Cakupan overlay di `b − 3px` dan `b + 3px`: **100%** di ketiga batas (mobile dark bilah terukur 49% karena warna `color-mix` tidak terbaca skrip; screenshot memperlihatkan layar tertutup penuh).
+  - Anchor navbar `#achievement`, `#about`, `#project`, `#home` dari atas/bawah: mendarat 97–98px di bawah top, tanpa overlay, hanya scene tujuan yang terlihat.
+  - Fokus ke link Projects di tengah fase tutup: lompat, link terlihat.
+  - Buka langsung `/#project` (desktop & mobile) dan navigasi Inertia All Projects → `/#achievement`: mendarat 94–98px, tanpa overlay.
+  - Landing ↔ All Projects 3× bolak-balik: 3 pin + 3 overlay di landing, 0 di listing, stabil.
+  - Reduce: 0 pin, divider tampil di kedua batas lembar.
+  - Tidak ada elemen di opacity 0, dan tanpa error console.
+- **Konsekuensi yang perlu diketahui**:
+  - Animasi masuk di layar pertama section baru (judul, reveal) berjalan saat section itu masih ter-clip di fase tutup, jadi saat overlay membuka kontennya sudah dalam keadaan akhir; transisi itulah entrance-nya. Kalau ingin entrance diputar setelah tukar, perlu penyesuaian di `Reveal`/`SectionHeading`/showcase.
+  - Saat dibuka langsung dengan hash, lingkaran splash tetap menutup ke titik robot (yang sudah di luar layar).
+
+### [x] R17 — Transisi kartu Projects & Achievements: lipatan halaman buku
+
+Rencana teknis (satu implementasi di `useShowcase`, sehingga Projects & Achievements **sama persis**):
+
+- **`motion/pageFlip.ts`** (baru): membangun sekali per showcase sebuah lapisan **flipper** absolut di atas tumpukan, berisi rantai **N strip vertikal bersarang** (desktop 8, mobile 4). Tiap strip berisi:
+  - `face` dengan `overflow: hidden`, berisi salinan isi `[data-parallax]` kartu yang bergeser `-k × lebar strip`, sehingga gabungan strip = gambar utuh;
+  - sisi belakang (`rotateY(180deg)`, `backface-visibility: hidden`) berwarna kertas `color-mix(in oklab, var(--card) 92%, var(--foreground))`;
+  - overlay **bayangan** (`color-mix(--foreground 30%)`) dan **kilap** (gradasi `color-mix(--background 40%, transparent)`) yang hanya diubah `opacity`-nya;
+  - strip berikutnya, sebagai **saudara** `face` dengan `transform-origin` di tepi kirinya, sehingga rotasi menumpuk dan lembar melengkung mulus. `face` tidak membungkus strip berikutnya, karena `overflow: hidden` akan meratakan 3D.
+
+  Pembungkus memakai `transform-style: preserve-3d`, `perspective` 1600px (desktop) / 1200px (mobile). Strip pertama/terakhir memakai radius sudut kartu.
+- **Kurva lipatan**: progres `p` (0 → 1) dipetakan ke sudut kumulatif tiap strip `φ_k(p) = −180° · ease(clamp((p − s·(1 − k/(N−1))) / (1 − s)))`, dengan `s` ≈ 0.35. Strip di tepi bebas mulai lebih dulu (halaman **terangkat dari tepi**), dan strip di dekat engsel menyusul. Rotasi relatif strip k = `φ_k − φ_{k−1}`. Bayangan & kilap per strip = fungsi `sin`/`cos` sudutnya. Ada juga **bayangan jatuh** pada kartu di bawahnya: overlay gradasi `[data-fold-shadow]` baru di `DeckMedia`, dari sisi engsel, `opacity = 0.35 · sin(πp)`. Semua ditulis lewat `gsap.quickSetter` di satu `onUpdate`, hanya `transform` dan `opacity`.
+- **Maju** (Next, panah kanan, drag ke kiri): isi flipper diambil dari kartu depan, flipper ditaruh tepat di atasnya, lalu kartu depan disembunyikan (`autoAlpha 0`). Kartu-kartu lain naik satu slot (pose slot R11 tetap). Strip berputar 0 → −180° pada engsel kiri, dan flipper memudar setelah ±120° (pertanyaan #4, disetujui). Di akhir, kartu lama masuk ke slot belakang dalam keadaan tak terlihat, lalu flipper disembunyikan.
+- **Mundur** (Prev, panah kiri, drag ke kanan): kartu tujuan ditaruh di depan dalam keadaan tersembunyi, flipper memuat isinya pada −180°, lalu berputar balik ke 0°. Kali ini tepi bebas tiba **terakhir** (kebalikan maju), dan kartu lain turun satu slot. Akhirnya kartu tujuan ditampilkan dan flipper disembunyikan.
+- **Teks panel**: `swapText` R11 tetap di timeline yang sama (arah keluar/masuk teks mengikuti arah balik).
+- **Durasi**: desktop 0.95s, mobile 0.7s, `power2.inOut` (Keputusan #5).
+- **Drag/swipe**: `Draggable` di kartu depan (`type: 'x'`, `allowNativeTouchScrolling: true`), tetapi kartu **tidak digeser**. Jarak horizontal dipetakan ke progres timeline yang di-pause: tarik kiri → maju `p = −dx / (0.9 × lebar)`, tarik kanan → mundur `p = dx / (0.9 × lebar)`. Halaman mengikuti jari, dan bila arah tarikan berbalik melewati 0, timeline arah lain dibangun. Saat dilepas: `p > 0.5` atau flick searah → selesai (`tweenTo(1)`), lalu `active` diperbarui **tanpa** memicu transisi kedua (flag di watcher). Selain itu dibalik ke 0 dan dibersihkan. Klik setelah drag tetap ditelan (R4).
+- **Dihapus dari `useShowcase.ts`**: kode tirai (`open`/`closed` clip, `CLIP_PAD`) dan parallax gambar (`IMAGE_SCALE`, `PARALLAX`, lag gambar saat drag) bila tidak dipakai lagi. `DeckMedia.vue` tetap memiliki `[data-parallax]` sebagai lapisan isi yang disalin flipper.
+- **Shared element** ke detail: `settle()` menuntaskan timeline lalu menyembunyikan flipper, baru `shareElement` pada `[data-media]` kartu depan (seperti R11).
+- **Reduce**: ganti instan (`place()`), flipper tidak dibangun. **Mobile**: 4 strip, tanpa kilap (bayangan saja).
+
+Performa: DOM flipper dibangun **sekali** saat mount (tidak ada pembuatan elemen per transisi), dan isi strip disalin dengan `cloneNode` dari gambar yang sudah dimuat (cache memori, `decoding="sync"` pada salinan). Per frame hanya ada N `transform` + ±2N `opacity` di layer yang sudah di-promote (`will-change` hanya selama timeline). Tanpa WebGL, canvas, atau filter. Target: 60fps, 0 long task (Performance panel, CPU 4×).
+
+File: `motion/pageFlip.ts` (baru), `motion/useShowcase.ts`, `components/site/DeckShowcase.vue` (wadah flipper di tumpukan), `components/site/DeckMedia.vue` (`[data-fold-shadow]`). `Projects.vue`/`Achievements.vue` tidak berubah.
+
+Verifikasi: semua skenario R11 (Next/Prev, panah, Home/End, dua klik cepat, drag pendek kembali, drag kiri maju, drag kanan mundur, tarik bolak-balik melewati 0, klik link) di Projects & Achievements; tepat 1 kartu non-`inert`; blok info cocok; frame tengah memperlihatkan lengkungan (sudut strip tepi > strip engsel saat maju); light/dark; 1280/375/reduce; tanpa elemen di opacity 0.
+
+Risiko:
+
+- Salinan gambar yang belum ter-decode berkedip di frame pertama → salinan dibuat dari `currentSrc` yang sudah tampil, ditambah `img.decode()` sebelum timeline mulai (maks. 1 frame); fallback `background-image` per strip bila tetap berkedip.
+- Celah rambut antar strip (subpixel) → strip saling tumpang 1px.
+- `preserve-3d` diratakan oleh leluhur dengan `overflow: hidden`/`filter` → flipper diletakkan di luar `<a>` kartu, dan kontainer tumpukan tidak memakai `overflow: hidden`. Ruang putar keluar kolom (mobile) dibatasi `overflow-x: clip` di section, bukan di tumpukan.
+- Halaman melintasi panel info di `lg` (pertanyaan #4) → z-index tumpukan di atas panel selama transisi saja.
+- Drag yang membangun timeline saat ditekan memakan waktu → dibangun saat `onDragStart` (setelah `minimumMovement`), bukan saat `onPress`.
+
+Catatan hasil:
+
+- **`motion/pageFlip.ts`** (baru): `createPageFlip(stack, { strips, gloss })` membangun flipper **sekali** sebagai anak absolut tumpukan (`z-index 50`, `inert`, `aria-hidden`), berisi 8 strip bersarang di desktop dan 4 di mobile.
+  - Tiap strip punya `face` (salinan kartu digeser `−k × lebar strip`), sisi belakang kertas `color-mix(--card 92%, --foreground)` dengan bayangannya sendiri, serta lapisan bayangan dan kilap.
+  - `load(card)` menyalin isi kartu (`cloneNode`, gambar `eager`/`sync`) dan menaruh flipper tepat di atasnya.
+  - `turn(p)` memutar tiap strip lewat `quickSetter` (`rotationY`). Sudut kumulatif `φ_k = −180° · smoothstep(...)` dengan tepi bebas mendahului spine (`LEAD 0.35`), dan flipper memudar mulai `p 0.62`.
+- **`motion/useShowcase.ts`**: tirai dan parallax gambar dihapus.
+  - Setiap perpindahan dibangun oleh `build(to, direction, scrub)`. Tombol, keyboard, dan `goTo` memutarnya dengan `power2.inOut` (desktop 0.95s, mobile 0.7s). Drag memakai versi ber-pause yang linear.
+  - Maju: salinan kartu depan berputar pergi, kartu lain naik satu slot, dan kartu lama masuk ke slot belakang dalam keadaan tak terlihat. Mundur: kartu tujuan ditaruh tersembunyi di depan, lalu salinannya berputar balik dari −180° dengan tepi bebas tiba terakhir.
+  - Kartu yang tersingkap (maju) atau tertutup (mundur) mendapat bayangan lipatan `[data-fold-shadow]` dengan `opacity = sin(πp)`.
+  - Teks panel memakai `swapText` R11 di timeline yang sama. Ia kini menahan **kedua** blok terlihat (blok baru juga, karena saat drag `active` belum berubah) dan mengembalikan fungsi `undo` untuk drag yang dibatalkan.
+- **Drag**: `Draggable` memakai proxy tak terlihat (`trigger: kartu`), jadi kartu tidak ikut bergeser. Arahnya ditentukan saat jari bergerak > 2px (bukan di `onDragStart` seperti rencana). Tarik kiri = maju, tarik kanan = mundur, dan berbalik arah melewati 0 membangun ulang move ke arah lain.
+  - Jari menggerakkan **waktu putaran** (`time = p × durasi`), bukan progres seluruh timeline. Timeline berjalan sedikit lebih panjang dari putaran (kartu kembali ke tumpukan, teks), sehingga pemetaan progres membuat tarikan 45% sudah memutar halaman 66%; ini tertangkap saat uji.
+  - Dilepas setelah lewat setengah putaran, atau dengan flick searah > 600px/s → selesai (`power2.out`), lalu `active` diperbarui. Watcher melihat kartu tujuan sudah di depan, jadi tidak ada transisi kedua. Selain itu dikembalikan lalu `place()`.
+  - Reduce: arah drag tetap bermakna, ganti instan.
+- **`DeckMedia.vue`**: tambah `[data-fold-shadow]`. Lapisan `[data-parallax]` tetap ada sebagai isi yang disalin, tanpa zoom/parallax.
+- **Performa, temuan penting**: versi pertama memakai **gradien** (bayangan lipatan dari sisi spine, kilap strip). Trace CDP memperlihatkan satu tugas raster GPU **403ms** (`DoEndRasterCHROMIUM`) di putaran pertama dan 170–350ms di putaran kedua, juga dengan GPU sungguhan (Radeon Vega 8 lewat ANGLE). Eksperimen di halaman uji:
+  - flipper disembunyikan → tetap jeda (dari bayangan lipatan);
+  - bayangan lipatan dihapus → tetap jeda (dari kilap);
+  - keduanya dihapus, atau semua gradien diganti warna solid → maks 33–67ms.
+
+  Bayangan dan kilap kini **lapisan datar** turunan token, dengan opacity per strip/kartu. Pencahayaan bertingkat per strip tetap terbaca sebagai permukaan melengkung. Hasil: p50 16.7ms, p95 16.8–16.9ms, jeda terburuk 100–117ms; itu setara versi tirai HEAD yang diukur dengan cara sama (100–117ms). Mobile maksimum 167ms, tanpa long task (headless tanpa GPU sekali mencatat 59ms).
+- **Hasil uji di build** (skrip CDP R11 + skenario R17; Projects 1280 light, Achievements 1280 dark, Projects 375 mobile, 1280 reduce):
+  - Next, Prev, panah, End, Home, drag pendek kembali, drag panjang kiri **maju**, drag panjang kanan **mundur**, drag kanan pendek dibatalkan, tarikan setengah yang ditahan lalu dilepas, dan dua Next cepat.
+  - Di setiap langkah: tepat 1 kartu non-`inert`, dan blok info + live region cocok dengan kartu depan.
+  - Klik link membuka detail dengan `project-media-*` / `achievement-media-*` di kedua sisi view transition.
+  - Frame tertahan 15/30/45/60% (dengan gambar uji yang disisipkan skrip, karena data lokal tak bergambar): rata → tepi kanan terangkat melengkung → halaman berdiri memperlihatkan punggung kertas → rebah di atas panel dan memudar. Mundur di dark mode: halaman datang dari kiri dan tepi bebas tiba terakhir.
+  - Tidak ada overflow horizontal di 375px. Tanpa error console.
+
+### [x] R18 — Abot mini di atas bubble kontak
+
+Rencana teknis:
+
+- **`components/site/MiniBot.vue`** (baru, hanya di landing): `<button type="button" aria-label="Talk to Abot" aria-expanded aria-controls>` berisi `AbotFigure detail="mini"` (±56px), `position: fixed` di kanan bawah **tepat di atas ContactBubble**: `right` sama dengan bubble, `bottom: calc(max(1.25rem, env(safe-area-inset-bottom) + 0.75rem) + 3.5rem + 0.75rem)` (sm: 1.5rem). `z-40`, di atas overlay transisi `z-30`.
+- **Muncul/hilang**: tampil setelah hero lewat, lewat ScrollTrigger pada hero: bawah hero melewati ±25% atas layar, titik yang sama dengan penutupan dialog hero. (Rencana awal memakai titik tukar R16, yang sudah dicabut.) Kembali ke hero → hilang. Masuk = **pop di tempat** (`scale 0.4 → 1.06 → 1` + `autoAlpha`, `brand`, ±0.45s, diikuti lambaian kecil). Keluar = `scale → 0.6` + fade 0.2s. Tidak ada perpindahan posisi. Di luar landing tidak dirender.
+- **Gerak**: idle napas + kedip seperti hero tetapi tanpa mata ikut kursor (lebih ringan), dan `speak()` saat bubble/dialog mengetik. Fungsi gerak dipindah dari `HeroBot.vue` ke **`motion/abotMotion.ts`** (`idle`, `blinkLoop`, `wave`, `speak`) supaya dipakai keduanya tanpa duplikasi; gestur penuh hero tetap di `HeroBot`.
+- **Bubble chat** (`MiniBotBubble`, bagian dari `MiniBot.vue`): panel HUD kecil (bracket sudut `border-primary`, `bg-card/95 backdrop-blur`, label "ABOT", tanpa ekor) rata kanan di **kiri-atas** Abot mini, `max-w` ±15rem (mobile: `calc(100vw − 2·gutter − 56px)`). Berisi satu kalimat (diketik singkat, ±40 karakter/detik) dan tombol X "Dismiss Abot's message". Bukan live region dan tanpa `role="status"`. Teksnya tetap ada di DOM (terbaca dalam mode baca), tetapi tidak diumumkan. Tidak pernah mengambil fokus. Esc menutup bila fokus ada di area mini.
+- **Jadwal** (Keputusan #12, disetujui): pertama setelah 8 detik kumulatif di luar hero, lalu tiap 35–45 detik, tampil 6 detik (dijeda saat hover/fokus), maksimal 4 kali per sesi, X = berhenti untuk sesi itu. Kondisi tunda: ContactModal terbuka, dialog besar atau dialog mini terbuka, interaksi deck/tab/form (fokus di dalam `[data-abot-quiet]` atau `input/textarea/select`, atau `pointerdown` di sana dalam 4 detik terakhir), `document.hidden`. Bila kondisi tunda muncul saat bubble tampil, bubble langsung ditutup. Logika jadwal ada di modul murni **`script/landingPage/abotBubble.ts`** (tanpa DOM) supaya mudah diuji.
+- **Isi bubble**: bergiliran dari `buildDialogPages` (sumber yang sama dengan dialog). Halaman `point` ("The projects are right this way") dilewati karena arahnya hanya benar di hero. Setelah R19, tampilan pertama = sapaan jam lokal.
+- **Klik Abot mini atau bubble** (pertanyaan #5, disetujui): bubble tertutup, lalu **`BotDialog` lengkap** dibuka di atas Abot mini (instance kedua, posisi pojok; `BotDialog` mendapat prop `placement: 'hero' | 'corner'` untuk kelas posisinya). Fitur sama dengan dialog hero: ketik, Next/Close, Esc, tutup otomatis, reaksi klik beruntun, live region permanen. Kembali ke hero → dialog mini tertutup.
+- **Status bersama**: `LandingPage.vue` `provide` satu objek reaktif (`contactOpen`, `heroDialogOpen`, `miniDialogOpen`, `pastHero`). `Hero.vue` dan `MiniBot.vue` mengisinya. Tidak memakai state level modul, supaya aman untuk SSR.
+- **ContactBubble**: `bottom` ikut `env(safe-area-inset-bottom)` (rumus yang sama), supaya keduanya tidak tertutup home indicator.
+- **Mobile di dasar halaman** (pertanyaan #6, disetujui): di bawah `md`, Abot mini dan bubble-nya disembunyikan selama footer terlihat.
+- **Reduce**: Abot mini tampil/hilang instan dan statis (tanpa idle/pop), bubble muncul/hilang tanpa animasi dengan teks langsung utuh. Jadwal tetap sama.
+
+File: `components/site/MiniBot.vue` (baru), `motion/abotMotion.ts` (baru), `script/landingPage/abotBubble.ts` (baru), `components/site/HeroBot.vue` (pakai `abotMotion.ts`), `components/site/BotDialog.vue` (`placement`), `components/contact/ContactBubble.vue` (safe-area), `pages/LandingPage.vue` (provide + mount), `components/ui/landing-page/Hero.vue` (lapor status dialog), `components/site/DeckShowcase.vue` & `Projects.vue` (penanda `data-abot-quiet` di showcase dan tab Skills).
+
+Verifikasi: muncul setelah tukar Hero → About dan hilang saat kembali, tanpa perpindahan posisi; jadwal dengan waktu dipercepat lewat parameter uji (pertama 8 detik, interval, 6 detik, cap 4, X menghentikan); bubble tidak muncul saat modal, dialog besar/mini terbuka, fokus di deck/tab, atau overlay terlihat; klik membuka dialog di pojok dan fokus kembali ke tombol mini saat ditutup; tidak ada perpindahan fokus saat bubble muncul; posisi aman di 375 (safe-area diemulasikan) dan tidak menutup footer; reduce statis; tanpa error console.
+
+Risiko:
+
+- Terasa berisik/mengganggu → cap per sesi, X menghentikan, dan ditunda saat pengguna sibuk; angka jadwal bisa disetel.
+- Dua `BotDialog` di satu halaman → id unik per instance (`abot-dialog`, `abot-mini-dialog`), hanya satu yang bisa terbuka (membuka satu menutup yang lain), live region masing-masing.
+- Tumpang tindih dengan tombol kontrol showcase di mobile saat tumpukan berada di dasar layar → bubble ditunda saat ada interaksi deck; Abot mini sendiri kecil (56px) dan sejajar ContactBubble.
+- `backdrop-filter` pada bubble fixed di atas overlay transisi → bubble tidak tampil saat overlay terlihat.
+
+Catatan hasil:
+
+- **`components/site/MiniBot.vue`** (baru, hanya di landing): `<button aria-label="Talk to Abot">` berisi `AbotFigure detail="mini"` (`h-11`), `fixed` tepat di atas ContactBubble (`right` dan lebar `w-14` sama). Posisi `bottom` = posisi bubble kontak + 4.25rem, keduanya memakai `max(1.25rem, env(safe-area-inset-bottom) + 0.75rem)`.
+  - Muncul saat bawah hero melewati 25% atas layar (titik yang sama dengan penutupan dialog hero), dan hilang saat kembali. Di bawah `md` juga hilang selama footer terlihat.
+  - Masuk dengan pop di tempat (`scale 0.4 → 1.06 → 1`, `brand`, lalu melambai), keluar `scale 0.6` + fade. Idle napas, antena, dan kedip tanpa mata ikut kursor.
+- **Gerak bersama**: `motion/abotMotion.ts` (baru) memuat `wave`, `hop`, `nod`, `dizzy`, `idle`, `gesturePlayer`, dan `speaker`, yang dipindah apa adanya dari `HeroBot.vue`. `HeroBot` kini memakainya; gestur `point` dan mata ikut kursor tetap di `HeroBot` karena khusus hero.
+- **Bubble**:
+  - Jadwal ada di `script/landingPage/abotBubble.ts` (`BUBBLE`, `bubbleDelay`, `bubbleLines`, status `sessionStorage` `portfolio:abot-bubble:v1` dalam `try/catch`).
+  - Penghitung 0.5 detik di `MiniBot` hanya berjalan saat Abot mini terlihat dan tidak ada kondisi tunda. Kondisi tunda: modal kontak, dialog hero/mini, `document.hidden`, fokus di `[data-abot-quiet]`/`input`/`textarea`/`select`/`[contenteditable]`, atau `pointerdown` di sana dalam 4 detik terakhir.
+  - Penanda `data-abot-quiet` dipasang di root `DeckShowcase` dan blok Skills.
+  - Bubble ditahan saat di-hover/difokus, dan langsung ditutup bila kondisi tunda muncul. Esc menutup bubble saat fokus ada di area mini, X menghentikannya untuk sesi itu.
+  - Teksnya diketik 40 karakter/detik; salinan `sr-only` memberi nama tombol. Tanpa `aria-live`/`role="status"`.
+- **Dialog mini**: `BotDialog` mendapat prop `placement: 'hero' | 'corner'`. Instance kedua `abot-mini-dialog` muncul rata kanan di atas Abot mini, dengan halaman yang sama (`buildDialogPages`). Gestur dipetakan: `hop`, `nod`, dan sisanya `wave`.
+- **Klik beruntun**: logika "≥ 4 klik dalam 1.2 detik → pusing" diekstrak ke `script/landingPage/botClicks.ts` dan dipakai `Hero.vue` maupun `MiniBot.vue`.
+- **Status bersama**: `script/landingPage/abotState.ts` (`InjectionKey`). `LandingPage.vue` `provide` `{ contactOpen, heroDialogOpen }`, dan `Hero.vue` mengisi `heroDialogOpen`.
+- **`ContactBubble.vue`**: `bottom` kini ikut `env(safe-area-inset-bottom)`.
+- **Hasil uji di build** (skrip CDP; 1280 light, 375 mobile dark, 1280 reduce):
+  - Di hero tersembunyi; setelah hero lewat terlihat tepat di atas ContactBubble (sejajar tengah, jarak 12px), lalu hilang lagi saat kembali ke hero.
+  - Bubble pertama muncul **7.8–8.0 detik** setelah Abot mini terlihat (diukur di dalam halaman). Bubble menghilang setelah 6 detik, tanpa live region, dan fokus tetap di `BODY`.
+  - ContactModal terbuka 10 detik → tidak ada bubble; setelah ditutup, bubble muncul. X → `dismissed: true` dan fokus pindah ke tombol Abot mini.
+  - Klik Abot mini membuka dialog pojok (desktop 936–1256px; mobile 35–355px dari lebar 375, tetap di layar) dengan `aria-expanded`. Klik beruntun → "Whoa, easy!", dan Esc menutup lalu mengembalikan fokus ke tombol.
+  - Mobile: tersembunyi saat footer terlihat. Reduce: muncul/hilang instan, bubble tanpa animasi.
+  - Tanpa error console.
+  - Catatan uji: skrip pertama mencatat bubble "lebih awal" karena waktu tunggu dihitung setelah screenshot yang memakan beberapa detik di headless; pengukuran di dalam halaman memastikan 8 detik.
+
+**Revisi setelah R18 (2026-10-27): Abot terbang ke pojok.** User meminta animasi perpindahan dari hero ke pojok saat scroll meninggalkan hero. Ini bertentangan dengan aturan R18 "pop di tempat, jangan terbang", jadi ditanyakan dulu; user memilih **"terbang sekali"** (bukan ikut scroll).
+- **`MiniBot.vue`**: pop diganti satu nilai `t` (0 = hero, 1 = pojok) yang di-tween `power2.inOut` selama 0.9 detik × jarak tersisa, jadi arah bisa berbalik di tengah jalan.
+  - Salinan `AbotFigure` di lapisan `fixed` (`z-40`, `aria-hidden`) digambar tiap frame dari kotak robot hero dan kotak Abot mini yang **diukur langsung**, sehingga jalurnya tetap tepat walau halaman terus digulir.
+  - Posisi dan ukuran diinterpolasi, ditambah busur 70px (`sin(πt)`) dan condong −10°. Lebar dan tinggi diset langsung, bukan `scale`, supaya SVG tetap tajam.
+  - Mendarat: squash kecil lalu melambai. Robot hero muncul lagi dengan `hop`.
+- **Titik berangkat**: desktop saat tengah robot hero di 20% atas layar (lepas landas masih terlihat); mobile saat tengah robot di tepi atas, karena di mobile robot ada di atas teks dan 20% berarti langsung pergi saat dimuat. Kalau halaman dimuat sudah melewati titik itu (link `/#section`), Abot langsung di pojok tanpa terbang.
+- **Status bersama**: `AbotState.heroAway`. `Hero.vue` menyembunyikan robot hero (`invisible`) dan menutup dialognya selama Abot pergi.
+- **Reduce**: tidak terbang; robot hero tetap, Abot mini muncul/hilang instan (perilaku R18).
+- **Uji** (skrip CDP + screencast; 1280 light, 375 mobile dark, 1280 reduce):
+  - Turun: robot hero tersembunyi seketika, salinan bergerak dari kotak robot hero (lebar 318px) ke pojok (50px), lalu Abot mini terlihat. Naik: kebalikannya, dan robot hero terlihat lagi setelah salinan tiba.
+  - Seluruh skenario R18 (bubble 7–8 detik, modal menunda, dialog pojok, klik beruntun, Esc, X) tetap lolos.
+  - Tanpa error console.
+
+### [x] R19 — Greeting sesuai jam lokal device
+
+Rencana teknis:
+
+- `script/landingPage/botDialog.ts`: fungsi murni `greetingFor(hour: number): string` dan `buildDialogPages(name, personal, lastRole, hour?)`. Bila `hour` diberikan, halaman pertama = sapaan dengan gestur `wave`. Gestur halaman berikutnya digeser supaya tidak ada dua lambaian berturut-turut: perkenalan "Hi! I'm Abot" → `nod`, nama/peran → `hop`, `lastRole` → `nod`, projects → `point`.
+- Jam dibaca **di klien**: `Hero.vue` dan `MiniBot.vue` menyimpan `hour = ref<number | null>(null)`, diisi di `onMounted` dan **dibaca ulang tiap dialog dibuka / bubble tampil**, sehingga pergantian jam selama kunjungan ikut terbaca. `new Date().getHours()` otomatis mengikuti zona waktu perangkat. Tidak ada akses `Date` di level modul atau saat render server.
+- Bubble Abot mini (R18) memakai `greetingFor(hour)` untuk tampilan pertamanya.
+- Reduce: tidak ada perbedaan (teks saja).
+
+Pembagian jam & kalimat (**disetujui** 2026-10-26, pertanyaan #7):
+
+| Jam lokal   | Kalimat                                                         |
+| ----------- | --------------------------------------------------------------- |
+| 05:00–11:59 | "Good morning! Thanks for stopping by."                         |
+| 12:00–17:59 | "Good afternoon! Nice of you to drop in."                       |
+| 18:00–22:59 | "Good evening! Glad you made it here."                          |
+| 23:00–04:59 | "Up this late? Me too, but I'm a robot. Don't forget to sleep!" |
+
+File: `script/landingPage/botDialog.ts`, `components/ui/landing-page/Hero.vue`, `components/site/MiniBot.vue`.
+
+Verifikasi: `getHours` dipalsukan (override `Date` di skrip uji) ke 4, 5, 11, 12, 17, 18, 22, 23 → kalimat sesuai batas; halaman sapaan selalu pertama di dialog hero dan dialog mini, dan menjadi bubble pertama; HTML hasil render server (bila SSR diaktifkan) tidak memuat kalimat sapaan; tanpa error console.
+
+Risiko:
+
+- Jam perangkat salah atau zona waktu VPN → sapaan ikut perangkat, sesuai permintaan (tidak ada data lokasi yang dipakai).
+- Dialog yang dibuka tepat saat pergantian jam → jam dibaca sekali saat dibuka dan tidak berubah di tengah dialog.
+
+Catatan hasil:
+
+- **`script/landingPage/botDialog.ts`**: `greetingFor(hour)` dengan pembagian jam yang disetujui (05–11 morning, 12–17 afternoon, 18–22 evening, 23–04 versi larut malam). `buildDialogPages(name, personal, lastRole, hour?)`: bila `hour` ada, halaman pertama = sapaan (`wave`) dan gestur bergeser (perkenalan `nod`, nama/peran `hop`, `lastRole` `nod`, projects `point`); tanpa `hour` sama seperti sebelumnya.
+- **`script/landingPage/localHour.ts`** (baru): `useLocalHour()` → `{ hour, read }`, membaca `new Date().getHours()` di `onMounted` (tidak pernah saat render/di level modul).
+- **`Hero.vue`** dan **`MiniBot.vue`**: halaman dialog dihitung dari `hour`; saat dialog dibuka, `read()` dipanggil lalu `advance()` di `nextTick` supaya prop `pages` yang baru sudah sampai ke `BotDialog` sebelum halaman pertama. Bubble memanggil `read()` sebelum memilih baris, jadi bubble pertama sesi = sapaan (`bubbleLines` mengambil halaman yang sama). Klik Abot mini saat dialog tertutup kini lewat jalur yang sama dengan klik bubble.
+- **Hasil uji di build** (skrip CDP dengan `Date.prototype.getHours` dipalsukan): jam 4 dan 23 → larut malam, 5 dan 11 → morning, 12 dan 17 → afternoon, 18 dan 22 → evening sebagai halaman pertama dialog hero; untuk jam 5 dan 23 bubble pertama dan dialog Abot mini juga dimulai dengan sapaan yang sama. HTML dari server (`curl`) tidak memuat kalimat sapaan. Tanpa error console.
+
+
+### [x] R20 — Suara robot khas Abot
+
+Ditambahkan user saat menjawab pertanyaan #5. Rencana teknis:
+
+- **`script/landingPage/abotVoice.ts`** (baru, tanpa Vue dan tanpa dependency): satu `AudioContext` yang dibuat **lazily saat gestur pengguna pertama** (klik robot hero/mini), lalu dipakai bersama. Semua bunyi disintesis: `OscillatorNode` (square/triangle) → `BiquadFilter` lowpass (supaya tidak menusuk) → `GainNode` dengan envelope pendek (attack 5ms, decay 40–80ms). Volume master rendah (±0.12). Tanpa file audio.
+- **Kosakata bunyi**:
+  - `babble`: blip pendek tiap 2–3 karakter selama efek ketik, dengan nada acak dalam satu tangga nada pentatonik (±520–880 Hz), dan satu blip lebih tinggi di akhir kalimat tanya. Ini yang membuat Abot terdengar "bicara".
+  - `open`: dua nada naik (chirp "bip-bup") saat dialog dibuka.
+  - `close`: dua nada turun saat dialog ditutup.
+  - `next`: satu klik pendek saat pindah halaman.
+  - `dizzy`: nada bergelombang turun (`frequency` dengan LFO) untuk reaksi klik beruntun.
+  - `pop`: satu "bloop" saat Abot mini muncul, hanya bila audio sudah pernah dibuka lewat gestur di sesi itu.
+- **Kapan bunyi**:
+  - Bunyi hanya di dialog yang **dibuka pengguna** (hero atau mini).
+  - Bubble periodik R18 **tetap senyap**: tanpa gestur, browser memblokir audio, dan bunyi berkala yang datang tanpa diminta akan mengganggu.
+  - Tidak ada bunyi saat tab tersembunyi.
+  - `BotDialog` memanggil hook suara dari tween ketik (`onUpdate`, saat jumlah karakter melewati kelipatan) dan dari event buka/tutup/halaman; tidak ada timer terpisah.
+- **Tombol bisu** di header HUD `BotDialog`: ikon speaker, `aria-pressed`, label "Mute Abot"/"Unmute Abot". Status disimpan di `localStorage` `portfolio:abot-sound:v1` (`try/catch`; gagal → hanya di memori) dan berlaku untuk kedua dialog. **Default: bunyi aktif**, karena diminta user dan selalu didahului gestur (klik robot). Kalau tidak diinginkan, cukup ubah default.
+- **Reduce motion**: tidak memengaruhi suara (preferensi itu soal gerak); dialog tetap tanpa efek ketik, jadi `babble` diganti satu chirp `open` saja.
+- **SSR**: `AudioContext` hanya disentuh di handler klik dan di klien. Tidak ada akses `window` di level modul.
+
+File: `script/landingPage/abotVoice.ts` (baru), `components/site/BotDialog.vue` (hook suara + tombol bisu), `components/ui/landing-page/Hero.vue` (`dizzy` saat reaksi), `components/site/MiniBot.vue` (`pop`, dialog mini).
+
+Verifikasi: tanpa gestur tidak ada `AudioContext` yang dibuat (tidak ada peringatan autoplay di console); klik robot → `open` + `babble` selama mengetik; klik saat mengetik → babble berhenti bersamaan dengan teks yang langsung utuh; Next/Close/Esc berbunyi; bisu tersimpan dan berlaku setelah reload dan di dialog mini; bubble periodik senyap; reduce: satu chirp tanpa babble; tidak ada long task (oscillator dibuat per blip lalu dibuang otomatis); tanpa error console.
+
+Risiko:
+
+- Bunyi mengagetkan atau terlalu ramai → volume rendah, lowpass, babble tiap 2–3 karakter (bukan tiap karakter), dan tombol bisu yang selalu terlihat.
+- Safari: `AudioContext` mulai dalam status `suspended` → `resume()` dipanggil di handler klik yang sama.
+- WCAG 1.4.2 (kontrol audio): bunyi singkat (< 3 detik per bunyi), hanya muncul setelah aksi pengguna, dan bisa dibisukan.
+
+Catatan hasil:
+
+- **`script/landingPage/abotVoice.ts`** (baru): `unlockVoice()` membuat `AudioContext` (dengan fallback `webkitAudioContext`) dan memanggil `resume()` bila `suspended`; master gain 0.12. `tone()` = oscillator → lowpass 2.2 kHz → envelope (attack 5 ms, decay eksponensial), opsional glide dan vibrato (LFO). Node dilepas setelah `stop()`, dan nada tidak dijadwalkan bila belum ada context, dibisukan, atau `document.hidden`. Kosakata: `open` (659 → 988 Hz), `close` (880 → 587), `next` (klik triangle 1.3 kHz), `blip` (nada acak pentatonik C5–A5, 45 ms; versi naik di akhir kalimat tanya), `dizzy` (triangle 900 → 260 Hz dengan vibrato 11 Hz), `pop` (sine 320 → 720 Hz).
+- **Preferensi bisu**: `abotMuted` adalah satu `ref` modul untuk kedua dialog, dibaca dari `localStorage` `portfolio:abot-sound:v1` di `onMounted` (bukan saat render), `try/catch`. Default bunyi aktif.
+- **`BotDialog.vue`**: `advance()` yang membuka dialog memanggil `unlockVoice()` + `open` (masih dalam aktivasi gestur klik/Enter, termasuk setelah `nextTick` di R19). Mengetik: satu `blip` tiap 2–3 huruf (spasi dilewati), plus `blip(true)` bila kalimat diakhiri "?". Pindah halaman/kembali dari reaksi: `next`. `close()`: `close`. `interrupt()` (reaksi klik beruntun): `dizzy`. Tombol bisu di header (ikon `Volume2`/`VolumeX`, label tetap "Mute Abot" + `aria-pressed`); membunyikan kembali memberi klik `next` sebagai umpan balik. Reduce: tanpa efek ketik, jadi hanya chirp buka/halaman/tutup.
+- **`MiniBot.vue`**: `pop` saat mendarat di pojok; hanya bersuara bila context sudah dibuat oleh klik sebelumnya. Bubble periodik tidak memanggil suara sama sekali.
+- **Hasil uji di build** (skrip CDP yang membungkus `AudioContext` dan `OscillatorNode.start`; 1280 light dan reduce):
+  - Dimuat tanpa gestur: 0 context, 0 nada; terbang ke pojok sebelum ada klik: senyap.
+  - Klik robot hero: 1 context, 2 nada buka, lalu blip selama mengetik; klik berikutnya: 1 `next` + blip halaman baru; klik beruntun: `dizzy` (dengan LFO).
+  - Bisu → halaman berikutnya tanpa nada, `localStorage = muted`, `aria-pressed=true`; dibunyikan lagi → 1 klik umpan balik.
+  - Terbang ke pojok setelah ada klik → 1 `pop`; bubble periodik → 0 nada.
+  - Reduce: buka = 2 nada tanpa blip.
+  - Tanpa error console dan tanpa peringatan autoplay.
+  - Catatan: headless hanya merender ±6–14 frame/detik saat diuji, jadi jumlah blip per kalimat di sana lebih sedikit (satu blip paling banyak per frame); di 60 fps blip mengikuti ritme 2–3 huruf.
+
+### [x] Revisi setelah R20 — dialog bubble chat & toggle audio di navbar (2026-10-27)
+
+Permintaan user: dialog jangan kaku, bentuk awan atau bubble chat, tanpa pagination supaya natural, dan toggle audio di samping toggle dark mode. Bentuk bubble/awan bertentangan dengan Keputusan #1 ("tanpa speech bubble"), jadi ditanyakan dulu: user memilih **bubble chat** dan alur **satu bubble yang berganti** (bukan thread chat).
+
+- **`BotDialog.vue`** (ditulis ulang):
+  - Bentuk: `rounded-3xl`, `bg-card` opak, `border-border`, `shadow-elevated`, ekor = persegi `rotate-45` bersudut 4px dengan border hanya di dua sisi luar. Hero: ekor ke bawah di `lg` (bubble di atas robot) dan ke atas di bawah `lg` (bubble di bawah robot); `corner`: ekor ke bawah, sejajar tengah Abot mini.
+  - Dibuang: header "ABOT · ONLINE", bracket HUD, kursor kedip, titik halaman, tombol Next/Close. Tetap: × kecil, Esc, live region permanen, salinan teks utuh `sr-only` (`aria-describedby`), judul `sr-only` "Abot".
+  - Alur: fase `typing` → `reading` (jeda baca `clamp(2, 5.5, 1.4 + 0.045 × huruf)` detik) → `dots` (titik-titik memantul 0.8 detik, `motion-reduce:animate-none`) → kalimat berikutnya; kalimat terakhir menutup sendiri setelah ≥ 5 detik. Reaksi klik beruntun tampil lalu kembali sendiri ke kalimat yang sedang berjalan. Klik Abot: menuntaskan ketikan, melewati jeda/titik-titik ke kalimat berikutnya, atau menutup setelah kalimat terakhir. Pointer/fokus di bubble menahan jeda. Reduce: tanpa ketik dan tanpa titik-titik, kalimat berganti setelah jeda baca.
+  - Tinggi bubble dianimasikan (0.25 detik) saat kalimat atau titik-titik menggantikan isi sebelumnya; selama mengetik tinggi ditahan oleh salinan tak terlihat.
+  - Suara: `open`, blip saat mengetik, `close`, `dizzy` tetap; klik `next` tidak lagi diputar di setiap pergantian otomatis.
+- **`MiniBot.vue`**: bubble periodik memakai bentuk yang sama dengan ekor ke kanan (ke Abot mini); label "ABOT" dan bracket dihapus, nama tombol jadi "Abot: {kalimat}" (`sr-only`).
+- **`SoundToggle.vue`** (baru): tombol bergaya `ThemeToggle` (ikon `Volume2`/`VolumeX` dengan transisi yang sama), label tetap "Mute Abot" + `aria-pressed`, membaca preferensi di `onMounted`; dipasang di `Navbar.vue` tepat sebelum `ThemeToggle`, **hanya di landing** (`isLandingPage`), karena Abot hanya ada di sana.
+- **Hasil uji di build** (skrip CDP; 1280 light, 375 mobile dark): urutan otomatis sapaan → perkenalan → nama → peran terakhir → projects dengan "…" ±0.8 detik di antaranya; hover menahan kalimat lebih dari 7 detik; dua klik = menuntaskan lalu melewati; bubble hero/pojok/periodik tampil dengan ekor ke arah Abot di kedua tema; toggle navbar → `aria-pressed=true`, `localStorage = muted`, lalu kembali `on`; tidak ada di halaman All Projects; tanpa error console.
+
+### [x] Revisi: tombol diam saat hover (2026-10-27)
+
+Permintaan user: semua tombol tetap di tempat saat hover; yang berubah hanya efek seperti warna, ikon yang bergerak, dan sejenisnya. Ini membatalkan sebagian Tahap 7 (efek magnetic CTA).
+
+- **Efek magnetic dilepas** dari "View Projects" (`Hero.vue`) dan `CtaLink.vue` ("See More …"); pembungkus `span` magnetic di `CtaLink` ikut dihapus. Panah di kedua tombol tetap bergeser.
+- **`translate`/`scale` dihapus** dari: CTA "Achievement" di hero (ikon medali tetap berputar), ContactBubble (`hover:scale-[1.08]` dan `active:scale-[0.94]`; kecerahan dan putaran ikon tetap; `soft-pulse` hanya `box-shadow`), baris link di ContactModal (ikon dan panah tetap bergerak), tombol GitHub di `ProjectDetail.vue` (bayangan dan panah tetap).
+- `transition-all` di tombol-tombol itu dipersempit ke properti warna/bayangan/`filter`.
+- `motion/useMagnetic.ts` kini tidak dipakai; menunggu keputusan hapus bersama file transisi R16.
+- Di luar lingkup (bukan tombol, belum diubah): kartu listing Projects/Achievements (`useTilt` + naik), tile/pill Skills dan chip peran di hero (naik saat hover), kartu Dashboard admin.
+- **Uji di build** (CDP, 1280 light): kotak "View Projects", CTA "Achievement", "See More Projects", ContactBubble, dan tombol Next showcase identik sebelum dan saat hover; tanpa error console.
+
+### [x] Revisi: lipatan sudut kiri bawah → kanan atas (2026-10-27)
+
+Permintaan user: lipatan "next" pada stack kartu Projects & Achievements dari pojok kiri bawah ke pojok kanan atas.
+
+- **`motion/pageFlip.ts`** ditulis ulang (API sama: `load`, `turn`, `hide`, `destroy`), tanpa strip/3D. Geometri 2D dari progres `p`: garis lipat tegak lurus diagonal kiri-bawah → kanan-atas, pada jarak `p × diagonal` dari pojok kiri bawah.
+  - Sisa halaman: salinan kartu (layer sendiri, `will-change`) di-`clip-path` ke bagian yang masih rata.
+  - Flap: bagian yang terangkat dicerminkan di garis lipat, berwarna punggung kertas `color-mix(--card 90%, --foreground)`. Hanya pita selebar `min(lipat, sisa, 22% diagonal)` di dekat garis lipat yang digambar, sehingga terbaca sebagai kertas melengkung; pita menyempit ke nol saat lipatan mencapai pojok kanan atas.
+  - Lekuk (`--foreground` 16%) di 30% pita terdekat lipatan, dan bayangan flap di halaman berupa pantulan yang sama diperbesar 1.12× (jadi bayangan mengikuti bentuk flap). Semua warna datar (pelajaran R17 soal gradien).
+- **`motion/useShowcase.ts`**: drag dibalik (kanan = maju, kiri = mundur; flick juga). Akhir tarikan kini di `onRelease` (ketukan tanpa geser tetap menjadi klik), dan tombol/keyboard memanggil `settle()` dulu sehingga tarikan yang masih menggantung tidak pernah terselip.
+- **Bug yang ditemukan saat uji & diperbaiki**: lapisan flap ber-padding tetap ikut layout setelah lipatan pertama (`visibility: hidden`), membuat dokumen lebih lebar dari layar. Di mobile Chrome lalu men-zoom-out halaman (ketukan meleset ±1.31×; terlihat sebagai tombol yang "tidak merespons" setelah drag). Perbaikan: flipper `hidden` (`display: none`) saat tidak dipakai, dan section Projects/Achievements `overflow-x-clip` sehingga flap yang menjorok selama animasi dipotong di tepi section tanpa memperlebar dokumen.
+- **Performa**: putaran pertama per profil browser punya satu jeda ±350–400ms (kompilasi shader GPU untuk `clip-path` poligon); dengan profil yang sama, run berikutnya p95 16.8ms dan jeda terburuk 33ms. Jadi pengunjung merasakannya sekali, di kunjungan pertama.
+- **Hasil uji di build** (skrip CDP; Projects 1280 light, Achievements 1280 dark & 375 mobile, Projects 375 mobile & 1280 reduce): Next/Prev, panah, Home/End, drag pendek kembali, drag kanan maju, drag kiri mundur, tarikan setengah, dua Next cepat, link detail — semua benar, tepat 1 kartu aktif; frame 15/30/45/60% memperlihatkan pojok kiri bawah terlipat dan lipatan menyapu ke kanan atas; mundur di dark mode terlipat kembali dari kanan atas; lebar dokumen tidak bertambah selama/sesudah lipatan dan zoom tetap 1; tanpa error console.
+
+### [x] Tambahan: musik latar + toggle di navbar (2026-10-27)
+
+Permintaan user: backsound untuk web, dengan toggle musik di samping toggle dark mode. File dari user: `resources/js/assets/music/Marimba Mischief.mp3` (3.6 MB), di-import lewat Vite sehingga ter-build dengan hash (`public/build/assets/Marimba Mischief-<hash>.mp3`).
+
+- **`composables/useBacksound.ts`** (baru): satu `Audio` di level modul (dibuat lazily di klien, `loop`, `preload="none"` sehingga file baru diunduh saat pertama diputar), volume 0.3 dengan fade masuk 1.5 detik dan keluar 0.4 detik (`gsap` pada properti `volume`). **Default nyala dan langsung dicoba diputar saat halaman publik dimuat** (permintaan user: tanpa klik). Browser yang mengizinkan autoplay (mis. situs yang sering didengarkan pengunjung) langsung berbunyi; yang menolak (selalu di kunjungan pertama) menolak tanpa error dan musik mulai pada klik/ketukan/tombol pertama di mana saja, atau saat toggle dinyalakan. Tidak ada cara bagi situs untuk memaksa suara tanpa interaksi. Pilihan disimpan di `localStorage` `portfolio:music:v1` (`try/catch`). Berhenti saat tab tersembunyi dan lanjut saat kembali. Reference count seperti Lenis: tetap berjalan melintasi kunjungan Inertia antar-halaman publik, berhenti bila tidak ada halaman publik lagi.
+- **`components/site/MusicToggle.vue`** (baru): tombol bergaya `ThemeToggle`, ikon `Headphones`/`HeadphoneOff`, label "Background music" + `aria-pressed`; di `Navbar.vue` tepat sebelum `ThemeToggle` di **semua halaman publik** (toggle suara Abot tetap hanya di landing).
+- **Uji di build** (CDP, `--autoplay-policy=user-gesture-required`, 1280 light dan 375 mobile dark): sebelum gestur tidak ada pemutaran dan 0 request mp3; klik pertama → diputar, volume naik ke 0.3; toggle off → pause, `off` tersimpan, tetap mati setelah reload walau halaman diklik; toggle on → diputar lagi; kunjungan Inertia ke All Projects → musik terus berjalan tanpa jeda; tab tersembunyi → pause, terlihat lagi → lanjut; tanpa error console.
+  - Uji tambahan: dengan `--autoplay-policy=no-user-gesture-required` musik berbunyi saat halaman dimuat tanpa gestur (volume 0.3); dengan `user-gesture-required` percobaan awal ditolak diam-diam dan klik pertama memulainya.
+
+### [x] Perbaikan: penerbangan Abot ke pojok selalu terlihat (2026-10-30)
+
+Keluhan user: perpindahan robot ke Abot mini kadang tanpa animasi transisi. Penyebab: titik awal penerbangan diukur langsung dari robot hero setiap frame, jadi saat pengunjung terus menggulir (terutama cepat), titik awal ikut keluar layar dan yang terlihat hanya akhir penerbangan; selain itu salinan (`z-40`) berangkat di balik navbar (`z-50`).
+- **`MiniBot.vue`**: titik awal **dibekukan dalam koordinat layar saat lepas landas** (salinan `position: fixed` terbang lepas dari halaman), sementara tujuan tetap diukur langsung. Kotak robot hero **dijepit ke dalam layar, di bawah navbar** (`--nav-h`), baik saat berangkat maupun saat mendarat kembali. Berbalik arah di tengah jalan dimulai dari posisi salinan saat itu. Durasi minimal 0.4 × 0.9 detik. Salinan kini `z-[55]` (di atas navbar) selama terbang; condongnya mengikuti arah.
+- **Uji** (CDP, 1280 dan 375): lompat langsung ke y = 1500 (robot hero ±1230px di atas layar) → salinan berangkat di y = 74 (desktop) / 70 (mobile), tepat di bawah navbar, lalu ke pojok (sebelumnya ±−1300, tak terlihat); jalur balik pojok → hero utuh; skenario R18 (bubble, dialog, Esc, modal, X) dan reduce tetap lolos; tanpa error console.
+

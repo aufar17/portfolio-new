@@ -1,19 +1,16 @@
 /**
- * Geometry of Abot's "A" (HeroBot.vue), shared by everything that draws the
- * letter. Coordinates are in the robot's viewBox (`0 -12 220 240`).
+ * Geometry of Abot (AbotFigure.vue): a chubby toy robot whose outline still
+ * reads as the capital "A" of the logo. The apex is a round dome (the head),
+ * the counter of the A is the short arch between the legs, and the crossbar
+ * is a belt. Coordinates are in the robot's viewBox (`A_VIEWBOX`).
  *
- * Every corner is rounded with a real circular arc. Like the logo, the A has
- * no crossbar of its own: the silhouette is one outline (apex, both feet and
- * the gap between the legs), and the left "circuit" leg and the right solid
- * leg are the same outline clipped either side of the seam that runs from the
- * apex down into the gap.
+ * Like the logo, the left side is a circuit panel and the right side a solid
+ * slab: both are the same outline clipped either side of a seam that runs
+ * from the dome down into the arch.
  */
 type Corner = readonly [x: number, y: number, radius?: number];
 
-/** Outer corners (apex, feet). */
-export const A_RADIUS = 8;
-/** Inner corners (top of the gap between the legs). */
-export const A_RADIUS_INNER = 6;
+export const A_VIEWBOX = '0 -6 240 222';
 
 const round = (value: number) => +value.toFixed(2);
 
@@ -65,60 +62,61 @@ export function roundedPath(corners: readonly Corner[], radius = 0): string {
     return `${d}Z`;
 }
 
-/** The whole letter: apex, right foot, gap between the legs, left foot. */
-export const A_SILHOUETTE = roundedPath([
-    [110, 16, A_RADIUS],
-    [204, 204, A_RADIUS],
-    [181, 204, A_RADIUS],
-    [110, 62, A_RADIUS_INNER],
-    [39, 204, A_RADIUS],
-    [16, 204, A_RADIUS],
-]);
+/**
+ * The whole body: a half-circle dome (centre 120,100, r 66) flaring into a
+ * thick skirt, with a short arch between the two stubby legs.
+ */
+export const A_SILHOUETTE =
+    'M54 100 A66 66 0 0 1 186 100 ' +
+    'C186 138 214 160 222 180 Q226 190 214 190 L140 190 Q133 190 132 183 ' +
+    'C131 172 127 164 120 164 C113 164 109 172 108 183 Q107 190 100 190 ' +
+    'L26 190 Q14 190 18 180 C26 160 54 138 54 100 Z';
 
-// Where the rounded top of the gap meets the right leg's inner edge
-// (tip 110,62 towards the inner foot 181,204; the gap is 2·atan(½) wide).
-const GAP_TANGENT = (() => {
-    const length = Math.hypot(181 - 110, 204 - 62);
-    const t = A_RADIUS_INNER / 0.5;
-
-    return [
-        round(110 + ((181 - 110) / length) * t),
-        round(62 + ((204 - 62) / length) * t),
-    ] as const;
-})();
+/** Top of the arch between the legs. */
+const ARCH_TOP = [120, 164] as const;
 
 /**
- * Halves of the viewBox either side of the seam between the legs: along the
- * leg joint (98,40 → 110,62), on along the right leg's inner edge past the
- * rounded top of the gap (which belongs to the left leg), then straight down
- * through the gap. The right (solid) leg keeps the apex, as in the logo.
+ * Halves of the viewBox either side of the seam: a slanted line from left of
+ * the dome's top down to the top of the arch, then straight down through it.
+ * The right (solid) side keeps the top of the dome, as the logo's slab keeps
+ * the apex.
  */
-const SEAM = `L98 40 L110 62 L${GAP_TANGENT[0]} ${GAP_TANGENT[1]} L${GAP_TANGENT[0]} 250`;
-export const A_SPLIT_LEFT = `M-40 -70 L38 -70 ${SEAM} L-40 250 Z`;
-export const A_SPLIT_RIGHT = `M260 -70 L38 -70 ${SEAM} L260 250 Z`;
+const SEAM = `L93 -20 L${ARCH_TOP[0]} ${ARCH_TOP[1]} L${ARCH_TOP[0]} 240`;
+export const A_SPLIT_LEFT = `M-20 -20 ${SEAM} L-20 240 Z`;
+export const A_SPLIT_RIGHT = `M260 -20 ${SEAM} L260 240 Z`;
 
-/** The visor filling the gap under the apex. */
-export const A_VISOR = roundedPath(
-    [
-        [110, 67],
-        [72, 145],
-        [148, 145],
-    ],
-    A_RADIUS,
-);
+/** Sheen along the solid side: round the dome, then down the skirt. */
+export const A_SHEEN =
+    'M149 50 A58 58 0 0 1 178 100 C179 130 196 150 206 162';
 
-/** Hexagon knee joint on the left leg, from the logo. */
+/** Capsule visor across the dome (ski goggles); `rx` is half the height. */
+export const A_VISOR = { x: 68, y: 72, width: 104, height: 40 } as const;
+
+/** Belt (the crossbar of the A) as a capsule. */
+export const A_CROSSBAR = { x: 38, y: 118, width: 164, height: 22 } as const;
+
+/** Oval feet sticking out either side under the skirt. */
+export const A_FEET = [
+    { cx: 50, cy: 194, rx: 42, ry: 10 },
+    { cx: 190, cy: 194, rx: 42, ry: 10 },
+] as const;
+
+/** Hexagon knee joint on the left (circuit) side, from the logo. */
 export const A_KNEE = roundedPath(
     [
-        [37, 182],
-        [43.1, 185.5],
-        [43.1, 192.5],
-        [37, 196],
-        [30.9, 192.5],
-        [30.9, 185.5],
+        [44, 162],
+        [50.1, 165.5],
+        [50.1, 172.5],
+        [44, 176],
+        [37.9, 172.5],
+        [37.9, 165.5],
     ],
     2,
 );
 
-/** Shoulder panel (the robot's crossbar) as a capsule. */
-export const A_CROSSBAR = { x: 22, y: 148, width: 176, height: 26 } as const;
+// Pivots in viewBox units (`svgOrigin`), so rotations stay put whatever the
+// rendered size.
+export const SHOULDER_LEFT = '40 129';
+export const SHOULDER_RIGHT = '200 129';
+export const FEET = '120 200';
+export const ANTENNA_BASE = '120 34';

@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { provide, reactive, ref, watch } from 'vue';
 import ContactBubble from '@/components/contact/ContactBubble.vue';
 import ContactModal from '@/components/contact/ContactModal.vue';
-import PageTransition from '@/components/site/PageTransition.vue';
-import PourTransition from '@/components/site/PourTransition.vue';
+import MiniBot from '@/components/site/MiniBot.vue';
 import About from '@/components/ui/landing-page/About.vue';
 import Achievements from '@/components/ui/landing-page/Achievements.vue';
 import Hero from '@/components/ui/landing-page/Hero.vue';
 import Projects from '@/components/ui/landing-page/Projects.vue';
 import LandingPageLayout from '@/layouts/LandingPageLayout.vue';
 import { dashboard } from '@/routes';
+import { ABOT_STATE } from '@/script/landingPage/abotState';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -50,6 +50,15 @@ const props = withDefaults(
 );
 
 const isContactOpen = ref(false);
+
+// Shared with the hero robot and the mini Abot (script/landingPage/abotState.ts).
+const abotState = reactive({
+    contactOpen: false,
+    heroDialogOpen: false,
+    heroAway: false,
+});
+watch(isContactOpen, (open) => (abotState.contactOpen = open));
+provide(ABOT_STATE, abotState);
 </script>
 
 <template>
@@ -64,23 +73,20 @@ const isContactOpen = ref(false);
 
     <LandingPageLayout :breadcrumbs="breadcrumbs" :last-role="props.lastRole">
         <Hero :personal="props.personal" :last-role="props.lastRole" />
-        <PourTransition />
         <About
             :works="props.works"
             :educations="props.educations"
             :personal="props.personal"
             :lastRole="props.lastRole"
         />
-        <PageTransition :boundary="0" />
         <Projects
             :projects="props.projects"
             :hard-skills="props.skills.hardSkills"
             :soft-skills="props.skills.softSkills"
         />
-        <PageTransition :boundary="2" />
         <Achievements :achievements="props.achievements" />
-        <PageTransition :boundary="3" />
 
+        <MiniBot :personal="props.personal" :last-role="props.lastRole" />
         <ContactBubble @open="isContactOpen = true" />
         <ContactModal
             :open="isContactOpen"

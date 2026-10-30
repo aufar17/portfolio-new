@@ -11,7 +11,6 @@ import { computed, ref } from 'vue';
 import CtaLink from '@/components/site/CtaLink.vue';
 import DeckMedia from '@/components/site/DeckMedia.vue';
 import DeckShowcase from '@/components/site/DeckShowcase.vue';
-import PageTransition from '@/components/site/PageTransition.vue';
 import Reveal from '@/components/site/Reveal.vue';
 import SectionHeading from '@/components/site/SectionHeading.vue';
 import SegmentedControl from '@/components/site/SegmentedControl.vue';
@@ -121,7 +120,8 @@ useMotion(skillsBox, ({ reduce }) => {
 </script>
 
 <template>
-    <section id="project" class="container-page section-y">
+    <!-- overflow-x-clip: a card being peeled may reach past the screen edge -->
+    <section id="project" class="container-page overflow-x-clip section-y">
         <SectionHeading
             eyebrow="Selected work"
             title="Projects"
@@ -214,10 +214,8 @@ useMotion(skillsBox, ({ reduce }) => {
             <CtaLink :href="allProjects().url">See More Projects</CtaLink>
         </Reveal>
 
-        <PageTransition :boundary="1" class="mt-20 md:mt-24" />
-
-        <!-- Skills -->
-        <div class="mt-16 md:mt-20">
+        <!-- Skills (data-abot-quiet: no mini Abot bubble while in use) -->
+        <div data-abot-quiet class="mt-36 md:mt-44">
             <SectionHeading
                 eyebrow="Toolbox"
                 title="Skills"

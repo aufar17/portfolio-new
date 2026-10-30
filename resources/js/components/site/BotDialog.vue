@@ -2,25 +2,35 @@
 import { X } from 'lucide-vue-next';
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { gsap, prefersReducedMotion } from '@/motion/gsap';
-import type {
-    BotDialogPage,
-    BotGesture,
-} from '@/script/landingPage/botDialog';
+import { abotVoice, unlockVoice } from '@/script/landingPage/abotVoice';
+import type { BotDialogPage, BotGesture } from '@/script/landingPage/botDialog';
 
 /**
- * HUD-style panel for the hero robot's introduction: a non-modal dialog whose
- * pages are typed out with a blinking cursor. The robot (or Next) advances,
- * a click while typing completes the page, and the last page closes itself
- * unless the pointer or focus is inside the panel.
+ * Abot's chat bubble: a non-modal dialog that talks on its own. Each line is
+ * typed out, stays up long enough to read, then "…" shows Abot typing the
+ * next one; after the last line the bubble closes itself. Clicking Abot
+ * hurries it along (finishes the line, or skips to the next). Pointer or
+ * focus on the bubble holds it; × and Esc close it.
  *
- * Screen readers get each page in full at once: a persistent live region
- * announces it and the panel is described by an untyped copy. The typed text
- * is hidden from them. Reduced motion shows the text without typing.
+ * Screen readers get each line in full at once: a persistent live region
+ * announces it and the bubble is described by an untyped copy; the typing
+ * and the dots are hidden from them. Reduced motion shows each line whole.
+ *
+ * Abot speaks in synthesised blips while typing (abotVoice.ts), with chirps
+ * on opening and closing; sound starts with the visitor's own click.
+ *
+ * `placement`: `hero` sits above the hero robot from lg and below it on
+ * smaller screens; `corner` sits above the mini Abot, right-aligned. The
+ * tail points at Abot either way.
  */
-const props = defineProps<{
-    id: string;
-    pages: BotDialogPage[];
-}>();
+const props = withDefaults(
+    defineProps<{
+        id: string;
+        pages: BotDialogPage[];
+        placement?: 'hero' | 'corner';
+    }>(),
+    { placement: 'hero' },
+);
 
 const emit = defineEmits<{
     page: [gesture: BotGesture];
@@ -31,11 +41,19 @@ const emit = defineEmits<{
 const isOpen = defineModel<boolean>('open', { default: false });
 
 const CHARS_PER_SECOND = 40;
-const AUTO_CLOSE_SECONDS = 5;
+/** "…" before the next line, s. */
+const DOTS_SECONDS = 0.8;
+/** The last line stays this long before the bubble closes, s. */
+const LAST_LINE_SECONDS = 5;
+
+/** Long enough to read a line: about 2–5.5 s. */
+const readingTime = (line: string) =>
+    gsap.utils.clamp(2, 5.5, 1.4 + line.length * 0.045);
 
 const index = ref(0);
 const interruption = ref<string | null>(null);
-const typing = ref(false);
+/** typing → reading → dots → (next line) typing … */
+const phase = ref<'typing' | 'reading' | 'dots'>('typing');
 
 const panel = ref<HTMLElement | null>(null);
 const typed = ref<HTMLElement | null>(null);
@@ -51,22 +69,37 @@ const isLast = computed(
 );
 
 let typeTween: gsap.core.Tween | undefined;
-let closeCall: gsap.core.Tween | undefined;
+let stepCall: gsap.core.Tween | undefined;
 let pointerInside = false;
 let focusInside = false;
 
+const held = () => pointerInside || focusInside;
+
 const setSpeaking = (on: boolean) => {
-    if (typing.value !== on) {
-        typing.value = on;
-        emit('speaking', on);
-    }
+    emit('speaking', on);
 };
 
-const scheduleClose = () => {
-    closeCall?.kill();
+/** What comes after a line has been read. */
+const scheduleNext = () => {
+    stepCall?.kill();
 
-    if (isLast.value && !typing.value && !pointerInside && !focusInside) {
-        closeCall = gsap.delayedCall(AUTO_CLOSE_SECONDS, close);
+    if (phase.value !== 'reading' || held()) {
+        return;
+    }
+
+    if (interruption.value) {
+        // Back to the line it was on.
+        stepCall = gsap.delayedCall(readingTime(text.value), () => {
+            interruption.value = null;
+            type();
+        });
+    } else if (isLast.value) {
+        stepCall = gsap.delayedCall(
+            Math.max(LAST_LINE_SECONDS, readingTime(text.value)),
+            close,
+        );
+    } else {
+        stepCall = gsap.delayedCall(readingTime(text.value), nextLine);
     }
 };
 
@@ -79,13 +112,15 @@ const finishTyping = () => {
     }
 
     setSpeaking(false);
-    scheduleClose();
+    phase.value = 'reading';
+    scheduleNext();
 };
 
 const type = async () => {
     typeTween?.kill();
-    closeCall?.kill();
-    // The panel mounts on the tick after opening.
+    stepCall?.kill();
+    phase.value = 'typing';
+    // The bubble (or the text, after the dots) mounts on the next tick.
     await nextTick();
 
     const el = typed.value;
@@ -105,18 +140,35 @@ const type = async () => {
     setSpeaking(true);
 
     const state = { chars: 0 };
+    // A blip every two or three letters, not every one: speech, not noise.
+    let nextBlip = 1;
     typeTween = gsap.to(state, {
         chars: full.length,
         duration: full.length / CHARS_PER_SECOND,
         ease: 'none',
         onUpdate: () => {
-            el.textContent = full.slice(0, Math.round(state.chars));
+            const chars = Math.round(state.chars);
+            el.textContent = full.slice(0, chars);
+
+            if (chars >= nextBlip) {
+                if (full[chars - 1]?.trim()) {
+                    abotVoice.blip();
+                }
+
+                nextBlip = chars + 2 + Math.round(Math.random());
+            }
         },
-        onComplete: finishTyping,
+        onComplete: () => {
+            if (full.trim().endsWith('?')) {
+                abotVoice.blip(true);
+            }
+
+            finishTyping();
+        },
     });
 };
 
-const startPage = () => {
+const startLine = () => {
     const page = props.pages[index.value];
 
     if (page) {
@@ -126,14 +178,33 @@ const startPage = () => {
     type();
 };
 
+/** "…" for a moment, then the next line (straight away under reduced motion). */
+const nextLine = () => {
+    stepCall?.kill();
+
+    if (prefersReducedMotion()) {
+        index.value++;
+        startLine();
+
+        return;
+    }
+
+    phase.value = 'dots';
+    stepCall = gsap.delayedCall(DOTS_SECONDS, () => {
+        index.value++;
+        startLine();
+    });
+};
+
 const close = () => {
     if (!isOpen.value) {
         return;
     }
 
     typeTween?.kill();
-    closeCall?.kill();
+    stepCall?.kill();
     setSpeaking(false);
+    abotVoice.close();
 
     const hadFocus = !!panel.value?.contains(document.activeElement);
     pointerInside = false;
@@ -142,28 +213,40 @@ const close = () => {
     emit('closed', hadFocus);
 };
 
-/** Opens on the first page, then completes / moves on / closes. */
+/**
+ * Opens on the first line; afterwards hurries along: finishes the line being
+ * typed, skips the wait (or the dots) to the next line, or closes after the
+ * last.
+ */
 const advance = () => {
     if (!isOpen.value) {
+        // Opened by the visitor's click or key: sound may start now.
+        unlockVoice();
+        abotVoice.open();
         isOpen.value = true;
         index.value = 0;
         interruption.value = null;
-        startPage();
-    } else if (typing.value) {
+        startLine();
+    } else if (phase.value === 'typing') {
         finishTyping();
     } else if (interruption.value) {
         interruption.value = null;
         type();
+    } else if (phase.value === 'dots') {
+        stepCall?.kill();
+        index.value++;
+        startLine();
     } else if (index.value < props.pages.length - 1) {
         index.value++;
-        startPage();
+        startLine();
     } else {
         close();
     }
 };
 
-/** Shows a one-off message; the next advance returns to the current page. */
+/** Says a one-off line, then goes back to the line it was on. */
 const interrupt = (message: string) => {
+    abotVoice.dizzy();
     isOpen.value = true;
     interruption.value = message;
     type();
@@ -173,20 +256,20 @@ defineExpose({ advance, interrupt, close });
 
 const onPointerEnter = () => {
     pointerInside = true;
-    closeCall?.kill();
+    stepCall?.kill();
 };
 const onPointerLeave = () => {
     pointerInside = false;
-    scheduleClose();
+    scheduleNext();
 };
 const onFocusIn = () => {
     focusInside = true;
-    closeCall?.kill();
+    stepCall?.kill();
 };
 const onFocusOut = (event: FocusEvent) => {
     if (!panel.value?.contains(event.relatedTarget as Node | null)) {
         focusInside = false;
-        scheduleClose();
+        scheduleNext();
     }
 };
 
@@ -204,9 +287,34 @@ watch(isOpen, (open) => {
     }
 });
 
+// The bubble eases to its new size when a line or the dots replace another.
+watch(
+    [phase, text],
+    async () => {
+        const el = panel.value;
+
+        if (!el || prefersReducedMotion()) {
+            return;
+        }
+
+        const from = el.offsetHeight;
+        await nextTick();
+        const to = el.offsetHeight;
+
+        if (from && from !== to) {
+            gsap.fromTo(
+                el,
+                { height: from },
+                { height: to, duration: 0.25, clearProps: 'height' },
+            );
+        }
+    },
+    { flush: 'pre' },
+);
+
 onBeforeUnmount(() => {
     typeTween?.kill();
-    closeCall?.kill();
+    stepCall?.kill();
     document.removeEventListener('keydown', onKeydown);
 });
 
@@ -219,19 +327,13 @@ const onEnter = (el: Element, done: () => void) => {
 
     gsap.fromTo(
         el,
-        {
-            opacity: 0,
-            y: 8,
-            scale: 0.98,
-            clipPath: 'inset(0% 0% 100% 0% round 1rem)',
-        },
+        { opacity: 0, y: props.placement === 'corner' ? 10 : 8, scale: 0.92 },
         {
             opacity: 1,
             y: 0,
             scale: 1,
-            clipPath: 'inset(0% 0% 0% 0% round 1rem)',
-            duration: 0.25,
-            clearProps: 'all',
+            duration: 0.3,
+            clearProps: 'opacity,transform',
             onComplete: done,
         },
     );
@@ -246,8 +348,8 @@ const onLeave = (el: Element, done: () => void) => {
 
     gsap.to(el, {
         opacity: 0,
-        y: 8,
-        scale: 0.98,
+        y: 6,
+        scale: 0.95,
         duration: 0.2,
         onComplete: done,
     });
@@ -256,7 +358,7 @@ const onLeave = (el: Element, done: () => void) => {
 
 <template>
     <div>
-        <!-- Always mounted so the first page is announced as well -->
+        <!-- Always mounted so the first line is announced as well -->
         <p class="sr-only" aria-live="polite">{{ isOpen ? text : '' }}</p>
 
         <Transition :css="false" @enter="onEnter" @leave="onLeave">
@@ -268,87 +370,72 @@ const onLeave = (el: Element, done: () => void) => {
                 aria-modal="false"
                 :aria-labelledby="titleId"
                 :aria-describedby="textId"
-                class="absolute inset-x-0 top-full z-10 mx-auto mt-3 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-primary/30 bg-card/95 p-4 text-left shadow-elevated backdrop-blur-md lg:top-auto lg:bottom-[94%] lg:mt-0"
+                class="absolute z-10 rounded-3xl border border-border bg-card py-3 pr-9 pl-4 text-left shadow-elevated"
+                :class="
+                    placement === 'corner'
+                        ? 'right-0 bottom-full mb-4 w-[min(20rem,calc(100vw-2.5rem))] origin-bottom-right'
+                        : 'inset-x-0 top-full mx-auto mt-4 w-[min(20rem,calc(100vw-2rem))] origin-top lg:top-auto lg:bottom-[96%] lg:mt-0 lg:origin-bottom'
+                "
                 @pointerenter="onPointerEnter"
                 @pointerleave="onPointerLeave"
                 @focusin="onFocusIn"
                 @focusout="onFocusOut"
             >
-                <!-- HUD corner brackets -->
-                <span
-                    class="pointer-events-none absolute -top-px -left-px size-4 rounded-tl-2xl border-t-2 border-l-2 border-primary"
-                    aria-hidden="true"
-                />
-                <span
-                    class="pointer-events-none absolute -top-px -right-px size-4 rounded-tr-2xl border-t-2 border-r-2 border-primary"
-                    aria-hidden="true"
-                />
-                <span
-                    class="pointer-events-none absolute -bottom-px -left-px size-4 rounded-bl-2xl border-b-2 border-l-2 border-primary"
-                    aria-hidden="true"
-                />
-                <span
-                    class="pointer-events-none absolute -right-px -bottom-px size-4 rounded-br-2xl border-r-2 border-b-2 border-primary"
-                    aria-hidden="true"
-                />
-
-                <div class="flex items-center justify-between gap-3">
-                    <p
-                        :id="titleId"
-                        class="flex items-center gap-2 text-[0.6875rem] font-semibold tracking-[0.2em] text-primary-strong uppercase"
-                    >
-                        <span
-                            class="size-1.5 rounded-full bg-brand-red"
-                            aria-hidden="true"
-                        />
-                        Abot · Online
-                    </p>
-                    <button
-                        type="button"
-                        class="-m-1.5 grid size-7 place-items-center rounded-full text-muted-foreground focus-ring transition-colors hover:text-foreground"
-                        aria-label="Close"
-                        @click="close"
-                    >
-                        <X class="size-4" aria-hidden="true" />
-                    </button>
-                </div>
-
+                <p :id="titleId" class="sr-only">Abot</p>
                 <p :id="textId" class="sr-only">{{ text }}</p>
 
-                <!-- The invisible copy reserves the page's full height, so the
-                     panel doesn't grow while typing. -->
+                <button
+                    type="button"
+                    class="absolute top-2 right-2 grid size-6 place-items-center rounded-full text-muted-foreground focus-ring transition-colors hover:text-foreground"
+                    aria-label="Close"
+                    @click="close"
+                >
+                    <X class="size-3.5" aria-hidden="true" />
+                </button>
+
+                <!-- Abot typing the next line -->
+                <span
+                    v-if="phase === 'dots'"
+                    class="flex h-[1.625rem] items-center gap-1"
+                    aria-hidden="true"
+                >
+                    <span
+                        v-for="i in 3"
+                        :key="i"
+                        class="size-1.5 animate-bounce rounded-full bg-primary/60 motion-reduce:animate-none"
+                        :style="{ animationDelay: `${(i - 1) * 120}ms` }"
+                    />
+                </span>
+
+                <!-- The invisible copy reserves the line's full height, so
+                     the bubble doesn't grow while typing. -->
                 <p
-                    class="mt-2.5 grid text-sm leading-relaxed text-foreground"
+                    v-else
+                    class="grid text-sm leading-relaxed text-foreground"
                     aria-hidden="true"
                 >
                     <span class="invisible col-start-1 row-start-1">
-                        {{ text }}&nbsp;
+                        {{ text }}
                     </span>
-                    <span class="col-start-1 row-start-1">
-                        <span ref="typed" />
-                        <span
-                            class="ml-0.5 inline-block h-[1.1em] w-0.5 translate-y-[0.2em] animate-caret bg-primary motion-reduce:animate-none"
-                        />
-                    </span>
+                    <span ref="typed" class="col-start-1 row-start-1" />
                 </p>
 
-                <div class="mt-3 flex items-center justify-between gap-3">
-                    <span class="flex gap-1.5" aria-hidden="true">
-                        <span
-                            v-for="(page, i) in pages"
-                            :key="i"
-                            class="size-1.5 rounded-full transition-colors duration-200"
-                            :class="i === index ? 'bg-primary' : 'bg-primary/25'"
-                        />
-                    </span>
-                    <button
-                        type="button"
-                        class="rounded-full bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground focus-ring transition-[filter] duration-200 hover:brightness-110"
-                        @click="advance"
-                    >
-                        {{ isLast ? 'Close' : 'Next' }}
-                    </button>
-                </div>
+                <!-- The tail, pointing at Abot -->
+                <span
+                    v-if="placement === 'corner'"
+                    class="absolute right-[1.3rem] -bottom-[7px] size-3.5 rotate-45 rounded-br-[4px] border-r border-b border-border bg-card"
+                    aria-hidden="true"
+                />
+                <template v-else>
+                    <span
+                        class="absolute -top-[7px] left-1/2 size-3.5 -translate-x-1/2 rotate-45 rounded-tl-[4px] border-t border-l border-border bg-card lg:hidden"
+                        aria-hidden="true"
+                    />
+                    <span
+                        class="absolute -bottom-[7px] left-1/2 hidden size-3.5 -translate-x-1/2 rotate-45 rounded-br-[4px] border-r border-b border-border bg-card lg:block"
+                        aria-hidden="true"
+                    />
+                </template>
             </div>
         </Transition>
     </div>

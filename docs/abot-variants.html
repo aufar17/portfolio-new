@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Varian Abot (R15)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+    /*
+     * Static preview for R15 (docs/animation-plan.md §6). Not imported or
+     * built. Token values are copied as-is from resources/css/app.css
+     * (:root = light, .dark = dark); the robots only use them through the
+     * utility-like classes below, as HeroBot.vue does.
+     */
+    .theme-light {
+        --background: hsl(220 20% 97%);
+        --foreground: hsl(222 47% 11%);
+        --card: hsl(0 0% 100%);
+        --muted-foreground: hsl(220 9% 40%);
+        --primary: hsl(217, 65%, 43%);
+        --primary-foreground: hsl(0 0% 98%);
+        --primary-strong: var(--primary);
+        --border: hsl(220 13% 89%);
+        --brand-red: hsl(345 80% 56%);
+    }
+
+    .theme-dark {
+        --background: hsl(222 25% 6%);
+        --foreground: hsl(210 20% 96%);
+        --card: hsl(222 22% 9%);
+        --muted-foreground: hsl(218 12% 66%);
+        --primary: hsl(217, 65%, 43%);
+        --primary-foreground: hsl(0 0% 98%);
+        --primary-strong: color-mix(in oklab, var(--primary) 62%, white);
+        --border: hsl(222 16% 17%);
+        --brand-red: hsl(343 58% 48%);
+    }
+
+    .fill-primary { fill: var(--primary); }
+    .fill-primary-foreground { fill: var(--primary-foreground); }
+    .fill-card { fill: var(--card); }
+    .fill-foreground { fill: var(--foreground); }
+    .fill-brand-red { fill: var(--brand-red); }
+    .fill-none { fill: none; }
+    .stroke-primary { stroke: var(--primary); }
+    .stroke-primary-foreground { stroke: var(--primary-foreground); }
+    .stroke-border { stroke: var(--border); }
+    .stroke-card { stroke: var(--card); }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        padding: 32px 16px 64px;
+        font-family: Poppins, system-ui, sans-serif;
+        background: hsl(220 14% 90%);
+        color: hsl(222 47% 11%);
+    }
+
+    main { max-width: 1200px; margin: 0 auto; }
+
+    h1 { margin: 0 0 8px; font-size: 1.75rem; }
+    h2 { margin: 0; font-size: 1.25rem; }
+    p { margin: 0; line-height: 1.6; }
+
+    .intro { margin-bottom: 32px; max-width: 70ch; color: hsl(220 9% 30%); }
+
+    .variant {
+        margin-top: 40px;
+        padding: 24px;
+        border-radius: 24px;
+        background: hsl(0 0% 100%);
+        box-shadow: 0 6px 24px -12px hsl(222 47% 11% / 0.25);
+    }
+
+    .variant header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+    .variant .ratio { font-size: 0.875rem; font-weight: 600; color: hsl(217 65% 43%); }
+    .variant .desc { margin-top: 8px; color: hsl(220 9% 35%); font-size: 0.95rem; }
+
+    .panels { display: grid; gap: 16px; margin-top: 20px; }
+
+    .panel {
+        position: relative;
+        border-radius: 20px;
+        padding: 20px 20px 28px;
+        background: var(--background);
+        color: var(--foreground);
+        border: 1px solid var(--border);
+    }
+
+    .panel .label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted-foreground);
+    }
+
+    .row {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        gap: 12px;
+        margin-top: 16px;
+        overflow-x: auto;
+    }
+
+    figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    figcaption { font-size: 0.75rem; color: var(--muted-foreground); white-space: nowrap; }
+
+    svg.bot {
+        display: block;
+        width: auto;
+        overflow: visible;
+        filter: drop-shadow(0 14px 24px color-mix(in oklab, var(--primary) 22%, transparent));
+    }
+
+    svg.bot.mini .detail { display: none; }
+</style>
+</head>
+<body>
+<main>
+    <h1>Abot — 3 varian bentuk (R15)</h1>
+    <p class="intro">
+        Target: robot gemuk, ramah, seperti mainan, tetapi siluetnya tetap terbaca sebagai huruf A.
+        Kubah kepala adalah puncak A, celah di antara kaki adalah lubang A, sabuk adalah palang A.
+        Ciri logo dipertahankan: kaki kiri berupa panel sirkuit, sisi kanan solid biru.
+        Tiap varian ditampilkan dalam tiga ukuran: 56px (Abot mini R18), 144px (tablet), dan 320px (desktop besar),
+        di tema light dan dark. Di ukuran 56px detail kecil (sirkuit, lutut, kilap) disembunyikan.
+        Pilih V1, V2, atau V3, atau sebutkan bagian yang ingin dicampur.
+    </p>
+
+    <section class="variant" data-variant="v1">
+        <header>
+            <h2>V1 — "Gumdrop"</h2>
+            <span class="ratio">lebar : tinggi ≈ 1.1 : 1</span>
+        </header>
+        <p class="desc">
+            Kaki tebal dengan tepi luar menggembung seperti permen jeli, celah kaki berbentuk lengkung pintu yang pendek,
+            kubah kepala besar menyatu ke kaki tanpa leher, visor kapsul horizontal, sabuk tepat di atas lengkung pintu,
+            telapak bulat.
+        </p>
+        <div class="panels"></div>
+    </section>
+
+    <section class="variant" data-variant="v2">
+        <header>
+            <h2>V2 — "Lonceng" · dipilih (kubah setengah lingkaran)</h2>
+            <span class="ratio">lebar : tinggi ≈ 1.2 : 1</span>
+        </header>
+        <p class="desc">
+            Siluet montok seperti lonceng: kubah melebar ke "rok" tebal, kaki sangat pendek dengan celah sempit,
+            visor lebar seperti kacamata ski tepat di atas sabuk, telapak oval besar mencuat ke samping. Paling "mainan".
+        </p>
+        <div class="panels"></div>
+    </section>
+
+    <section class="variant" data-variant="v3">
+        <header>
+            <h2>V3 — "Langkah"</h2>
+            <span class="ratio">lebar : tinggi ≈ 1 : 1</span>
+        </header>
+        <p class="desc">
+            Kubah kepala sedikit terpisah (lekuk leher tipis), kaki tebal sedikit mengangkang dengan lekuk lutut ke dalam,
+            visor melengkung mengikuti kubah, telapak bulat besar seperti sepatu bot. Paling jelas terbaca sebagai A.
+        </p>
+        <div class="panels"></div>
+    </section>
+</main>
+
+<!--
+    One template per variant. `UID` is replaced per copy so clip-path ids stay
+    unique. Parts that the R2–R3 motion needs keep their HeroBot names in
+    data-part: body, antenna, halo, visor, eyes, eye-left/right, arm-left/right,
+    shadow. `.detail` is hidden at the mini size.
+-->
+<template id="v1">
+    <svg class="bot" viewBox="0 -16 240 236" aria-hidden="true">
+        <ellipse data-part="shadow" cx="120" cy="212" rx="96" ry="5" class="fill-foreground" fill-opacity="0.1" />
+        <g data-part="body">
+            <g data-part="antenna">
+                <rect x="118" y="-4" width="4" height="26" rx="2" class="fill-primary" />
+                <circle data-part="halo" cx="120" cy="-6" r="6" class="fill-brand-red" opacity="0.35" />
+                <circle cx="120" cy="-6" r="6" class="fill-brand-red" />
+            </g>
+
+            <defs>
+                <clipPath id="UID-left"><path d="M-20 -20 L93 -20 L120 148 L120 240 L-20 240 Z" /></clipPath>
+                <clipPath id="UID-right"><path d="M260 -20 L93 -20 L120 148 L120 240 L260 240 Z" /></clipPath>
+            </defs>
+
+            <!-- Feet -->
+            <ellipse cx="63" cy="202" rx="33" ry="9" class="fill-primary" />
+            <ellipse cx="177" cy="202" rx="33" ry="9" class="fill-primary" />
+
+            <!-- Silhouette: dome + bulging legs + door-arch gap -->
+            <path
+               
+                d="M120 18 C160 18 186 44 188 78 C191 112 222 150 208 190 Q205 198 195 198 L156 198 Q147 198 146 189 C144 166 134 148 120 148 C106 148 96 166 94 189 Q93 198 84 198 L45 198 Q35 198 32 190 C18 150 49 112 52 78 C54 44 80 18 120 18 Z"
+                clip-path="url(#UID-left)"
+                stroke-width="2"
+                stroke-linejoin="round"
+                class="fill-card stroke-border"
+            />
+            <path
+                d="M120 18 C160 18 186 44 188 78 C191 112 222 150 208 190 Q205 198 195 198 L156 198 Q147 198 146 189 C144 166 134 148 120 148 C106 148 96 166 94 189 Q93 198 84 198 L45 198 Q35 198 32 190 C18 150 49 112 52 78 C54 44 80 18 120 18 Z"
+                clip-path="url(#UID-right)"
+                class="fill-primary"
+            />
+
+            <!-- Circuit traces + knee on the left leg -->
+            <g class="detail fill-none stroke-primary" stroke-width="2.5" stroke-linecap="round">
+                <path d="M84 154 L70 180" />
+                <path d="M70 154 L58 174" />
+            </g>
+            <g class="detail fill-primary">
+                <circle cx="70" cy="180" r="3" />
+                <circle cx="58" cy="174" r="3" />
+                <path d="M44 156 L50 159.5 L50 166.5 L44 170 L38 166.5 L38 159.5 Z" stroke-linejoin="round" />
+            </g>
+            <!-- Sheen on the solid side -->
+            <path class="detail fill-none stroke-primary-foreground" d="M190 96 C200 122 208 152 204 178" stroke-width="3" stroke-linecap="round" stroke-opacity="0.25" />
+
+            <!-- Visor -->
+            <g data-part="visor">
+                <rect x="78" y="56" width="84" height="42" rx="21" stroke-width="5" class="fill-primary stroke-card" />
+                <path class="detail fill-none stroke-primary-foreground" d="M90 74 Q92 66 100 64" stroke-width="3" stroke-linecap="round" stroke-opacity="0.5" />
+                <g data-part="eyes">
+                    <rect data-part="eye-left" x="101" y="66" width="10" height="18" rx="5" class="fill-primary-foreground" />
+                    <rect data-part="eye-right" x="129" y="66" width="10" height="18" rx="5" class="fill-primary-foreground" />
+                </g>
+                <circle class="detail fill-brand-red" cx="92" cy="88" r="3.5" fill-opacity="0.65" />
+                <circle class="detail fill-brand-red" cx="148" cy="88" r="3.5" fill-opacity="0.65" />
+            </g>
+
+            <!-- Arms from the ends of the belt -->
+            <g data-part="arm-left">
+                <g transform="rotate(50 24 131)">
+                    <rect x="18" y="130" width="12" height="28" rx="6" class="fill-primary" />
+                    <circle cx="24" cy="161" r="6.5" stroke-width="2" class="fill-card stroke-border" />
+                </g>
+            </g>
+            <g data-part="arm-right">
+                <g transform="rotate(-50 216 131)">
+                    <rect x="210" y="130" width="12" height="28" rx="6" class="fill-primary" />
+                    <circle cx="216" cy="161" r="6.5" stroke-width="2" class="fill-card stroke-border" />
+                </g>
+            </g>
+
+            <!-- Belt = crossbar of the A -->
+            <rect x="22" y="118" width="196" height="26" rx="13" stroke-width="2" class="fill-card stroke-border" />
+            <circle cx="24" cy="131" r="4" class="fill-primary" />
+            <circle cx="216" cy="131" r="4" class="fill-primary" />
+            <circle cx="108" cy="131" r="3.5" class="fill-primary" />
+            <circle cx="120" cy="131" r="3.5" class="fill-brand-red" />
+            <circle cx="132" cy="131" r="3.5" class="fill-primary" fill-opacity="0.45" />
+        </g>
+    </svg>
+</template>
+
+<template id="v2">
+    <svg class="bot" viewBox="0 -8 240 222" aria-hidden="true">
+        <ellipse data-part="shadow" cx="120" cy="207" rx="106" ry="5" class="fill-foreground" fill-opacity="0.1" />
+        <g data-part="body">
+            <g data-part="antenna">
+                <rect x="118" y="10" width="4" height="26" rx="2" class="fill-primary" />
+                <circle data-part="halo" cx="120" cy="8" r="6" class="fill-brand-red" opacity="0.35" />
+                <circle cx="120" cy="8" r="6" class="fill-brand-red" />
+            </g>
+
+            <defs>
+                <clipPath id="UID-left"><path d="M-20 -20 L93 -20 L120 164 L120 240 L-20 240 Z" /></clipPath>
+                <clipPath id="UID-right"><path d="M260 -20 L93 -20 L120 164 L120 240 L260 240 Z" /></clipPath>
+            </defs>
+
+            <!-- Big oval feet, sticking out sideways -->
+            <ellipse cx="50" cy="194" rx="42" ry="10" class="fill-primary" />
+            <ellipse cx="190" cy="194" rx="42" ry="10" class="fill-primary" />
+
+            <!-- Silhouette: dome flaring into a thick skirt, short narrow gap -->
+            <path
+                d="M54 100 A66 66 0 0 1 186 100 C186 138 214 160 222 180 Q226 190 214 190 L140 190 Q133 190 132 183 C131 172 127 164 120 164 C113 164 109 172 108 183 Q107 190 100 190 L26 190 Q14 190 18 180 C26 160 54 138 54 100 Z"
+                clip-path="url(#UID-left)"
+                stroke-width="2"
+                stroke-linejoin="round"
+                class="fill-card stroke-border"
+            />
+            <path
+                d="M54 100 A66 66 0 0 1 186 100 C186 138 214 160 222 180 Q226 190 214 190 L140 190 Q133 190 132 183 C131 172 127 164 120 164 C113 164 109 172 108 183 Q107 190 100 190 L26 190 Q14 190 18 180 C26 160 54 138 54 100 Z"
+                clip-path="url(#UID-right)"
+                class="fill-primary"
+            />
+
+            <g class="detail fill-none stroke-primary" stroke-width="2.5" stroke-linecap="round">
+                <path d="M92 152 L82 176" />
+                <path d="M78 150 L64 172" />
+            </g>
+            <g class="detail fill-primary">
+                <circle cx="82" cy="176" r="3" />
+                <circle cx="64" cy="172" r="3" />
+                <path d="M44 162 L50 165.5 L50 172.5 L44 176 L38 172.5 L38 165.5 Z" />
+            </g>
+            <path class="detail fill-none stroke-primary-foreground" d="M149 50 A58 58 0 0 1 178 100 C179 130 196 150 206 162" stroke-width="3" stroke-linecap="round" stroke-opacity="0.25" />
+
+            <!-- Wide ski-goggle visor -->
+            <g data-part="visor">
+                <rect x="68" y="72" width="104" height="40" rx="20" stroke-width="5" class="fill-primary stroke-card" />
+                <path class="detail fill-none stroke-primary-foreground" d="M80 90 Q82 82 90 80" stroke-width="3" stroke-linecap="round" stroke-opacity="0.5" />
+                <g data-part="eyes">
+                    <rect data-part="eye-left" x="101" y="83" width="10" height="18" rx="5" class="fill-primary-foreground" />
+                    <rect data-part="eye-right" x="129" y="83" width="10" height="18" rx="5" class="fill-primary-foreground" />
+                </g>
+                <circle class="detail fill-brand-red" cx="84" cy="102" r="3.5" fill-opacity="0.65" />
+                <circle class="detail fill-brand-red" cx="156" cy="102" r="3.5" fill-opacity="0.65" />
+            </g>
+
+            <g data-part="arm-left">
+                <g transform="rotate(50 40 129)">
+                    <rect x="34" y="128" width="12" height="26" rx="6" class="fill-primary" />
+                    <circle cx="40" cy="157" r="6.5" stroke-width="2" class="fill-card stroke-border" />
+                </g>
+            </g>
+            <g data-part="arm-right">
+                <g transform="rotate(-50 200 129)">
+                    <rect x="194" y="128" width="12" height="26" rx="6" class="fill-primary" />
+                    <circle cx="200" cy="157" r="6.5" stroke-width="2" class="fill-card stroke-border" />
+                </g>
+            </g>
+
+            <rect x="38" y="118" width="164" height="22" rx="11" stroke-width="2" class="fill-card stroke-border" />
+            <circle cx="40" cy="129" r="4" class="fill-primary" />
+            <circle cx="200" cy="129" r="4" class="fill-primary" />
+            <circle cx="108" cy="129" r="3.5" class="fill-primary" />
+            <circle cx="120" cy="129" r="3.5" class="fill-brand-red" />
+            <circle cx="132" cy="129" r="3.5" class="fill-primary" fill-opacity="0.45" />
+        </g>
+    </svg>
+</template>
+
+<template id="v3">
+    <svg class="bot" viewBox="0 -22 240 240" aria-hidden="true">
+        <ellipse data-part="shadow" cx="120" cy="210" rx="92" ry="5" class="fill-foreground" fill-opacity="0.1" />
+        <g data-part="body">
+            <g data-part="antenna">
+                <rect x="118" y="-8" width="4" height="26" rx="2" class="fill-primary" />
+                <circle data-part="halo" cx="120" cy="-10" r="6" class="fill-brand-red" opacity="0.35" />
+                <circle cx="120" cy="-10" r="6" class="fill-brand-red" />
+            </g>
+
+            <defs>
+                <clipPath id="UID-left"><path d="M-20 -20 L98 -20 L120 126 L120 240 L-20 240 Z" /></clipPath>
+                <clipPath id="UID-right"><path d="M260 -20 L98 -20 L120 126 L120 240 L260 240 Z" /></clipPath>
+            </defs>
+
+            <!-- Round boots -->
+            <ellipse cx="66" cy="195" rx="32" ry="12" class="fill-primary" />
+            <ellipse cx="174" cy="195" rx="32" ry="12" class="fill-primary" />
+
+            <!-- Silhouette: dome head with a slight neck, splayed legs bending in at the knee -->
+            <path
+                d="M120 14 C150 14 172 34 172 62 C172 74 166 80 164 86 C184 100 202 140 200 176 Q199 190 186 190 L160 190 Q148 190 148 180 C148 168 134 160 132 146 C131 134 126 126 120 126 C114 126 109 134 108 146 C106 160 92 168 92 180 Q92 190 80 190 L54 190 Q41 190 40 176 C38 140 56 100 76 86 C74 80 68 74 68 62 C68 34 90 14 120 14 Z"
+                clip-path="url(#UID-left)"
+                stroke-width="2"
+                stroke-linejoin="round"
+                class="fill-card stroke-border"
+            />
+            <path
+                d="M120 14 C150 14 172 34 172 62 C172 74 166 80 164 86 C184 100 202 140 200 176 Q199 190 186 190 L160 190 Q148 190 148 180 C148 168 134 160 132 146 C131 134 126 126 120 126 C114 126 109 134 108 146 C106 160 92 168 92 180 Q92 190 80 190 L54 190 Q41 190 40 176 C38 140 56 100 76 86 C74 80 68 74 68 62 C68 34 90 14 120 14 Z"
+                clip-path="url(#UID-right)"
+                class="fill-primary"
+            />
+
+            <g class="detail fill-none stroke-primary" stroke-width="2.5" stroke-linecap="round">
+                <path d="M88 122 L74 150" />
+                <path d="M98 134 L86 162" />
+            </g>
+            <g class="detail fill-primary">
+                <circle cx="74" cy="150" r="3" />
+                <circle cx="86" cy="162" r="3" />
+                <path d="M60 162 L66 165.5 L66 172.5 L60 176 L54 172.5 L54 165.5 Z" />
+            </g>
+            <path class="detail fill-none stroke-primary-foreground" d="M180 112 C190 132 196 152 194 172" stroke-width="3" stroke-linecap="round" stroke-opacity="0.25" />
+
+            <!-- Visor curving with the dome: a thick round-capped stroke with a card rim -->
+            <g data-part="visor">
+                <path d="M92 58 Q120 42 148 58" stroke-width="38" stroke-linecap="round" class="fill-none stroke-card" />
+                <path d="M92 58 Q120 42 148 58" stroke-width="30" stroke-linecap="round" class="fill-none stroke-primary" />
+                <path class="detail fill-none stroke-primary-foreground" d="M84 56 Q86 48 93 45" stroke-width="3" stroke-linecap="round" stroke-opacity="0.5" />
+                <g data-part="eyes">
+                    <rect data-part="eye-left" x="101" y="42" width="10" height="17" rx="5" class="fill-primary-foreground" />
+                    <rect data-part="eye-right" x="129" y="42" width="10" height="17" rx="5" class="fill-primary-foreground" />
+                </g>
+                <circle class="detail fill-brand-red" cx="92" cy="66" r="3.5" fill-opacity="0.65" />
+                <circle class="detail fill-brand-red" cx="148" cy="66" r="3.5" fill-opacity="0.65" />
+            </g>
+
+            <g data-part="arm-left">
+                <g transform="rotate(50 46 101)">
+                    <rect x="40" y="100" width="12" height="28" rx="6" class="fill-primary" />
+                    <circle cx="46" cy="131" r="6.5" stroke-width="2" class="fill-card stroke-border" />
+                </g>
+            </g>
+            <g data-part="arm-right">
+                <g transform="rotate(-50 194 101)">
+                    <rect x="188" y="100" width="12" height="28" rx="6" class="fill-primary" />
+                    <circle cx="194" cy="131" r="6.5" stroke-width="2" class="fill-card stroke-border" />
+                </g>
+            </g>
+
+            <rect x="44" y="90" width="152" height="22" rx="11" stroke-width="2" class="fill-card stroke-border" />
+            <circle cx="46" cy="101" r="4" class="fill-primary" />
+            <circle cx="194" cy="101" r="4" class="fill-primary" />
+            <circle cx="108" cy="101" r="3.5" class="fill-primary" />
+            <circle cx="120" cy="101" r="3.5" class="fill-brand-red" />
+            <circle cx="132" cy="101" r="3.5" class="fill-primary" fill-opacity="0.45" />
+        </g>
+    </svg>
+</template>
+
+<script>
+    // Fill every variant with light and dark panels at the three sizes.
+    const SIZES = [
+        { px: 56, label: '56px · mini (R18)', mini: true },
+        { px: 144, label: '144px · md:h-36' },
+        { px: 320, label: '320px · xl:h-80' },
+    ];
+    const THEMES = [
+        { cls: 'theme-light', label: 'Light' },
+        { cls: 'theme-dark', label: 'Dark' },
+    ];
+    let count = 0;
+
+    document.querySelectorAll('.variant').forEach((section) => {
+        const template = document.getElementById(section.dataset.variant);
+        const panels = section.querySelector('.panels');
+
+        THEMES.forEach((theme) => {
+            const panel = document.createElement('div');
+            panel.className = `panel ${theme.cls}`;
+            panel.innerHTML = `<div class="label">${theme.label}</div><div class="row"></div>`;
+
+            SIZES.forEach((size) => {
+                const uid = `bot${count++}`;
+                const figure = document.createElement('figure');
+                figure.innerHTML =
+                    template.innerHTML.replaceAll('UID', uid) +
+                    `<figcaption>${size.label}</figcaption>`;
+
+                const svg = figure.querySelector('svg');
+                svg.style.height = `${size.px}px`;
+                svg.classList.toggle('mini', !!size.mini);
+                panel.querySelector('.row').append(figure);
+            });
+
+            panels.append(panel);
+        });
+    });
+</script>
+</body>
+</html>

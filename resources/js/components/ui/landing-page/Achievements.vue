@@ -27,7 +27,8 @@ withDefaults(
 </script>
 
 <template>
-    <section id="achievement" class="container-page section-y">
+    <!-- overflow-x-clip: a card being peeled may reach past the screen edge -->
+    <section id="achievement" class="container-page overflow-x-clip section-y">
         <SectionHeading
             eyebrow="Recognition"
             title="Achievements"
@@ -120,7 +121,9 @@ withDefaults(
                     :href="achievementsDetail(item.slug).url"
                     :image="storageUrl(item.photo)"
                     :alt="item.title"
-                    :transition-name="mediaTransitionName('achievement', item.id)"
+                    :transition-name="
+                        mediaTransitionName('achievement', item.id)
+                    "
                 >
                     <template #fallback>
                         <FileBadge

@@ -67,7 +67,7 @@ const isOpen = computed({
                                 :href="contact.link"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="group relative flex items-center gap-4 overflow-hidden rounded-xl border border-border bg-card/60 px-4 py-3 focus-ring transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-soft"
+                                class="group relative flex items-center gap-4 overflow-hidden rounded-xl border border-border bg-card/60 px-4 py-3 focus-ring transition-[border-color,box-shadow] duration-300 ease-out-expo hover:border-primary/40 hover:shadow-soft"
                             >
                                 <span
                                     class="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
